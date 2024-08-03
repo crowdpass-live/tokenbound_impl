@@ -1,0 +1,380 @@
+[
+    {
+      "type": "impl",
+      "name": "EventContractImpl",
+      "interface_name": "token_bound::event_contract::IEventContract"
+    },
+    {
+      "type": "struct",
+      "name": "core::integer::u256",
+      "members": [
+        {
+          "name": "low",
+          "type": "core::integer::u128"
+        },
+        {
+          "name": "high",
+          "type": "core::integer::u128"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "core::bool",
+      "variants": [
+        {
+          "name": "False",
+          "type": "()"
+        },
+        {
+          "name": "True",
+          "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "token_bound::event_contract::Events",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "theme",
+          "type": "core::felt252"
+        },
+        {
+          "name": "organizer",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "event_type",
+          "type": "core::felt252"
+        },
+        {
+          "name": "total_tickets",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "tickets_sold",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "ticket_price",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "start_date",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "end_date",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "is_canceled",
+          "type": "core::bool"
+        },
+        {
+          "name": "event_ticket_addr",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "token_bound::event_contract::IEventContract",
+      "items": [
+        {
+          "type": "function",
+          "name": "create_event",
+          "inputs": [
+            {
+              "name": "_theme",
+              "type": "core::felt252"
+            },
+            {
+              "name": "_event_type",
+              "type": "core::felt252"
+            },
+            {
+              "name": "_start_date",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "_end_date",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "_ticket_price",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "_total_tickets",
+              "type": "core::integer::u256"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "reschedule_event",
+          "inputs": [
+            {
+              "name": "_event_id",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "_start_date",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "_end_date",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "cancel_event",
+          "inputs": [
+            {
+              "name": "_event_id",
+              "type": "core::integer::u32"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "purchase_ticket",
+          "inputs": [
+            {
+              "name": "_event_id",
+              "type": "core::integer::u32"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "claim_ticket_refund",
+          "inputs": [
+            {
+              "name": "_event_id",
+              "type": "core::integer::u32"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "get_event",
+          "inputs": [
+            {
+              "name": "_event_id",
+              "type": "core::integer::u32"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "token_bound::event_contract::Events"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_event_count",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u32"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "user_event_ticket",
+          "inputs": [
+            {
+              "name": "_event_id",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "_user",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::integer::u256"
+            }
+          ],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "constructor",
+      "name": "constructor",
+      "inputs": [
+        {
+          "name": "_token_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "_ticket_factory_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "_tba_address",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "token_bound::event_contract::EventContract::EventCreated",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u32",
+          "kind": "data"
+        },
+        {
+          "name": "organizer",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "token_bound::event_contract::EventContract::EventRescheduled",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u32",
+          "kind": "data"
+        },
+        {
+          "name": "start_date",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "end_date",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "token_bound::event_contract::EventContract::EventCanceled",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "id",
+          "type": "core::integer::u32",
+          "kind": "data"
+        },
+        {
+          "name": "is_canceled",
+          "type": "core::bool",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "token_bound::event_contract::EventContract::TicketPurchased",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "event_id",
+          "type": "core::integer::u32",
+          "kind": "data"
+        },
+        {
+          "name": "buyer",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u256",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "token_bound::event_contract::EventContract::TicketRecliamed",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "event_id",
+          "type": "core::integer::u32",
+          "kind": "data"
+        },
+        {
+          "name": "tba_acct",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u256",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "token_bound::event_contract::EventContract::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "EventCreated",
+          "type": "token_bound::event_contract::EventContract::EventCreated",
+          "kind": "nested"
+        },
+        {
+          "name": "EventRescheduled",
+          "type": "token_bound::event_contract::EventContract::EventRescheduled",
+          "kind": "nested"
+        },
+        {
+          "name": "EventCanceled",
+          "type": "token_bound::event_contract::EventContract::EventCanceled",
+          "kind": "nested"
+        },
+        {
+          "name": "TicketPurchased",
+          "type": "token_bound::event_contract::EventContract::TicketPurchased",
+          "kind": "nested"
+        },
+        {
+          "name": "TicketRecliamed",
+          "type": "token_bound::event_contract::EventContract::TicketRecliamed",
+          "kind": "nested"
+        }
+      ]
+    }
+  ]
