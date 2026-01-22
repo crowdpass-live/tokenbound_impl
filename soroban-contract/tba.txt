@@ -1,0 +1,312 @@
+What if the NFT you own could perform the functions of a "wallet" and represent the asset itself as well? This would enable your asset to communicate with other smart contracts and hold other digital assets inside of it. ERC-6551: Non-fungible Token Bound Accounts, a new Ethereum Improvement Proposal, may soon make such possible. For more about blockchain and smart contracts, visit our smart contract development services. 
+
+What is ERC-6551 (Token Bound Account)
+ERC-6551 introduces the concept of Token Bound Accounts (TBAs), essentially transforming NFTs into their own smart contract wallets. Each TBA has a unique address and is directly linked to a specific NFT, unlocking a range of new functionalities:
+
+
+Asset Storage: Unlike traditional wallets where you store your assets, NFTs themselves can now hold assets.
+
+dApp Interaction: NFTs can directly engage with decentralized applications (dApps) including DeFi protocols and DAOs.
+
+Transaction History: Each NFT maintains its own transaction history, independent of the owner's wallet history.
+
+When ownership of the NFT changes, all the assets contained within the TBA are transferred along with it, seamlessly transferring both the NFT and its associated holdings.
+
+ 
+
+You may also like | Understanding ERC-404 | The Unofficial Token Standard
+
+Use Cases
+Gaming and Virtual Worlds
+In blockchain-based games and virtual worlds, ERC-6551 can enhance the player experience by allowing NFTs to hold in-game assets. 
+
+For example:
+
+Character NFTs: Each character can hold items, skills, and achievements as assets within its TBA.
+
+Virtual Real Estate: Property NFTs can store furniture, decorations, and even other NFTs like artwork.
+
+Prerequisites:
+A basic knowledge of ERC-721 and ERC-1155.
+knowledge of smart contracts and Ethereum.
+Setup of the development environment: Metamask and Remix.
+Testnet Token, such as the Sepolia testnet 
+
+We will create and implement smart contracts on one of the given EVMs using Remix IDE. Establishing a new workspace is Remix's initial step.
+
+We'll refer to this workspace as ERC6551. We are going to establish three smart contracts in this workspace:
+
+1. ERC-721: NewNFT.sol
+
+2. Account.sol
+
+3. Registry.sol
+
+Two interfaces are included with these contracts as well:
+
+1. Account.sol for IERC6551
+
+2.Registry.IERC6551.sol
+
+Also, Check | ERC-721 Non-Fungible Token Standard Development
+ 
+
+Creating an ERC-721 Smart Contract
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+contract MyToken is ERC721, Ownable {
+      using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+    constructor(address initialOwner)
+        ERC721("MyToken", "MTK")
+        Ownable(initialOwner)
+    {}
+
+    function safeMint(address to, uint256 tokenId) public onlyOwner {
+        _safeMint(to, tokenId);
+    }
+    function _baseURI() internal pure override returns (string memory) {
+        return "urlLink";
+    }
+
+}
+Copy
+Creating a Registry Smart Contract
+You can think of the registry, also called the Singleton Registry, as a database of NFTs and the Token Bound Accounts that go along with them. A smart contract known as the registry can be implemented on any blockchain that supports the EVM. It has no owner, is unchangeable, and lacks permission. By maintaining this registry, all Token Bound Account addresses are guaranteed to use the same scheme.
+ 
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/utils/Create2.sol";
+import "./interfaces/IERC6551Registry.sol";
+
+contract ERC6551Registry is IERC6551Registry {
+    error InitializationFailed();
+    event AccountCreated(
+        address _account,
+        address implementation,
+          uint256 chainId,
+        address tokenContract,
+        uint256 tokenId,
+        uint256 salt
+        );
+    function createAccount(
+        address implementation,
+        uint256 chainId,
+        address tokenContract,
+        uint256 tokenId,
+        uint256 salt,
+        bytes calldata initData
+    ) external returns (address) {
+        bytes memory code = _creationCode(implementation, chainId, tokenContract, tokenId, salt);
+
+        address _account = Create2.computeAddress(
+            bytes32(salt),
+            keccak256(code)
+        );
+
+        if (_account.code.length != 0) return _account;
+
+        _account = Create2.deploy(0, bytes32(salt), code);
+
+        if (initData.length != 0) {
+            (bool success, ) = _account.call(initData);
+            if (!success) revert InitializationFailed();
+        }
+
+        emit AccountCreated(
+            _account,
+            implementation,
+            chainId,
+            tokenContract,
+            tokenId,
+            salt
+        );
+
+        return _account;
+    }
+
+    function account(
+        address implementation,
+        uint256 chainId,
+        address tokenContract,
+        uint256 tokenId,
+        uint256 salt
+    ) external view returns (address) {
+        bytes32 bytecodeHash = keccak256(
+            _creationCode(implementation, chainId, tokenContract, tokenId, salt)
+        );
+
+        return Create2.computeAddress(bytes32(salt), bytecodeHash);
+    }
+
+    function _creationCode(
+        address implementation_,
+        uint256 chainId_,
+        address tokenContract_,
+        uint256 tokenId_,
+        uint256 salt_
+    ) internal pure returns (bytes memory) {
+        return
+            abi.encodePacked(
+                hex"3d60ad80600a3d3981f3363d3d373d3d3d363d73",
+                implementation_,
+                hex"5af43d82803e903d91602b57fd5bf3",
+                abi.encode(salt_, chainId_, tokenContract_, tokenId_)
+            );
+    }
+}
+
+
+Copy
+createAccount: 
+With an implementation address, this method generates the Token Bound Account for an NFT. 
+
+account: 
+Based on an implementation address, token ID, chainId, NFT address, and salt, compute the Token Bound Account address for an NFT.
+ 
+
+Both the functions take the following arguments:
+
+implementation: The address of the deployed Account Smart Contract
+
+chainId: The chain ID on which the account will be created
+
+token contract: The address of the NFT smart contract
+
+tokenId: The token ID for which the TBA is to be created
+
+salt: It is a unique value to compute the account address
+
+Also, Discover | A Comprehensive Guide to ERC-6551 Token Standard
+
+Creating an Account Smart Contract
+The Account.sol contract is the last one we will ever create. The Registry contracts createAccount() and account () methods' implementation address is this smart contract's address on the chain. This smart contract's primary purposes are:
+
+
+executeCall: This function is used to call the operations only if the signer is the actual owner of the account.
+
+Owner: This function is used to return the owner address of the account linked to the provided NFT.
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/interfaces/IERC1271.sol";
+import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+
+import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import "./interfaces/IERC6551Account.sol";
+
+import "./lib/MinimalReceiver.sol";
+
+ contract ERC6551Account is IERC165, IERC1271, IERC6551Account {
+    uint256 public nonce;
+   event TransactionExecuted(address to,uint256 value ,bytes data);
+    receive() external payable {}
+
+    function executeCall(
+        address to,
+        uint256 value,
+        bytes calldata data
+    ) external payable returns (bytes memory result) {
+        require(msg.sender == owner(), "Not token owner");
+
+        ++nonce;
+
+        emit TransactionExecuted(to, value, data);
+
+        bool success;
+        (success, result) = to.call{value: value}(data);
+
+        if (!success) {
+            assembly {
+                revert(add(result, 32), mload(result))
+            }
+        }
+    }
+
+    function token()
+        external
+        view
+        returns (
+            uint256,
+            address,
+            uint256
+        )
+    {
+        return ERC6551AccountLib.token();
+    }
+
+    function owner() public view returns (address) {
+        (uint256 chainId, address tokenContract, uint256 tokenId) = this.token();
+        if (chainId != block.chainid) return address(0);
+
+        return IERC721(tokenContract).ownerOf(tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
+        return (interfaceId == type(IERC165).interfaceId ||
+            interfaceId == type(IERC6551Account).interfaceId);
+    }
+
+    function isValidSignature(bytes32 hash, bytes memory signature)
+        external
+        view
+        returns (bytes4 magicValue)
+    {
+        bool isValid = SignatureChecker.isValidSignatureNow(owner(), hash, signature);
+
+        if (isValid) {
+            return IERC1271.isValidSignature.selector;
+        }
+
+        return "";
+    }
+}
+Copy
+Deploying the Smart Contracts
+Compiling and implementing all three contracts is the next stage. From the file explorer area, choose the smart contract you want to deploy. Navigate to the "Compile" section and press the "compile" button. The contracts can also be automatically compiled by turning on the Auto Compile option. Next, navigate to the Deployment section and choose an address from the drop-down menu. Click the Deploy button after making sure you have chosen the relevant contract to be deployed. Repeat this step for all three contracts.
+
+Also, Explore | ERC-1155 | An Introduction to Multi Token Standard Development
+ 
+
+Mint the ERC-721 NFT
+It's time to mint the NFT now that every contract has been deployed. Choose a different address from the list and copy it. Next, go to the Deployed Contracts area, pick the owner address, and open the deployed MyNFT.sol contract. For the copied address, expand the safeMint() function and mint tokenId 1.
+ 
+
+Compute TBA Address for NFT
+The generated NFT's address must now be calculated. To call the method, expand the account() method under the Registry smart contract and input the following arguments.
+
+implementation: The address of the deployed Account smart contract
+
+chainId: 1
+
+tokenContract: The address of the deployed NFT smart contract
+
+tokenId: 1
+
+salt: 0
+
+The account address for the supplied NFT will be calculated by this function and returned as the output. 
+
+Creating Token Bound Account
+
+This will create a new TBA for the provided NFT. Now to verify, you can go into the transaction details and check the decoded output. It should be the same as the computed address.
+
+Also, Check | ERC-4337: Ethereum's Account Abstraction Proposal
+ 
+
+Testing the TBA
+We are about to make a call using this recently established Token-bound Address. Choose the owner's address from the drop-down menu to place a call from the contract. Using the TBA, we will transfer 1 ETH from the owner's address to a different address. From the Value type drop-down, choose ETH, then type 1 as the value. Choose and copy a different address from the address drop-down menu. Now, under your TBA contract, expand the executeCall() method and pass the copied address as an argument's input. Keep the bytes as [ and enter the value as 1000000000000000000 (1 ETH). Click the Transact button now. Following a successful execution, you will notice that the receiver address's balance has raised by one.
+
+You would receive an error and the transaction would fail if you attempted to complete this transaction from an address other than the owner's address.
+
