@@ -1,0 +1,35 @@
+# .github/workflows/soroban.yml
+name: Soroban Contracts CI
+
+on:
+  push:
+    paths:
+      - "soroban-contract/**"
+  pull_request:
+    paths:
+      - "soroban-contract/**"
+
+jobs:
+  soroban:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Soroban CLI
+        run: |
+          cargo install soroban-cli --locked
+
+      - name: Build contracts
+        working-directory: soroban-contract
+        run: |
+          soroban contract build
+
+      - name: Run tests
+        working-directory: soroban-contract
+        run: |
+          cargo test

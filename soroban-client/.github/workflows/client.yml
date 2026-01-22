@@ -1,0 +1,41 @@
+# .github/workflows/client.yml
+name: Client CI
+
+on:
+  push:
+    paths:
+      - "soroban-client/**"
+  pull_request:
+    paths:
+      - "soroban-client/**"
+
+jobs:
+  client:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: soroban-client
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Detect package manager
+        id: pm
+        run: |
+          if [ -f yarn.lock ]; then
+            echo "manager=yarn" >> $GITHUB_OUTPUT
+          elif [ -f pnpm-lock.yaml ]; then
+            echo "manager=pnpm" >> $GITHUB_OUTPUT
+          else
+            echo "manager=npm" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install pnpm (if needed)
+        if: steps.pm.outputs.manager
