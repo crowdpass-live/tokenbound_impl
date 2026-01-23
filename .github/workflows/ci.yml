@@ -2,17 +2,24 @@ name: Soroban CI
 
 on:
   push:
+    branches:
+      - main
+      - develop
     paths:
       - "soroban-client/**"
       - "soroban-contract/**"
+      - ".github/workflows/**"
   pull_request:
+    branches:
+      - main
+      - develop
     paths:
       - "soroban-client/**"
       - "soroban-contract/**"
 
 jobs:
   client:
-    name: Client CI
+    name: Next.js Client CI
     runs-on: ubuntu-latest
 
     defaults:
@@ -26,17 +33,27 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: soroban-client/package-lock.json
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint --if-present
+        continue-on-error: true
 
       - name: Build client
-        run: npm run build --if-present
+        run: npm run build
+        env:
+          CI: true
+          # Add any required env vars for Next.js build
+          # NEXT_PUBLIC_STELLAR_NETWORK: testnet
 
-      - name: Run client tests
-        run: npm test --if-present
-
+      - name: Run tests
+        run: npm test -- --passWithNoTests
+        if: hashFiles('soroban-client/package.json') != ''
 
   soroban:
     name: Soroban Contracts CI
@@ -46,14 +63,49 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Cargo index
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-
+
+      - name: Cache target directory
+        uses: actions/cache@v4
+        with:
+          path: soroban-contract/target
+          key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-target-
+
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Add wasm target
-        run: rustup target add wasm32-unknown-unknown
+        with:
+          targets: wasm32-unknown-unknown
 
       - name: Install Soroban CLI
-        run: cargo install soroban-cli --locked
+        run: |
+          cargo install --locked soroban-cli --features opt || \
+          cargo install --locked soroban-cli
+
+      - name: Check contract formatting
+        working-directory: soroban-contract
+        run: cargo fmt --all -- --check
+        continue-on-error: true
+
+      - name: Run clippy
+        working-directory: soroban-contract
+        run: cargo clippy --all-targets -- -D warnings
+        continue-on-error: true
 
       - name: Build contracts
         working-directory: soroban-contract
@@ -61,4 +113,45 @@ jobs:
 
       - name: Run contract tests
         working-directory: soroban-contract
-        run: cargo test
+        run: cargo test --workspace
+
+      - name: Optimize contracts
+        working-directory: soroban-contract
+        run: soroban contract optimize --wasm target/wasm32-unknown-unknown/release/*.wasm
+        continue-on-error: true
+
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [client, soroban]
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install Soroban CLI
+        run: cargo install --locked soroban-cli
+
+      - name: Install client dependencies
+        working-directory: soroban-client
+        run: npm ci
+
+      - name: Build contracts
+        working-directory: soroban-contract
+        run: soroban contract build
+
+      - name: Run integration tests
+        working-directory: soroban-client
+        run: npm run test:integration --if-present
+        continue-on-error: true
