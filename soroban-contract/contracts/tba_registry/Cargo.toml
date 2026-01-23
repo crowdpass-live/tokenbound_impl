@@ -1,6 +1,6 @@
 [package]
-name = "tba-registry"
-version = "0.0.0"
+name = "tba_registry"
+version = "0.1.0"
 edition = "2021"
 publish = false
 

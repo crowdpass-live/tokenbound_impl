@@ -1,6 +1,6 @@
 [package]
-name = "tba-account"
-version = "0.0.0"
+name = "tba_account"
+version = "0.1.0"
 edition = "2021"
 publish = false
 

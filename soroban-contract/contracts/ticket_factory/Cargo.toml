@@ -1,6 +1,6 @@
 [package]
-name = "ticket-factory"
-version = "0.0.0"
+name = "ticket_factory"
+version = "0.1.0"
 edition = "2021"
 publish = false
 
