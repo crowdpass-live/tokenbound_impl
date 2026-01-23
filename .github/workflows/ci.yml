@@ -1,0 +1,65 @@
+name: Soroban CI
+
+on:
+  push:
+    paths:
+      - "soroban-client/**"
+      - "soroban-contract/**"
+  pull_request:
+    paths:
+      - "soroban-client/**"
+      - "soroban-contract/**"
+
+jobs:
+  client:
+    name: Client CI
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: soroban-client
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+          cache-dependency-path: soroban-client/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build client
+        run: npm run build
+        # remove if you don't have a build script
+
+      - name: Run client tests
+        run: npm test
+        # remove if no tests yet
+
+
+  soroban:
+    name: Soroban Contracts CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Soroban CLI
+        run: cargo install soroban-cli --locked
+
+      - name: Build contracts
+        working-directory: soroban-contract
+        run: soroban contract build
+
+      - name: Run contract tests
+        working-directory: soroban-contract
+        run: cargo test
