@@ -1,5 +1,7 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { Carousel, CarouselContent, CarouselItem } from '../carousel'
+import { Button } from '../../shared/button'
 
 const UpcomingSection = () => {
 
@@ -68,10 +70,11 @@ const UpcomingSection = () => {
                                         100+ Attending
                                     </p>
                                 </div>
-                                <div className='flex flex-col gap-1'>
-                                    <p className='text-xl text-base-white'>Powered by:</p>
-                                    <p className='text-xl text-base-white'>Web3bridge</p>
-                                </div>
+                                <Link to="/event/stellar-hackathon-2026">
+                                    <Button className="bg-primary text-deep-blue hover:bg-primary/90 font-semibold px-8 py-3">
+                                        View Event Details
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                     </div>
