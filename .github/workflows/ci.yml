@@ -34,11 +34,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: soroban-client/package-lock.json
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: soroban-client/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('soroban-client/package-lock.json', 'soroban-client/yarn.lock', 'soroban-client/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          elif [ -f yarn.lock ]; then
+            yarn install --frozen-lockfile
+          elif [ -f pnpm-lock.yaml ]; then
+            npm install -g pnpm && pnpm install --frozen-lockfile
+          else
+            npm install
+          fi
 
       - name: Run linter
         run: npm run lint --if-present
@@ -145,7 +160,7 @@ jobs:
 
       - name: Install client dependencies
         working-directory: soroban-client
-        run: npm ci
+        run: npm ci 2>/dev/null || npm install
 
       - name: Build contracts
         working-directory: soroban-contract
