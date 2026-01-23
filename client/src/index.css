@@ -28,6 +28,25 @@
   border-radius: 1px;
 }
 
+/* Custom scrollbar for event details schedule */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #2a2a2a;
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #FF6932;
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #ff8055;
+}
+
 .activeLink {
   background-color: #11EBF2;
   color: #0D0042;
