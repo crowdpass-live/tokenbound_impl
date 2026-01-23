@@ -1,6 +1,6 @@
 [package]
 name = "tba_account"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
 publish = false
 
@@ -13,4 +13,3 @@ soroban-sdk = { workspace = true }
 
 [dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }
-
