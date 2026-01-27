@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route } from "react-router-dom"
 import LandingPage from './pages/static/landing-page'
+import StaticEventDetailsPage from './pages/static/event-details'
 import Dashboard from './pages/dashboard/dashboard'
 // import Test from './Components/test'
 import Analytics from './pages/dashboard/analytics'
@@ -42,6 +43,7 @@ const App = () => {
       <KitContext.Provider value={{connect, disconnect, connectors, address, account, contract, contractAddr, eventAbi, eventContract, readEventContract, strkContract}}>
       <Routes>
         <Route path="/" element={status == 'disconnected' ? <LandingPage /> : <Dashboard />} />
+        <Route path="/event/:slug" element={<StaticEventDetailsPage />} />
         <Route path="/dashboard" element={status == 'disconnected' ? <LandingPage /> : <Dashboard />} />
         <Route path="/analytics" element={status == 'disconnected' ? <LandingPage /> : <Analytics />} />
         <Route path="/discover" element={status == 'disconnected' ? <LandingPage /> : <Discover />} />
