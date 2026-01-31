@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #18181B;
+  /* Dark Zinc */
+  --foreground: #ffffff;
 }
 
 @theme inline {
@@ -12,11 +13,20 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Custom Marquee Animation */
+@keyframes scroll-marquee {
+  0% {
+    transform: translateX(0);
   }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-custom {
+  animation: scroll-marquee 20s linear infinite;
+  min-width: 100%;
 }
 
 body {
