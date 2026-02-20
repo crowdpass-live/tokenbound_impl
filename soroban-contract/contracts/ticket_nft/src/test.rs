@@ -2,14 +2,14 @@
 
 use super::*;
 use soroban_sdk::testutils::Address as _;
-use soroban_sdk::{Env};
+use soroban_sdk::Env;
 
 #[test]
 fn test_minting() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, TicketNFT);
+    let contract_id = env.register(TicketNFT, ());
     let client = TicketNFTClient::new(&env, &contract_id);
 
     let minter = Address::generate(&env);
@@ -37,7 +37,7 @@ fn test_cannot_mint_twice_to_same_user() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, TicketNFT);
+    let contract_id = env.register(TicketNFT, ());
     let client = TicketNFTClient::new(&env, &contract_id);
 
     let minter = Address::generate(&env);
@@ -54,7 +54,7 @@ fn test_transfer() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, TicketNFT);
+    let contract_id = env.register(TicketNFT, ());
     let client = TicketNFTClient::new(&env, &contract_id);
 
     let minter = Address::generate(&env);
@@ -64,7 +64,7 @@ fn test_transfer() {
     client.initialize(&minter);
 
     let token_id = client.mint_ticket_nft(&user1);
-    
+
     client.transfer_from(&user1, &user2, &token_id);
 
     assert_eq!(client.owner_of(&token_id), user2);
@@ -78,7 +78,7 @@ fn test_cannot_transfer_to_user_with_ticket() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register_contract(None, TicketNFT);
+    let contract_id = env.register(TicketNFT, ());
     let client = TicketNFTClient::new(&env, &contract_id);
 
     let minter = Address::generate(&env);
@@ -112,7 +112,49 @@ fn test_only_minter_can_mint() {
     // To be more precise, we can use env.set_auths or mock_all_auths and then check if require_auth was called.
     // In Soroban tests, mock_all_auth() makes it so any require_auth() succeeds.
     // To test failures, we can either not mock, or selectively mock.
-    
+
     // If we don't mock, it should fail.
-    client.mint_ticket_nft(&user); 
+    client.mint_ticket_nft(&Address::generate(&env));
+}
+
+#[test]
+fn test_burn() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(TicketNFT, ());
+    let client = TicketNFTClient::new(&env, &contract_id);
+
+    let minter = Address::generate(&env);
+    let user = Address::generate(&env);
+
+    client.initialize(&minter);
+
+    let token_id = client.mint_ticket_nft(&user);
+    assert!(client.is_valid(&token_id));
+
+    client.burn(&token_id);
+    assert!(!client.is_valid(&token_id));
+    assert_eq!(client.balance_of(&user), 0);
+}
+
+#[test]
+#[should_panic(expected = "Token is not valid")]
+fn test_cannot_transfer_burned_token() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(TicketNFT, ());
+    let client = TicketNFTClient::new(&env, &contract_id);
+
+    let minter = Address::generate(&env);
+    let user1 = Address::generate(&env);
+    let user2 = Address::generate(&env);
+
+    client.initialize(&minter);
+
+    let token_id = client.mint_ticket_nft(&user1);
+    client.burn(&token_id);
+
+    client.transfer_from(&user1, &user2, &token_id); // Should panic
 }
