@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
     isConnected,
-    getAddress,
+    requestAccess,
 } from "@stellar/freighter-api";
 
 interface WalletContextType {
@@ -33,14 +33,24 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }, []);
 
     const connect = async () => {
+        console.log("Connect function called");
         try {
-            const response = await getAddress();
+            console.log("Requesting access from Freighter...");
+            const response = await requestAccess();
+            console.log("Freighter response:", response);
             if (response && response.address) {
                 setAddress(response.address);
                 localStorage.setItem('wallet_address', response.address);
+                console.log("Successfully connected:", response.address);
+            } else if (response && response.error) {
+                console.error("Freighter returned an error:", response.error);
+                alert(`Freighter Error: ${response.error}`);
+            } else {
+                console.warn("Freighter returned an empty or unexpected response");
             }
         } catch (error) {
             console.error("Failed to connect to Freighter:", error);
+            alert("An unexpected error occurred while connecting. Check console for details.");
         }
     };
 
