@@ -65,24 +65,13 @@ impl EventManager {
         organizer.require_auth();
 
         // Validate inputs
-        Self::validate_event_params(
-            &env,
-            start_date,
-            end_date,
-            ticket_price,
-            total_tickets,
-        );
+        Self::validate_event_params(&env, start_date, end_date, ticket_price, total_tickets);
 
         // Get and increment event counter
         let event_id = Self::get_and_increment_counter(&env);
 
         // Deploy ticket NFT contract via factory
-        let ticket_nft_addr = Self::deploy_ticket_nft(
-            &env,
-            event_id,
-            theme.clone(),
-            total_tickets,
-        );
+        let ticket_nft_addr = Self::deploy_ticket_nft(&env, event_id, theme.clone(), total_tickets);
 
         // Create event struct
         let event = Event {
@@ -168,10 +157,8 @@ impl EventManager {
             .set(&DataKey::Event(event_id), &event);
 
         // Emit cancellation event
-        env.events().publish(
-            (Symbol::new(&env, "event_canceled"),),
-            event_id,
-        );
+        env.events()
+            .publish((Symbol::new(&env, "event_canceled"),), event_id);
     }
 
     /// Update tickets sold (called by ticket purchase logic)
@@ -244,9 +231,7 @@ impl EventManager {
             .checked_add(1)
             .unwrap_or_else(|| panic!("Event counter overflow"));
 
-        env.storage()
-            .instance()
-            .set(&DataKey::EventCounter, &next);
+        env.storage().instance().set(&DataKey::EventCounter, &next);
 
         current
     }
@@ -261,11 +246,16 @@ impl EventManager {
         // Call the factory contract to deploy a new NFT contract
         // This is a cross-contract call
         use soroban_sdk::vec;
-        
+
         let nft_addr: Address = env.invoke_contract(
             &factory_addr,
             &Symbol::new(env, "deploy_ticket_nft"),
-            vec![env, event_id.into_val(env), theme.into_val(env), total_supply.into_val(env)],
+            vec![
+                env,
+                event_id.into_val(env),
+                theme.into_val(env),
+                total_supply.into_val(env),
+            ],
         );
 
         nft_addr
@@ -275,7 +265,22 @@ impl EventManager {
 #[cfg(test)]
 mod test {
     use super::*;
-    use soroban_sdk::{testutils::Address as _, Env};
+    use soroban_sdk::{testutils::Address as _, testutils::Ledger, vec, Env, Symbol};
+
+    #[contract]
+    pub struct MockFactory;
+
+    #[contractimpl]
+    impl MockFactory {
+        pub fn deploy_ticket_nft(
+            env: Env,
+            _event_id: u32,
+            _theme: String,
+            _total_supply: u128,
+        ) -> Address {
+            Address::generate(&env)
+        }
+    }
 
     #[test]
     fn test_create_event() {
@@ -283,7 +288,7 @@ mod test {
         let contract_id = env.register_contract(None, EventManager);
         let client = EventManagerClient::new(&env, &contract_id);
 
-        let factory_addr = Address::generate(&env);
+        let factory_addr = env.register_contract(None, MockFactory);
         let organizer = Address::generate(&env);
 
         // Mock the organizer authorization
@@ -328,16 +333,17 @@ mod test {
         let contract_id = env.register_contract(None, EventManager);
         let client = EventManagerClient::new(&env, &contract_id);
 
-        let factory_addr = Address::generate(&env);
+        let factory_addr = env.register_contract(None, MockFactory);
         let organizer = Address::generate(&env);
 
         env.mock_all_auths();
+        env.ledger().set_timestamp(1000);
         client.initialize(&factory_addr);
 
         let theme = String::from_str(&env, "Past Event");
         let event_type = String::from_str(&env, "Conference");
-        let start_date = env.ledger().timestamp() - 1; // Past date
-        let end_date = start_date + 86400;
+        let start_date = env.ledger().timestamp().saturating_sub(1); // Past date
+        let end_date = start_date.saturating_add(86400);
 
         client.create_event(
             &organizer,
@@ -356,7 +362,7 @@ mod test {
         let contract_id = env.register_contract(None, EventManager);
         let client = EventManagerClient::new(&env, &contract_id);
 
-        let factory_addr = Address::generate(&env);
+        let factory_addr = env.register_contract(None, MockFactory);
         let organizer = Address::generate(&env);
 
         env.mock_all_auths();
