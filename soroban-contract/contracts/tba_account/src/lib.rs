@@ -1,7 +1,7 @@
 #![no_std]
 use soroban_sdk::{
-    contract, contractimpl, contracttype, Address, BytesN, Env, Vec, Symbol, Val,
-    auth::Context,
+    auth::Context, contract, contractimpl, contracttype, Address, BytesN, Env, IntoVal, Symbol,
+    Val, Vec,
 };
 
 #[contract]
@@ -11,11 +11,11 @@ pub struct TbaAccount;
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DataKey {
     TokenContract,      // Address of the NFT contract
-    TokenId,           // Specific NFT token ID (u128)
+    TokenId,            // Specific NFT token ID (u128)
     ImplementationHash, // Hash used for deployment (u256)
-    Salt,              // Deployment salt (u256)
-    Initialized,       // Init flag
-    Nonce,             // Transaction nonce counter
+    Salt,               // Deployment salt (u256)
+    Initialized,        // Init flag
+    Nonce,              // Transaction nonce counter
 }
 
 // Helper functions for storage
@@ -27,7 +27,9 @@ fn get_token_contract(env: &Env) -> Address {
 }
 
 fn set_token_contract(env: &Env, token_contract: &Address) {
-    env.storage().instance().set(&DataKey::TokenContract, token_contract);
+    env.storage()
+        .instance()
+        .set(&DataKey::TokenContract, token_contract);
 }
 
 fn get_token_id(env: &Env) -> u128 {
@@ -73,7 +75,9 @@ fn is_initialized(env: &Env) -> bool {
 }
 
 fn set_initialized(env: &Env, initialized: &bool) {
-    env.storage().instance().set(&DataKey::Initialized, initialized);
+    env.storage()
+        .instance()
+        .set(&DataKey::Initialized, initialized);
 }
 
 fn get_nonce(env: &Env) -> u64 {
@@ -101,11 +105,11 @@ pub struct TransactionExecutedEvent {
 // Helper function to get NFT owner by calling the NFT contract
 fn get_nft_owner(env: &Env, nft_contract: &Address, token_id: u128) -> Address {
     // Call the NFT contract's owner_of function
-    // Using invoke_contract to call the owner_of function on the NFT contract
+    // The NFT owner_of expects (token_id: u128)
     env.invoke_contract::<Address>(
         nft_contract,
         &soroban_sdk::symbol_short!("owner_of"),
-        soroban_sdk::vec![&env, Val::from_payload(token_id as u64)],
+        soroban_sdk::vec![&env, token_id.into_val(env)],
     )
 }
 
@@ -170,12 +174,7 @@ impl TbaAccount {
     /// Execute a transaction to another contract
     /// Only the current NFT owner can execute transactions
     /// This function increments the nonce and emits an event
-    pub fn execute(
-        env: Env,
-        to: Address,
-        func: Symbol,
-        args: Vec<Val>,
-    ) -> Vec<Val> {
+    pub fn execute(env: Env, to: Address, func: Symbol, args: Vec<Val>) -> Vec<Val> {
         // Verify contract is initialized
         if !is_initialized(&env) {
             panic!("Contract not initialized");
@@ -185,7 +184,7 @@ impl TbaAccount {
         let token_contract = get_token_contract(&env);
         let token_id = get_token_id(&env);
         let owner = get_nft_owner(&env, &token_contract, token_id);
-        
+
         // Require authorization from the NFT owner
         owner.require_auth();
 
@@ -199,7 +198,10 @@ impl TbaAccount {
             nonce,
         };
         env.events().publish(
-            (Symbol::new(&env, "executed"), Symbol::new(&env, "TransactionExecuted")),
+            (
+                Symbol::new(&env, "executed"),
+                Symbol::new(&env, "TransactionExecuted"),
+            ),
             event,
         );
 
@@ -224,17 +226,14 @@ impl TbaAccount {
 
         // Verify that the owner has authorized this transaction
         // The require_auth_for_args will check if the owner has signed
-        owner.require_auth_for_args(
-            soroban_sdk::vec![
-                &env,
-                Val::from(signature_payload),
-                Val::from(signatures),
-                Val::from(auth_context),
-            ],
-        );
+        owner.require_auth_for_args(soroban_sdk::vec![
+            &env,
+            Val::from(signature_payload),
+            Val::from(signatures),
+            Val::from(auth_context),
+        ]);
     }
 }
 
 #[cfg(test)]
 mod test;
-
