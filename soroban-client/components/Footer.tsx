@@ -75,7 +75,7 @@ export default function Footer() {
                 <div className="border-t border-gray-600/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="flex items-center gap-2 text-sm text-gray-300">
                         <span>©</span>
-                        <span>All Rights Reserved, HostIT 2024.</span>
+                        <span>All Rights Reserved, CrowdPass {new Date().getFullYear()}.</span>
                     </div>
 
                     <div className="flex items-center gap-4">
