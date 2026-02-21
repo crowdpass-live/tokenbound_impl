@@ -9,14 +9,12 @@ fn test_minting() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register(TicketNFT, ());
-    let client = TicketNFTClient::new(&env, &contract_id);
-
     let minter = Address::generate(&env);
     let user1 = Address::generate(&env);
     let user2 = Address::generate(&env);
 
-    client.initialize(&minter);
+    let contract_id = env.register(TicketNft, (&minter,));
+    let client = TicketNftClient::new(&env, &contract_id);
 
     // Mint first ticket
     let token_id1 = client.mint_ticket_nft(&user1);
@@ -32,18 +30,16 @@ fn test_minting() {
 }
 
 #[test]
-#[should_panic(expected = "User already has ticket")]
+#[should_panic(expected = "User already has a ticket")]
 fn test_cannot_mint_twice_to_same_user() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register(TicketNFT, ());
-    let client = TicketNFTClient::new(&env, &contract_id);
-
     let minter = Address::generate(&env);
     let user = Address::generate(&env);
 
-    client.initialize(&minter);
+    let contract_id = env.register(TicketNft, (&minter,));
+    let client = TicketNftClient::new(&env, &contract_id);
 
     client.mint_ticket_nft(&user);
     client.mint_ticket_nft(&user); // Should panic
@@ -54,14 +50,12 @@ fn test_transfer() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register(TicketNFT, ());
-    let client = TicketNFTClient::new(&env, &contract_id);
-
     let minter = Address::generate(&env);
     let user1 = Address::generate(&env);
     let user2 = Address::generate(&env);
 
-    client.initialize(&minter);
+    let contract_id = env.register(TicketNft, (&minter,));
+    let client = TicketNftClient::new(&env, &contract_id);
 
     let token_id = client.mint_ticket_nft(&user1);
 
@@ -78,14 +72,12 @@ fn test_cannot_transfer_to_user_with_ticket() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register(TicketNFT, ());
-    let client = TicketNFTClient::new(&env, &contract_id);
-
     let minter = Address::generate(&env);
     let user1 = Address::generate(&env);
     let user2 = Address::generate(&env);
 
-    client.initialize(&minter);
+    let contract_id = env.register(TicketNft, (&minter,));
+    let client = TicketNftClient::new(&env, &contract_id);
 
     let token_id1 = client.mint_ticket_nft(&user1);
     let _token_id2 = client.mint_ticket_nft(&user2);
@@ -99,22 +91,14 @@ fn test_only_minter_can_mint() {
     let env = Env::default();
     // env.mock_all_auths(); // Don't mock auth to test failure
 
-    let contract_id = env.register_contract(None, TicketNFT);
-    let client = TicketNFTClient::new(&env, &contract_id);
-
     let minter = Address::generate(&env);
-    let _user = Address::generate(&env);
-    let _non_minter = Address::generate(&env);
+    let user = Address::generate(&env);
 
-    client.initialize(&minter);
+    let contract_id = env.register(TicketNft, (&minter,));
+    let client = TicketNftClient::new(&env, &contract_id);
 
-    // This should fail because we're not calling as minter and haven't mocked auths
-    // To be more precise, we can use env.set_auths or mock_all_auths and then check if require_auth was called.
-    // In Soroban tests, mock_all_auth() makes it so any require_auth() succeeds.
-    // To test failures, we can either not mock, or selectively mock.
-
-    // If we don't mock, it should fail.
-    client.mint_ticket_nft(&Address::generate(&env));
+    // Without mock_all_auths, require_auth() will fail for the minter
+    client.mint_ticket_nft(&user);
 }
 
 #[test]
@@ -122,13 +106,11 @@ fn test_burn() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register(TicketNFT, ());
-    let client = TicketNFTClient::new(&env, &contract_id);
-
     let minter = Address::generate(&env);
     let user = Address::generate(&env);
 
-    client.initialize(&minter);
+    let contract_id = env.register(TicketNft, (&minter,));
+    let client = TicketNftClient::new(&env, &contract_id);
 
     let token_id = client.mint_ticket_nft(&user);
     assert!(client.is_valid(&token_id));
@@ -144,17 +126,28 @@ fn test_cannot_transfer_burned_token() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register(TicketNFT, ());
-    let client = TicketNFTClient::new(&env, &contract_id);
-
     let minter = Address::generate(&env);
     let user1 = Address::generate(&env);
     let user2 = Address::generate(&env);
 
-    client.initialize(&minter);
+    let contract_id = env.register(TicketNft, (&minter,));
+    let client = TicketNftClient::new(&env, &contract_id);
 
     let token_id = client.mint_ticket_nft(&user1);
     client.burn(&token_id);
 
     client.transfer_from(&user1, &user2, &token_id); // Should panic
+}
+
+#[test]
+fn test_get_minter() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let minter = Address::generate(&env);
+
+    let contract_id = env.register(TicketNft, (&minter,));
+    let client = TicketNftClient::new(&env, &contract_id);
+
+    assert_eq!(client.get_minter(), minter);
 }
