@@ -86,6 +86,76 @@ fn test_create_event() {
     // assert(event_instance.organizer == USER1.try_into().unwrap(), 'Event organizer is incorrect');
 }
 
+// *************************************************************************
+//                   RESCHEDULE EVENT TESTS (issue #19)
+// *************************************************************************
+
+#[test]
+fn test_reschedule_future_event_succeeds() {
+    let (event_contract_address, _, _) = __setup__();
+
+    let event_contract_dispatcher = IEventContractDispatcher {
+        contract_address: event_contract_address
+    };
+
+    start_cheat_caller_address(event_contract_address, USER1.try_into().unwrap());
+
+    // Pin block timestamp to 1000 so the event's end_date (5000) is in the future
+    start_cheat_block_timestamp(event_contract_address, 1000);
+
+    event_contract_dispatcher
+        .create_event(
+            'Future Event',
+            'Virtual',
+            500_u64,    // start_date  (before block timestamp, irrelevant here)
+            5000_u64,   // end_date    (> block timestamp 1000 → event still active)
+            10_u256,
+            100_u256,
+        );
+
+    // Rescheduling must succeed because end_date (5000) > block_timestamp (1000)
+    event_contract_dispatcher.reschedule_event(1, 600_u64, 6000_u64);
+
+    let event_instance = event_contract_dispatcher.get_event(1);
+    assert(event_instance.start_date == 600_u64, 'start_date not updated');
+    assert(event_instance.end_date == 6000_u64, 'end_date not updated');
+
+    stop_cheat_caller_address(event_contract_address);
+}
+
+#[test]
+#[should_panic(expected: ('event has ended',))]
+fn test_reschedule_ended_event_fails() {
+    let (event_contract_address, _, _) = __setup__();
+
+    let event_contract_dispatcher = IEventContractDispatcher {
+        contract_address: event_contract_address
+    };
+
+    start_cheat_caller_address(event_contract_address, USER1.try_into().unwrap());
+
+    // Create event while timestamp is still before its end_date
+    start_cheat_block_timestamp(event_contract_address, 1000);
+
+    event_contract_dispatcher
+        .create_event(
+            'Past Event',
+            'Virtual',
+            500_u64,
+            2000_u64,   // end_date
+            10_u256,
+            100_u256,
+        );
+
+    // Advance block timestamp past the event's end_date
+    start_cheat_block_timestamp(event_contract_address, 3000);
+
+    // Rescheduling must revert because end_date (2000) < block_timestamp (3000)
+    event_contract_dispatcher.reschedule_event(1, 4000_u64, 5000_u64);
+
+    stop_cheat_caller_address(event_contract_address);
+}
+
 // #[test]
 // fn test_create_ticket() {
 //     let (event_contract_address, ticket_factory_contract_address, ticket_nft_class_hash) = __setup__();

@@ -191,7 +191,7 @@ use core::{traits::{TryInto, Into}, num::traits::zero::Zero};
 
             // assert event has not ended
             assert(
-                event_instance.end_date < get_block_timestamp(),
+                event_instance.end_date > get_block_timestamp(),
                 token_bound::errors::Errors::EVENT_ENDED
             );
 
