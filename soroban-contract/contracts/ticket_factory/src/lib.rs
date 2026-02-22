@@ -14,9 +14,7 @@
 
 #![no_std]
 
-use soroban_sdk::{
-    contract, contractimpl, contracttype, Address, BytesN, Env, IntoVal, Val, Vec,
-};
+use soroban_sdk::{contract, contractimpl, contracttype, Address, BytesN, Env, IntoVal, Val, Vec};
 
 /// Storage keys for the contract state
 #[contracttype]
@@ -51,6 +49,12 @@ impl TicketFactory {
             .instance()
             .set(&DataKey::TicketWasmHash, &ticket_wasm_hash);
         env.storage().instance().set(&DataKey::TotalTickets, &0u32);
+
+        // Extend instance TTL
+        env.storage().instance().extend_ttl(
+            30 * 24 * 60 * 60 / 5,  // ~30 days
+            100 * 24 * 60 * 60 / 5, // ~100 days
+        );
     }
 
     /// Deploy a new Ticket NFT contract for an event
@@ -101,10 +105,22 @@ impl TicketFactory {
             .persistent()
             .set(&DataKey::TicketContract(ticket_id), &deployed_address);
 
+        // Extend persistent TTL
+        env.storage().persistent().extend_ttl(
+            &DataKey::TicketContract(ticket_id),
+            30 * 24 * 60 * 60 / 5,  // threshold
+            100 * 24 * 60 * 60 / 5, // extend_to
+        );
+
         // Update total count in instance storage
         env.storage()
             .instance()
             .set(&DataKey::TotalTickets, &ticket_id);
+
+        // Extend instance TTL on update
+        env.storage()
+            .instance()
+            .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
 
         deployed_address
     }
@@ -145,7 +161,14 @@ impl TicketFactory {
     /// # Returns
     /// The admin address
     pub fn get_admin(env: Env) -> Address {
-        env.storage().instance().get(&DataKey::Admin).unwrap()
+        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
+
+        // Extend instance TTL on read
+        env.storage()
+            .instance()
+            .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
+
+        admin
     }
 }
 

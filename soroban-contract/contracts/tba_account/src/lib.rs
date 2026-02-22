@@ -43,7 +43,7 @@ fn set_token_id(env: &Env, token_id: &u128) {
     env.storage().instance().set(&DataKey::TokenId, token_id);
 }
 
-fn get_implementation_hash(env: &Env) -> BytesN<32> {
+fn _get_implementation_hash(env: &Env) -> BytesN<32> {
     env.storage()
         .instance()
         .get(&DataKey::ImplementationHash)
@@ -56,7 +56,7 @@ fn set_implementation_hash(env: &Env, implementation_hash: &BytesN<32>) {
         .set(&DataKey::ImplementationHash, implementation_hash);
 }
 
-fn get_salt(env: &Env) -> BytesN<32> {
+fn _get_salt(env: &Env) -> BytesN<32> {
     env.storage()
         .instance()
         .get(&DataKey::Salt)
@@ -135,6 +135,11 @@ impl TbaAccount {
         set_implementation_hash(&env, &implementation_hash);
         set_salt(&env, &salt);
         set_initialized(&env, &true);
+
+        // Extend instance TTL
+        env.storage()
+            .instance()
+            .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
     }
 
     /// Get the NFT contract address
@@ -190,6 +195,11 @@ impl TbaAccount {
 
         // Increment nonce
         let nonce = increment_nonce(&env);
+
+        // Extend instance TTL on activity
+        env.storage()
+            .instance()
+            .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
 
         // Emit transaction executed event
         let event = TransactionExecutedEvent {

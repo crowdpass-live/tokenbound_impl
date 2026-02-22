@@ -37,6 +37,11 @@ impl TicketNft {
     pub fn __constructor(env: Env, minter: Address) {
         env.storage().instance().set(&DataKey::Minter, &minter);
         env.storage().instance().set(&DataKey::NextTokenId, &1u128);
+
+        // Extend instance TTL
+        env.storage()
+            .instance()
+            .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
     }
 
     /// Mint a new ticket NFT to the recipient
@@ -77,12 +82,33 @@ impl TicketNft {
         env.storage()
             .persistent()
             .set(&DataKey::Owner(token_id), &recipient);
+
+        // Extend persistent TTL for owner
+        env.storage().persistent().extend_ttl(
+            &DataKey::Owner(token_id),
+            30 * 24 * 60 * 60 / 5,
+            100 * 24 * 60 * 60 / 5,
+        );
+
         env.storage()
             .persistent()
-            .set(&DataKey::Balance(recipient), &1u128);
+            .set(&DataKey::Balance(recipient.clone()), &1u128);
+
+        // Extend persistent TTL for balance
+        env.storage().persistent().extend_ttl(
+            &DataKey::Balance(recipient),
+            30 * 24 * 60 * 60 / 5,
+            100 * 24 * 60 * 60 / 5,
+        );
+
         env.storage()
             .instance()
             .set(&DataKey::NextTokenId, &(token_id + 1));
+
+        // Extend instance TTL on update
+        env.storage()
+            .instance()
+            .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
 
         token_id
     }
