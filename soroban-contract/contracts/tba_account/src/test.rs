@@ -135,3 +135,42 @@ fn test_execute_non_owner_fails() {
     // Auth is NOT mocked, so it will fail when it hits owner.require_auth()
     client.execute(&target, &func, &vec![&env]);
 }
+
+#[test]
+fn test_large_token_id_success() {
+    let (env, client, _) = create_test_env();
+
+    let nft_contract_id = env.register(MockNftContract, ());
+    let nft_client = MockNftContractClient::new(&env, &nft_contract_id);
+
+    let target_id = env.register(TargetContract, ());
+
+    // token_id larger than u64::MAX (2^64 - 1 = 18446744073709551615)
+    // using 2^64
+    let token_id: u128 = 18446744073709551616; 
+    let owner = Address::generate(&env);
+    nft_client.set_owner(&token_id, &owner);
+
+    let impl_hash = BytesN::from_array(&env, &[1u8; 32]);
+    let salt = BytesN::from_array(&env, &[2u8; 32]);
+
+    client.initialize(&nft_contract_id, &token_id, &impl_hash, &salt);
+
+    // Verify token_id getter returns the full u128
+    assert_eq!(client.token_id(), token_id);
+
+    // Execute through TBA - this will call get_nft_owner internally
+    let func = Symbol::new(&env, "test_func");
+    let args = vec![&env, 100u32.into_val(&env)];
+
+    // If truncation happened (u128 to u64), this would likely fail or query wrong owner
+    // because MockNftContract uses (Symbol::new(&env, "owner"), token_id) as storage key
+    let result = client.execute(&target_id, &func, &args);
+
+    let val: u32 = result.get(0).unwrap().try_into_val(&env).unwrap();
+    assert_eq!(val, 101u32);
+    assert_eq!(client.nonce(), 1);
+    
+    // Also verify owner() directly
+    assert_eq!(client.owner(), owner);
+}
