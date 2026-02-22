@@ -1,7 +1,7 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, Address, Env, IntoVal, String, Symbol, Vec,
+    contract, contractimpl, contracttype, Address, BytesN, Env, IntoVal, String, Symbol, Vec,
 };
 
 // Storage keys
@@ -27,6 +27,7 @@ pub struct Event {
     pub end_date: u64,
     pub is_canceled: bool,
     pub ticket_nft_addr: Address,
+    pub payment_token: Address,
 }
 
 #[contract]
@@ -60,6 +61,7 @@ impl EventManager {
         end_date: u64,
         ticket_price: i128,
         total_tickets: u128,
+        payment_token: Address,
     ) -> u32 {
         // Validate organizer address
         organizer.require_auth();
@@ -86,12 +88,20 @@ impl EventManager {
             end_date,
             is_canceled: false,
             ticket_nft_addr: ticket_nft_addr.clone(),
+            payment_token,
         };
 
         // Store event
         env.storage()
             .persistent()
             .set(&DataKey::Event(event_id), &event);
+
+        // Extend TTL for the new event
+        env.storage().persistent().extend_ttl(
+            &DataKey::Event(event_id),
+            30 * 24 * 60 * 60 / 5,  // threshold (~30 days)
+            100 * 24 * 60 * 60 / 5, // extend_to (~100 days)
+        );
 
         // Emit event creation event
         env.events().publish(
@@ -189,6 +199,59 @@ impl EventManager {
             .set(&DataKey::Event(event_id), &event);
     }
 
+    /// Purchase a ticket for an event
+    pub fn purchase_ticket(env: Env, buyer: Address, event_id: u32) {
+        buyer.require_auth();
+
+        let mut event: Event = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Event(event_id))
+            .unwrap_or_else(|| panic!("Event not found"));
+
+        if event.is_canceled {
+            panic!("Event is canceled");
+        }
+
+        if event.tickets_sold >= event.total_tickets {
+            panic!("Event is sold out");
+        }
+
+        // Handle payment
+        if event.ticket_price > 0 {
+            let token_client = soroban_sdk::token::Client::new(&env, &event.payment_token);
+            token_client.transfer(&buyer, &event.organizer, &event.ticket_price);
+        }
+
+        // Mint ticket NFT
+        env.invoke_contract::<u128>(
+            &event.ticket_nft_addr,
+            &Symbol::new(&env, "mint_ticket_nft"),
+            soroban_sdk::vec![&env, buyer.into_val(&env)],
+        );
+
+        // Update tickets sold
+        event.tickets_sold += 1;
+
+        // Store updated event
+        env.storage()
+            .persistent()
+            .set(&DataKey::Event(event_id), &event);
+
+        // Extend TTL
+        env.storage().persistent().extend_ttl(
+            &DataKey::Event(event_id),
+            30 * 24 * 60 * 60 / 5,
+            100 * 24 * 60 * 60 / 5,
+        );
+
+        // Emit purchase event
+        env.events().publish(
+            (Symbol::new(&env, "ticket_purchased"),),
+            (event_id, buyer, event.ticket_nft_addr),
+        );
+    }
+
     // ========== Helper Functions ==========
 
     fn validate_event_params(
@@ -236,151 +299,28 @@ impl EventManager {
         current
     }
 
-    fn deploy_ticket_nft(env: &Env, event_id: u32, theme: String, total_supply: u128) -> Address {
+    fn deploy_ticket_nft(
+        env: &Env,
+        _event_id: u32,
+        _theme: String,
+        _total_supply: u128,
+    ) -> Address {
         let factory_addr: Address = env
             .storage()
             .instance()
             .get(&DataKey::TicketFactory)
             .unwrap_or_else(|| panic!("Ticket factory not initialized"));
-
-        // Call the factory contract to deploy a new NFT contract
         // This is a cross-contract call
-        use soroban_sdk::vec;
 
-        let nft_addr: Address = env.invoke_contract(
-            &factory_addr,
-            &Symbol::new(env, "deploy_ticket_nft"),
-            vec![
-                env,
-                event_id.into_val(env),
-                theme.into_val(env),
-                total_supply.into_val(env),
-            ],
-        );
+        let salt = BytesN::from_array(&env, &[0u8; 32]);
+        let mut args = Vec::new(&env);
+        args.push_back(env.current_contract_address().to_val());
+        args.push_back(salt.to_val());
 
+        let nft_addr: Address =
+            env.invoke_contract(&factory_addr, &Symbol::new(&env, "deploy_ticket"), args);
         nft_addr
     }
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-    use soroban_sdk::{testutils::Address as _, testutils::Ledger, vec, Env, Symbol};
-
-    #[contract]
-    pub struct MockFactory;
-
-    #[contractimpl]
-    impl MockFactory {
-        pub fn deploy_ticket_nft(
-            env: Env,
-            _event_id: u32,
-            _theme: String,
-            _total_supply: u128,
-        ) -> Address {
-            Address::generate(&env)
-        }
-    }
-
-    #[test]
-    fn test_create_event() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, EventManager);
-        let client = EventManagerClient::new(&env, &contract_id);
-
-        let factory_addr = env.register_contract(None, MockFactory);
-        let organizer = Address::generate(&env);
-
-        // Mock the organizer authorization
-        env.mock_all_auths();
-
-        // Initialize
-        client.initialize(&factory_addr);
-
-        // Create event
-        let theme = String::from_str(&env, "Rust Conference 2026");
-        let event_type = String::from_str(&env, "Conference");
-        let start_date = env.ledger().timestamp() + 86400; // 1 day from now
-        let end_date = start_date + 86400; // 2 days from now
-        let ticket_price = 1000_0000000; // 100 XLM (7 decimals)
-        let total_tickets = 500;
-
-        let event_id = client.create_event(
-            &organizer,
-            &theme,
-            &event_type,
-            &start_date,
-            &end_date,
-            &ticket_price,
-            &total_tickets,
-        );
-
-        assert_eq!(event_id, 0);
-
-        // Get event
-        let event = client.get_event(&event_id);
-        assert_eq!(event.id, 0);
-        assert_eq!(event.organizer, organizer);
-        assert_eq!(event.total_tickets, total_tickets);
-        assert_eq!(event.tickets_sold, 0);
-        assert_eq!(event.is_canceled, false);
-    }
-
-    #[test]
-    #[should_panic(expected = "Start date must be in the future")]
-    fn test_create_event_past_date() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, EventManager);
-        let client = EventManagerClient::new(&env, &contract_id);
-
-        let factory_addr = env.register_contract(None, MockFactory);
-        let organizer = Address::generate(&env);
-
-        env.mock_all_auths();
-        env.ledger().set_timestamp(1000);
-        client.initialize(&factory_addr);
-
-        let theme = String::from_str(&env, "Past Event");
-        let event_type = String::from_str(&env, "Conference");
-        let start_date = env.ledger().timestamp().saturating_sub(1); // Past date
-        let end_date = start_date.saturating_add(86400);
-
-        client.create_event(
-            &organizer,
-            &theme,
-            &event_type,
-            &start_date,
-            &end_date,
-            &1000_0000000,
-            &100,
-        );
-    }
-
-    #[test]
-    fn test_cancel_event() {
-        let env = Env::default();
-        let contract_id = env.register_contract(None, EventManager);
-        let client = EventManagerClient::new(&env, &contract_id);
-
-        let factory_addr = env.register_contract(None, MockFactory);
-        let organizer = Address::generate(&env);
-
-        env.mock_all_auths();
-        client.initialize(&factory_addr);
-
-        let event_id = client.create_event(
-            &organizer,
-            &String::from_str(&env, "Event"),
-            &String::from_str(&env, "Type"),
-            &(env.ledger().timestamp() + 86400),
-            &(env.ledger().timestamp() + 172800),
-            &1000_0000000,
-            &100,
-        );
-
-        client.cancel_event(&event_id);
-
-        let event = client.get_event(&event_id);
-        assert_eq!(event.is_canceled, true);
-    }
-}
+mod test;
