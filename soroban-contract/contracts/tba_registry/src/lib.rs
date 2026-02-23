@@ -4,6 +4,13 @@ use soroban_sdk::{
     contract, contractimpl, contracttype, Address, BytesN, Env, IntoVal, Symbol, Val, Vec,
 };
 
+// Error handling
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum Error {
+    AccountAlreadyDeployed = 1,
+}
+
 /// Storage keys for the registry contract
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -100,15 +107,15 @@ impl TbaRegistry {
     /// # Returns
     /// The address of the newly deployed TBA account
     ///
-    /// # Panics
-    /// Panics if the account has already been deployed for these parameters
+    /// # Errors
+    /// Returns error if the account has already been deployed for these parameters
     pub fn create_account(
         env: Env,
         implementation_hash: BytesN<32>,
         token_contract: Address,
         token_id: u128,
         salt: BytesN<32>,
-    ) -> Address {
+    ) -> Result<Address, Error> {
         // Check if account already exists
         let account_key = DataKey::DeployedAccount(
             implementation_hash.clone(),
@@ -118,7 +125,7 @@ impl TbaRegistry {
         );
 
         if env.storage().persistent().has(&account_key) {
-            panic!("Account already deployed for these parameters");
+            return Err(Error::AccountAlreadyDeployed);
         }
 
         // Get the WASM hash from storage
@@ -167,7 +174,7 @@ impl TbaRegistry {
         let new_count = current_count + 1;
         env.storage().persistent().set(&count_key, &new_count);
 
-        deployed_address
+        Ok(deployed_address)
     }
 
     /// Get the total number of TBA accounts deployed for a specific NFT

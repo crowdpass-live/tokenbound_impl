@@ -4,6 +4,14 @@ use soroban_sdk::{
     Val, Vec,
 };
 
+// Error handling
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum Error {
+    AlreadyInitialized = 1,
+    NotInitialized = 2,
+}
+
 #[contract]
 pub struct TbaAccount;
 
@@ -19,11 +27,11 @@ pub enum DataKey {
 }
 
 // Helper functions for storage
-fn get_token_contract(env: &Env) -> Address {
+fn get_token_contract(env: &Env) -> Result<Address, Error> {
     env.storage()
         .instance()
         .get(&DataKey::TokenContract)
-        .expect("Contract not initialized")
+        .ok_or(Error::NotInitialized)
 }
 
 fn set_token_contract(env: &Env, token_contract: &Address) {
@@ -32,22 +40,22 @@ fn set_token_contract(env: &Env, token_contract: &Address) {
         .set(&DataKey::TokenContract, token_contract);
 }
 
-fn get_token_id(env: &Env) -> u128 {
+fn get_token_id(env: &Env) -> Result<u128, Error> {
     env.storage()
         .instance()
         .get(&DataKey::TokenId)
-        .expect("Contract not initialized")
+        .ok_or(Error::NotInitialized)
 }
 
 fn set_token_id(env: &Env, token_id: &u128) {
     env.storage().instance().set(&DataKey::TokenId, token_id);
 }
 
-fn get_implementation_hash(env: &Env) -> BytesN<32> {
+fn get_implementation_hash(env: &Env) -> Result<BytesN<32>, Error> {
     env.storage()
         .instance()
         .get(&DataKey::ImplementationHash)
-        .expect("Contract not initialized")
+        .ok_or(Error::NotInitialized)
 }
 
 fn set_implementation_hash(env: &Env, implementation_hash: &BytesN<32>) {
@@ -56,11 +64,11 @@ fn set_implementation_hash(env: &Env, implementation_hash: &BytesN<32>) {
         .set(&DataKey::ImplementationHash, implementation_hash);
 }
 
-fn get_salt(env: &Env) -> BytesN<32> {
+fn get_salt(env: &Env) -> Result<BytesN<32>, Error> {
     env.storage()
         .instance()
         .get(&DataKey::Salt)
-        .expect("Contract not initialized")
+        .ok_or(Error::NotInitialized)
 }
 
 fn set_salt(env: &Env, salt: &BytesN<32>) {
@@ -123,10 +131,10 @@ impl TbaAccount {
         token_id: u128,
         implementation_hash: BytesN<32>,
         salt: BytesN<32>,
-    ) {
+    ) -> Result<(), Error> {
         // Prevent re-initialization
         if is_initialized(&env) {
-            panic!("Contract already initialized");
+            return Err(Error::AlreadyInitialized);
         }
 
         // Store all parameters
@@ -135,35 +143,37 @@ impl TbaAccount {
         set_implementation_hash(&env, &implementation_hash);
         set_salt(&env, &salt);
         set_initialized(&env, &true);
+        
+        Ok(())
     }
 
     /// Get the NFT contract address
-    pub fn token_contract(env: Env) -> Address {
+    pub fn token_contract(env: Env) -> Result<Address, Error> {
         get_token_contract(&env)
     }
 
     /// Get the token ID
-    pub fn token_id(env: Env) -> u128 {
+    pub fn token_id(env: Env) -> Result<u128, Error> {
         get_token_id(&env)
     }
 
     /// Get the current owner of the NFT (by querying the NFT contract)
-    pub fn owner(env: Env) -> Address {
-        let token_contract = get_token_contract(&env);
-        let token_id = get_token_id(&env);
-        get_nft_owner(&env, &token_contract, token_id)
+    pub fn owner(env: Env) -> Result<Address, Error> {
+        let token_contract = get_token_contract(&env)?;
+        let token_id = get_token_id(&env)?;
+        Ok(get_nft_owner(&env, &token_contract, token_id))
     }
 
     /// Get token details as a tuple: (chain_id, token_contract, token_id)
     /// This matches the ERC-6551 pattern for compatibility
     /// Note: chain_id is set to 0 as Soroban doesn't expose chain_id in the same way
-    pub fn token(env: Env) -> (u32, Address, u128) {
+    pub fn token(env: Env) -> Result<(u32, Address, u128), Error> {
         // Soroban doesn't have chain_id exposed, using 0 as placeholder
         // In production, this could be set during initialization
         let chain_id = 0u32;
-        let token_contract = get_token_contract(&env);
-        let token_id = get_token_id(&env);
-        (chain_id, token_contract, token_id)
+        let token_contract = get_token_contract(&env)?;
+        let token_id = get_token_id(&env)?;
+        Ok((chain_id, token_contract, token_id))
     }
 
     /// Get the current nonce
@@ -174,15 +184,15 @@ impl TbaAccount {
     /// Execute a transaction to another contract
     /// Only the current NFT owner can execute transactions
     /// This function increments the nonce and emits an event
-    pub fn execute(env: Env, to: Address, func: Symbol, args: Vec<Val>) -> Vec<Val> {
+    pub fn execute(env: Env, to: Address, func: Symbol, args: Vec<Val>) -> Result<Vec<Val>, Error> {
         // Verify contract is initialized
         if !is_initialized(&env) {
-            panic!("Contract not initialized");
+            return Err(Error::NotInitialized);
         }
 
         // Get the NFT owner and verify authorization
-        let token_contract = get_token_contract(&env);
-        let token_id = get_token_id(&env);
+        let token_contract = get_token_contract(&env)?;
+        let token_id = get_token_id(&env)?;
         let owner = get_nft_owner(&env, &token_contract, token_id);
 
         // Require authorization from the NFT owner
@@ -206,7 +216,7 @@ impl TbaAccount {
         );
 
         // Invoke the target contract
-        env.invoke_contract::<Vec<Val>>(&to, &func, args)
+        Ok(env.invoke_contract::<Vec<Val>>(&to, &func, args))
     }
 
     /// CustomAccountInterface implementation: Check authorization
@@ -216,10 +226,10 @@ impl TbaAccount {
         signature_payload: BytesN<32>,
         signatures: Vec<BytesN<64>>,
         auth_context: Vec<Context>,
-    ) {
+    ) -> Result<(), Error> {
         // Get the NFT contract and token ID
-        let token_contract = get_token_contract(&env);
-        let token_id = get_token_id(&env);
+        let token_contract = get_token_contract(&env)?;
+        let token_id = get_token_id(&env)?;
 
         // Get the current owner of the NFT
         let owner = get_nft_owner(&env, &token_contract, token_id);
@@ -232,6 +242,8 @@ impl TbaAccount {
             Val::from(signatures),
             Val::from(auth_context),
         ]);
+        
+        Ok(())
     }
 }
 

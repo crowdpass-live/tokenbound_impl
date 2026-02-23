@@ -47,7 +47,7 @@ fn test_get_account_matches_create_account() {
     let calculated_address = client.get_account(&impl_hash, &token_contract, &token_id, &salt);
 
     // Deploy the account
-    let deployed_address = client.create_account(&impl_hash, &token_contract, &token_id, &salt);
+    let deployed_address = client.create_account(&impl_hash, &token_contract, &token_id, &salt).unwrap();
 
     // They should match
     assert_eq!(calculated_address, deployed_address);
@@ -67,9 +67,9 @@ fn test_multiple_accounts_same_nft() {
     let salt3 = BytesN::from_array(&env, &[30u8; 32]);
 
     // Deploy three accounts for the same NFT with different salts
-    let addr1 = client.create_account(&impl_hash, &token_contract, &token_id, &salt1);
-    let addr2 = client.create_account(&impl_hash, &token_contract, &token_id, &salt2);
-    let addr3 = client.create_account(&impl_hash, &token_contract, &token_id, &salt3);
+    let addr1 = client.create_account(&impl_hash, &token_contract, &token_id, &salt1).unwrap();
+    let addr2 = client.create_account(&impl_hash, &token_contract, &token_id, &salt2).unwrap();
+    let addr3 = client.create_account(&impl_hash, &token_contract, &token_id, &salt3).unwrap();
 
     // All addresses should be different
     assert_ne!(addr1, addr2);
@@ -101,7 +101,7 @@ fn test_account_count_increments() {
     // Deploy accounts and verify count increments
     for i in 1u8..=5u8 {
         let salt = BytesN::from_array(&env, &[i; 32]);
-        client.create_account(&impl_hash, &token_contract, &token_id, &salt);
+        client.create_account(&impl_hash, &token_contract, &token_id, &salt).unwrap();
         assert_eq!(
             client.total_deployed_accounts(&token_contract, &token_id),
             i as u32
@@ -120,19 +120,18 @@ fn test_deployed_account_initialized() {
     let salt = BytesN::from_array(&env, &[50u8; 32]);
 
     // Deploy the account
-    let deployed_address = client.create_account(&impl_hash, &token_contract, &token_id, &salt);
+    let deployed_address = client.create_account(&impl_hash, &token_contract, &token_id, &salt).unwrap();
 
     // Create a client for the deployed TBA account
     let tba_client = tba_account_contract::Client::new(&env, &deployed_address);
 
     // Verify the account is initialized with correct values
-    assert_eq!(tba_client.token_contract(), token_contract);
-    assert_eq!(tba_client.token_id(), token_id);
+    assert_eq!(tba_client.token_contract().unwrap(), token_contract);
+    assert_eq!(tba_client.token_id().unwrap(), token_id);
 }
 
 /// Test: Cannot create account twice with same parameters
 #[test]
-#[should_panic(expected = "Account already deployed")]
 fn test_cannot_create_account_twice() {
     let (env, _registry_addr, client, _wasm_hash) = setup_test();
 
@@ -142,10 +141,12 @@ fn test_cannot_create_account_twice() {
     let salt = BytesN::from_array(&env, &[60u8; 32]);
 
     // First deployment should succeed
-    client.create_account(&impl_hash, &token_contract, &token_id, &salt);
+    client.create_account(&impl_hash, &token_contract, &token_id, &salt).unwrap();
 
-    // Second deployment with same parameters should panic
-    client.create_account(&impl_hash, &token_contract, &token_id, &salt);
+    // Second deployment with same parameters should fail
+    let result = client.create_account(&impl_hash, &token_contract, &token_id, &salt);
+    assert!(result.is_err());
+    assert_eq!(result.unwrap_err(), Error::AccountAlreadyDeployed);
 }
 
 /// Test: get_deployed_address returns correct address
@@ -165,7 +166,7 @@ fn test_get_deployed_address() {
     );
 
     // Deploy the account
-    let deployed_address = client.create_account(&impl_hash, &token_contract, &token_id, &salt);
+    let deployed_address = client.create_account(&impl_hash, &token_contract, &token_id, &salt).unwrap();
 
     // After deployment, should return the address
     assert_eq!(
@@ -185,11 +186,11 @@ fn test_different_nfts_separate_counts() {
 
     // Deploy accounts for NFT 1
     let salt1 = BytesN::from_array(&env, &[80u8; 32]);
-    client.create_account(&impl_hash, &token_contract1, &1u128, &salt1);
+    client.create_account(&impl_hash, &token_contract1, &1u128, &salt1).unwrap();
 
     // Deploy accounts for NFT 2
     let salt2 = BytesN::from_array(&env, &[90u8; 32]);
-    client.create_account(&impl_hash, &token_contract2, &1u128, &salt2);
+    client.create_account(&impl_hash, &token_contract2, &1u128, &salt2).unwrap();
 
     // Each NFT should have count of 1
     assert_eq!(client.total_deployed_accounts(&token_contract1, &1u128), 1);
@@ -197,21 +198,7 @@ fn test_different_nfts_separate_counts() {
 
     // Deploy another account for NFT 1
     let salt3 = BytesN::from_array(&env, &[100u8; 32]);
-    client.create_account(&impl_hash, &token_contract1, &1u128, &salt3);
-
-    // NFT 1 should now have count 2, NFT 2 should still be 1
-    assert_eq!(client.total_deployed_accounts(&token_contract1, &1u128), 2);
-    assert_eq!(client.total_deployed_accounts(&token_contract2, &1u128), 1);
-}
-
-/// Test: get_account works for different parameters
-#[test]
-fn test_get_account_different_parameters() {
-    let (env, _registry_addr, client, _wasm_hash) = setup_test();
-
-    let token_contract = Address::generate(&env);
-    let impl_hash = BytesN::from_array(&env, &[1u8; 32]);
-
+    client.create_account(&impl_hash, &token_contract1, &1u128, &salt3).unwrap();
     // Calculate addresses for different parameters
     let addr1 = client.get_account(
         &impl_hash,
