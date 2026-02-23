@@ -33,7 +33,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Cache node modules
         uses: actions/cache@v4
@@ -122,23 +122,26 @@ jobs:
         run: cargo fmt --all -- --check
         continue-on-error: true
 
-      - name: Run clippy
-        working-directory: soroban-contract
-        run: cargo clippy --all-targets -- -D warnings
-        continue-on-error: true
-
       - name: Build contracts
         working-directory: soroban-contract
-        run: soroban contract build
-
-      - name: Run contract tests
-        working-directory: soroban-contract
-        run: cargo test --workspace
+        run: |
+          cargo build --release --target wasm32-unknown-unknown -p ticket_nft
+          cargo build --release --target wasm32-unknown-unknown -p tba_account
+          soroban contract build
 
       - name: Optimize contracts
         working-directory: soroban-contract
         run: soroban contract optimize --wasm target/wasm32-unknown-unknown/release/*.wasm
         continue-on-error: true
+
+      - name: Run clippy
+        working-directory: soroban-contract
+        run: cargo clippy --all-targets -- -D warnings
+        continue-on-error: true
+
+      - name: Run contract tests
+        working-directory: soroban-contract
+        run: cargo test --workspace
 
   integration:
     name: Integration Tests
@@ -153,7 +156,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
