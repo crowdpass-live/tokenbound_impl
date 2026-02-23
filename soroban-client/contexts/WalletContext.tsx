@@ -17,7 +17,12 @@ interface WalletContextType {
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [address, setAddress] = useState<string | null>(null);
+    const [address, setAddress] = useState<string | null>(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('wallet_address');
+        }
+        return null;
+    });
     const [isInstalled, setIsInstalled] = useState<boolean>(false);
 
     useEffect(() => {
@@ -59,13 +64,6 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         localStorage.removeItem('wallet_address');
     };
 
-    // Persist connection state across page navigation
-    useEffect(() => {
-        const savedAddress = localStorage.getItem('wallet_address');
-        if (savedAddress) {
-            setAddress(savedAddress);
-        }
-    }, []);
 
     return (
         <WalletContext.Provider value={{
