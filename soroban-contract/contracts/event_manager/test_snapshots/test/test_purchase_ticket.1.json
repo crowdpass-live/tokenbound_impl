@@ -20,10 +20,10 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
                 },
                 {
-                  "string": "Rust Conference 2026"
+                  "string": "Test"
                 },
                 {
-                  "string": "Conference"
+                  "string": "Type"
                 },
                 {
                   "u64": 86400
@@ -34,17 +34,39 @@
                 {
                   "i128": {
                     "hi": 0,
-                    "lo": 10000000000
+                    "lo": 100
                   }
                 },
                 {
                   "u128": {
                     "hi": 0,
-                    "lo": 500
+                    "lo": 10
                   }
                 },
                 {
+                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                }
+              ]
+            }
+          },
+          "sub_invocations": []
+        }
+      ]
+    ],
+    [
+      [
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4",
+        {
+          "function": {
+            "contract_fn": {
+              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "function_name": "purchase_ticket",
+              "args": [
+                {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
+                },
+                {
+                  "u32": 0
                 }
               ]
             }
@@ -115,7 +137,7 @@
                         "symbol": "event_type"
                       },
                       "val": {
-                        "string": "Conference"
+                        "string": "Type"
                       }
                     },
                     {
@@ -147,7 +169,7 @@
                         "symbol": "payment_token"
                       },
                       "val": {
-                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
+                        "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                       }
                     },
                     {
@@ -163,7 +185,7 @@
                         "symbol": "theme"
                       },
                       "val": {
-                        "string": "Rust Conference 2026"
+                        "string": "Test"
                       }
                     },
                     {
@@ -181,7 +203,7 @@
                       "val": {
                         "i128": {
                           "hi": 0,
-                          "lo": 10000000000
+                          "lo": 100
                         }
                       }
                     },
@@ -192,7 +214,7 @@
                       "val": {
                         "u128": {
                           "hi": 0,
-                          "lo": 0
+                          "lo": 1
                         }
                       }
                     },
@@ -203,7 +225,7 @@
                       "val": {
                         "u128": {
                           "hi": 0,
-                          "lo": 500
+                          "lo": 10
                         }
                       }
                     }
@@ -327,6 +349,39 @@
                 "key": {
                   "ledger_key_nonce": {
                     "nonce": 801925984706572462
+                  }
+                },
+                "durability": "temporary",
+                "val": "void"
+              }
+            },
+            "ext": "v0"
+          },
+          6311999
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4",
+            "key": {
+              "ledger_key_nonce": {
+                "nonce": 5541220902715666415
+              }
+            },
+            "durability": "temporary"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4",
+                "key": {
+                  "ledger_key_nonce": {
+                    "nonce": 5541220902715666415
                   }
                 },
                 "durability": "temporary",
