@@ -1,7 +1,7 @@
 #![cfg(test)]
 
 use super::*;
-use soroban_sdk::{testutils::Address as _, testutils::Ledger, Address, BytesN, Env, Symbol};
+use soroban_sdk::{testutils::Address as _, testutils::Ledger, Address, BytesN, Env};
 
 #[contract]
 pub struct MockContract;

@@ -20,7 +20,7 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
                 },
                 {
-                  "string": "Rust Conference 2026"
+                  "string": "Original Theme"
                 },
                 {
                   "string": "Conference"
@@ -40,12 +40,38 @@
                 {
                   "u128": {
                     "hi": 0,
-                    "lo": 500
+                    "lo": 100
                   }
                 },
                 {
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAITA4"
                 }
+              ]
+            }
+          },
+          "sub_invocations": []
+        }
+      ]
+    ],
+    [
+      [
+        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
+        {
+          "function": {
+            "contract_fn": {
+              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+              "function_name": "update_event",
+              "args": [
+                {
+                  "u32": 0
+                },
+                {
+                  "string": "Updated Theme"
+                },
+                "void",
+                "void",
+                "void",
+                "void"
               ]
             }
           },
@@ -163,7 +189,7 @@
                         "symbol": "theme"
                       },
                       "val": {
-                        "string": "Rust Conference 2026"
+                        "string": "Updated Theme"
                       }
                     },
                     {
@@ -203,7 +229,7 @@
                       "val": {
                         "u128": {
                           "hi": 0,
-                          "lo": 500
+                          "lo": 100
                         }
                       }
                     }
@@ -327,6 +353,39 @@
                 "key": {
                   "ledger_key_nonce": {
                     "nonce": 801925984706572462
+                  }
+                },
+                "durability": "temporary",
+                "val": "void"
+              }
+            },
+            "ext": "v0"
+          },
+          6311999
+        ]
+      ],
+      [
+        {
+          "contract_data": {
+            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
+            "key": {
+              "ledger_key_nonce": {
+                "nonce": 5541220902715666415
+              }
+            },
+            "durability": "temporary"
+          }
+        },
+        [
+          {
+            "last_modified_ledger_seq": 0,
+            "data": {
+              "contract_data": {
+                "ext": "v0",
+                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
+                "key": {
+                  "ledger_key_nonce": {
+                    "nonce": 5541220902715666415
                   }
                 },
                 "durability": "temporary",
