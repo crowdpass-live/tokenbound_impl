@@ -7,7 +7,7 @@ import PartnersSection from "../components/PartnersSection";
 
 export default function Home() {
   return (
-    <main className="bg-[#18181B] min-h-screen text-white font-sans selection:bg-[#FF5722] selection:text-white">
+    <div className="bg-[#18181B] min-h-screen text-white font-sans selection:bg-[#FF5722] selection:text-white flex flex-col">
       <Header />
       <main className="flex-grow flex flex-col">
         <Hero />
@@ -16,6 +16,6 @@ export default function Home() {
         <HowItWorksSection />
         <PartnersSection />
       </main>
-    </main>
+    </div>
   );
 }

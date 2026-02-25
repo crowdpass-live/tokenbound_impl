@@ -1,7 +1,7 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, Address, Env, IntoVal, String, Symbol, Vec,
+    contract, contractimpl, contracttype, Address, BytesN, Env, IntoVal, String, Symbol, Vec,
 };
 
 // Error handling
@@ -43,6 +43,7 @@ pub struct Event {
     pub end_date: u64,
     pub is_canceled: bool,
     pub ticket_nft_addr: Address,
+    pub payment_token: Address,
 }
 
 #[contract]
@@ -79,6 +80,9 @@ impl EventManager {
         ticket_price: i128,
         total_tickets: u128,
     ) -> Result<u32, Error> {
+      
+        payment_token: Address,
+    ) -> u32 {
         // Validate organizer address
         organizer.require_auth();
 
@@ -104,12 +108,20 @@ impl EventManager {
             end_date,
             is_canceled: false,
             ticket_nft_addr: ticket_nft_addr.clone(),
+            payment_token,
         };
 
         // Store event
         env.storage()
             .persistent()
             .set(&DataKey::Event(event_id), &event);
+
+        // Extend TTL for the new event
+        env.storage().persistent().extend_ttl(
+            &DataKey::Event(event_id),
+            30 * 24 * 60 * 60 / 5,  // threshold (~30 days)
+            100 * 24 * 60 * 60 / 5, // extend_to (~100 days)
+        );
 
         // Emit event creation event
         env.events().publish(
@@ -211,6 +223,59 @@ impl EventManager {
         Ok(())
     }
 
+    /// Purchase a ticket for an event
+    pub fn purchase_ticket(env: Env, buyer: Address, event_id: u32) {
+        buyer.require_auth();
+
+        let mut event: Event = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Event(event_id))
+            .unwrap_or_else(|| panic!("Event not found"));
+
+        if event.is_canceled {
+            panic!("Event is canceled");
+        }
+
+        if event.tickets_sold >= event.total_tickets {
+            panic!("Event is sold out");
+        }
+
+        // Handle payment
+        if event.ticket_price > 0 {
+            let token_client = soroban_sdk::token::Client::new(&env, &event.payment_token);
+            token_client.transfer(&buyer, &event.organizer, &event.ticket_price);
+        }
+
+        // Mint ticket NFT
+        env.invoke_contract::<u128>(
+            &event.ticket_nft_addr,
+            &Symbol::new(&env, "mint_ticket_nft"),
+            soroban_sdk::vec![&env, buyer.into_val(&env)],
+        );
+
+        // Update tickets sold
+        event.tickets_sold += 1;
+
+        // Store updated event
+        env.storage()
+            .persistent()
+            .set(&DataKey::Event(event_id), &event);
+
+        // Extend TTL
+        env.storage().persistent().extend_ttl(
+            &DataKey::Event(event_id),
+            30 * 24 * 60 * 60 / 5,
+            100 * 24 * 60 * 60 / 5,
+        );
+
+        // Emit purchase event
+        env.events().publish(
+            (Symbol::new(&env, "ticket_purchased"),),
+            (event_id, buyer, event.ticket_nft_addr),
+        );
+    }
+
     // ========== Helper Functions ==========
 
     fn validate_event_params(
@@ -268,19 +333,8 @@ impl EventManager {
             .ok_or(Error::FactoryNotInitialized)?;
 
         // Call the factory contract to deploy a new NFT contract
+            .unwrap_or_else(|| panic!("Ticket factory not initialized"));
         // This is a cross-contract call
-        use soroban_sdk::vec;
-
-        let nft_addr: Address = env.invoke_contract(
-            &factory_addr,
-            &Symbol::new(env, "deploy_ticket_nft"),
-            vec![
-                env,
-                event_id.into_val(env),
-                theme.into_val(env),
-                total_supply.into_val(env),
-            ],
-        );
 
         Ok(nft_addr)
     }
@@ -410,3 +464,15 @@ mod test {
         assert_eq!(event.is_canceled, true);
     }
 }
+        let salt = BytesN::from_array(&env, &[0u8; 32]);
+        let mut args = Vec::new(&env);
+        args.push_back(env.current_contract_address().to_val());
+        args.push_back(salt.to_val());
+
+        let nft_addr: Address =
+            env.invoke_contract(&factory_addr, &Symbol::new(&env, "deploy_ticket"), args);
+        nft_addr
+    }
+}
+
+mod test;
