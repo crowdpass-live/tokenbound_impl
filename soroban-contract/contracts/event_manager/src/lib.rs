@@ -10,6 +10,8 @@ pub enum DataKey {
     Event(u32),
     EventCounter,
     TicketFactory,
+    RefundClaimed(u32, Address), // (event_id, buyer_address)
+    EventBuyers(u32),             // event_id -> Vec<Address> of ticket buyers
 }
 
 // Event structure
@@ -323,6 +325,17 @@ impl EventManager {
             &Symbol::new(&env, "mint_ticket_nft"),
             soroban_sdk::vec![&env, buyer.into_val(&env)],
         );
+
+        // Track buyer for refund purposes
+        let mut buyers: Vec<Address> = env
+            .storage()
+            .persistent()
+            .get(&DataKey::EventBuyers(event_id))
+            .unwrap_or_else(|| Vec::new(&env));
+        buyers.push_back(buyer.clone());
+        env.storage()
+            .persistent()
+            .set(&DataKey::EventBuyers(event_id), &buyers);
 
         // Update tickets sold
         event.tickets_sold += 1;
