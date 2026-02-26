@@ -171,3 +171,240 @@ fn test_purchase_ticket() {
     let event = client.get_event(&event_id);
     assert_eq!(event.tickets_sold, 1);
 }
+
+// ========== REFUND TESTS ==========
+
+#[test]
+fn test_claim_refund_successful() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(EventManager, ());
+    let client = EventManagerClient::new(&env, &contract_id);
+
+    let mock_addr = env.register(MockContract, ());
+    let organizer = Address::generate(&env);
+    let buyer = Address::generate(&env);
+
+    client.initialize(&mock_addr);
+
+    // Create event with ticket price
+    let event_id = client.create_event(
+        &organizer,
+        &String::from_str(&env, "Test Event"),
+        &String::from_str(&env, "Conference"),
+        &(env.ledger().timestamp() + 86400),
+        &(env.ledger().timestamp() + 172800),
+        &100i128,
+        &10u128,
+        &mock_addr,
+    );
+
+    // Purchase ticket
+    client.purchase_ticket(&buyer, &event_id);
+    let event = client.get_event(&event_id);
+    assert_eq!(event.tickets_sold, 1);
+
+    // Cancel event
+    client.cancel_event(&event_id);
+
+    // Claim refund
+    client.claim_refund(&buyer, &event_id);
+}
+
+#[test]
+#[should_panic(expected = "Event is not canceled")]
+fn test_claim_refund_event_not_canceled() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(EventManager, ());
+    let client = EventManagerClient::new(&env, &contract_id);
+
+    let mock_addr = env.register(MockContract, ());
+    let organizer = Address::generate(&env);
+    let buyer = Address::generate(&env);
+
+    client.initialize(&mock_addr);
+
+    let event_id = client.create_event(
+        &organizer,
+        &String::from_str(&env, "Test Event"),
+        &String::from_str(&env, "Conference"),
+        &(env.ledger().timestamp() + 86400),
+        &(env.ledger().timestamp() + 172800),
+        &100i128,
+        &10u128,
+        &mock_addr,
+    );
+
+    client.purchase_ticket(&buyer, &event_id);
+
+    // Try to claim refund without canceling event
+    client.claim_refund(&buyer, &event_id);
+}
+
+#[test]
+#[should_panic(expected = "Refund already claimed")]
+fn test_claim_refund_double_claim() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(EventManager, ());
+    let client = EventManagerClient::new(&env, &contract_id);
+
+    let mock_addr = env.register(MockContract, ());
+    let organizer = Address::generate(&env);
+    let buyer = Address::generate(&env);
+
+    client.initialize(&mock_addr);
+
+    let event_id = client.create_event(
+        &organizer,
+        &String::from_str(&env, "Test Event"),
+        &String::from_str(&env, "Conference"),
+        &(env.ledger().timestamp() + 86400),
+        &(env.ledger().timestamp() + 172800),
+        &100i128,
+        &10u128,
+        &mock_addr,
+    );
+
+    client.purchase_ticket(&buyer, &event_id);
+    client.cancel_event(&event_id);
+
+    // Claim refund first time
+    client.claim_refund(&buyer, &event_id);
+
+    // Try to claim again (should fail)
+    client.claim_refund(&buyer, &event_id);
+}
+
+#[test]
+#[should_panic(expected = "Claimer did not purchase a ticket for this event")]
+fn test_claim_refund_no_ticket_purchased() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(EventManager, ());
+    let client = EventManagerClient::new(&env, &contract_id);
+
+    let mock_addr = env.register(MockContract, ());
+    let organizer = Address::generate(&env);
+    let buyer = Address::generate(&env);
+    let non_buyer = Address::generate(&env);
+
+    client.initialize(&mock_addr);
+
+    let event_id = client.create_event(
+        &organizer,
+        &String::from_str(&env, "Test Event"),
+        &String::from_str(&env, "Conference"),
+        &(env.ledger().timestamp() + 86400),
+        &(env.ledger().timestamp() + 172800),
+        &100i128,
+        &10u128,
+        &mock_addr,
+    );
+
+    client.purchase_ticket(&buyer, &event_id);
+    client.cancel_event(&event_id);
+
+    // Try to claim refund without purchasing
+    client.claim_refund(&non_buyer, &event_id);
+}
+
+#[test]
+fn test_claim_refund_free_ticket() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(EventManager, ());
+    let client = EventManagerClient::new(&env, &contract_id);
+
+    let mock_addr = env.register(MockContract, ());
+    let organizer = Address::generate(&env);
+    let buyer = Address::generate(&env);
+
+    client.initialize(&mock_addr);
+
+    // Create event with zero ticket price
+    let event_id = client.create_event(
+        &organizer,
+        &String::from_str(&env, "Free Event"),
+        &String::from_str(&env, "Conference"),
+        &(env.ledger().timestamp() + 86400),
+        &(env.ledger().timestamp() + 172800),
+        &0i128, // Free ticket
+        &10u128,
+        &mock_addr,
+    );
+
+    client.purchase_ticket(&buyer, &event_id);
+    client.cancel_event(&event_id);
+
+    // Should succeed even with zero price (no token transfer)
+    client.claim_refund(&buyer, &event_id);
+}
+
+#[test]
+fn test_multiple_refund_claims() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(EventManager, ());
+    let client = EventManagerClient::new(&env, &contract_id);
+
+    let mock_addr = env.register(MockContract, ());
+    let organizer = Address::generate(&env);
+    let buyer1 = Address::generate(&env);
+    let buyer2 = Address::generate(&env);
+    let buyer3 = Address::generate(&env);
+
+    client.initialize(&mock_addr);
+
+    let event_id = client.create_event(
+        &organizer,
+        &String::from_str(&env, "Multi-buyer Event"),
+        &String::from_str(&env, "Conference"),
+        &(env.ledger().timestamp() + 86400),
+        &(env.ledger().timestamp() + 172800),
+        &100i128,
+        &10u128,
+        &mock_addr,
+    );
+
+    // Multiple buyers purchase tickets
+    client.purchase_ticket(&buyer1, &event_id);
+    client.purchase_ticket(&buyer2, &event_id);
+    client.purchase_ticket(&buyer3, &event_id);
+
+    let event = client.get_event(&event_id);
+    assert_eq!(event.tickets_sold, 3);
+
+    // Cancel event
+    client.cancel_event(&event_id);
+
+    // All three buyers claim refunds
+    client.claim_refund(&buyer1, &event_id);
+    client.claim_refund(&buyer2, &event_id);
+    client.claim_refund(&buyer3, &event_id);
+}
+
+#[test]
+#[should_panic(expected = "Event not found")]
+fn test_claim_refund_nonexistent_event() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let contract_id = env.register(EventManager, ());
+    let client = EventManagerClient::new(&env, &contract_id);
+
+    let mock_addr = env.register(MockContract, ());
+    client.initialize(&mock_addr);
+
+    let buyer = Address::generate(&env);
+
+    // Try to claim refund for non-existent event
+    client.claim_refund(&buyer, &999u32);
+}

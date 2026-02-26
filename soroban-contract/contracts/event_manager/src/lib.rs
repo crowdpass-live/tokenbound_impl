@@ -173,6 +173,68 @@ impl EventManager {
             .publish((Symbol::new(&env, "event_canceled"),), event_id);
     }
 
+    /// Claim refund for a canceled event (pull model)
+    /// Only works for canceled events, prevents double-refund claims
+    pub fn claim_refund(env: Env, claimer: Address, event_id: u32) {
+        claimer.require_auth();
+
+        let event: Event = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Event(event_id))
+            .unwrap_or_else(|| panic!("Event not found"));
+
+        // Event must be canceled
+        if !event.is_canceled {
+            panic!("Event is not canceled");
+        }
+
+        // Check if this claimer already claimed refund
+        if env
+            .storage()
+            .persistent()
+            .has(&DataKey::RefundClaimed(event_id, claimer.clone()))
+        {
+            panic!("Refund already claimed");
+        }
+
+        // Verify claimer is in the buyers list
+        let buyers: Vec<Address> = env
+            .storage()
+            .persistent()
+            .get(&DataKey::EventBuyers(event_id))
+            .unwrap_or_else(|| Vec::new(&env));
+
+        let mut found = false;
+        for buyer in buyers.iter() {
+            if buyer == claimer {
+                found = true;
+                break;
+            }
+        }
+
+        if !found {
+            panic!("Claimer did not purchase a ticket for this event");
+        }
+
+        // Mark refund as claimed (prevent double-refund)
+        env.storage()
+            .persistent()
+            .set(&DataKey::RefundClaimed(event_id, claimer.clone()), &true);
+
+        // Transfer refund amount back to claimer
+        if event.ticket_price > 0 {
+            let token_client = soroban_sdk::token::Client::new(&env, &event.payment_token);
+            token_client.transfer(&event.organizer, &claimer, &event.ticket_price);
+        }
+
+        // Emit refund claimed event
+        env.events().publish(
+            (Symbol::new(&env, "refund_claimed"),),
+            (event_id, claimer, event.ticket_price),
+        );
+    }
+
     /// Update event details. Only the organizer can update. Cannot update a canceled event.
     /// Cannot reduce total_tickets below tickets_sold. Cannot set dates in the past.
     pub fn update_event(
