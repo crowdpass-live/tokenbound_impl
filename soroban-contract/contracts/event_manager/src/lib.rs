@@ -4,6 +4,22 @@ use soroban_sdk::{
     contract, contractimpl, contracttype, Address, BytesN, Env, IntoVal, String, Symbol, Vec,
 };
 
+// Error handling
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum Error {
+    AlreadyInitialized = 1,
+    EventNotFound = 2,
+    EventAlreadyCanceled = 3,
+    CannotSellMoreTickets = 4,
+    InvalidStartDate = 5,
+    InvalidEndDate = 6,
+    NegativeTicketPrice = 7,
+    InvalidTicketCount = 8,
+    CounterOverflow = 9,
+    FactoryNotInitialized = 10,
+}
+
 // Storage keys
 #[contracttype]
 pub enum DataKey {
@@ -36,10 +52,10 @@ pub struct EventManager;
 #[contractimpl]
 impl EventManager {
     /// Initialize the contract with the ticket factory address
-    pub fn initialize(env: Env, ticket_factory: Address) {
+    pub fn initialize(env: Env, ticket_factory: Address) -> Result<(), Error> {
         // Ensure not already initialized
         if env.storage().instance().has(&DataKey::TicketFactory) {
-            panic!("Already initialized");
+            return Err(Error::AlreadyInitialized);
         }
 
         // Store the ticket factory address
@@ -49,6 +65,8 @@ impl EventManager {
 
         // Initialize event counter
         env.storage().instance().set(&DataKey::EventCounter, &0u32);
+        
+        Ok(())
     }
 
     /// Create a new event
@@ -61,19 +79,21 @@ impl EventManager {
         end_date: u64,
         ticket_price: i128,
         total_tickets: u128,
+    ) -> Result<u32, Error> {
+      
         payment_token: Address,
     ) -> u32 {
         // Validate organizer address
         organizer.require_auth();
 
         // Validate inputs
-        Self::validate_event_params(&env, start_date, end_date, ticket_price, total_tickets);
+        Self::validate_event_params(&env, start_date, end_date, ticket_price, total_tickets)?;
 
         // Get and increment event counter
-        let event_id = Self::get_and_increment_counter(&env);
+        let event_id = Self::get_and_increment_counter(&env)?;
 
         // Deploy ticket NFT contract via factory
-        let ticket_nft_addr = Self::deploy_ticket_nft(&env, event_id, theme.clone(), total_tickets);
+        let ticket_nft_addr = Self::deploy_ticket_nft(&env, event_id, theme.clone(), total_tickets)?;
 
         // Create event struct
         let event = Event {
@@ -109,15 +129,15 @@ impl EventManager {
             (event_id, organizer, ticket_nft_addr),
         );
 
-        event_id
+        Ok(event_id)
     }
 
     /// Get event by ID
-    pub fn get_event(env: Env, event_id: u32) -> Event {
+    pub fn get_event(env: Env, event_id: u32) -> Result<Event, Error> {
         env.storage()
             .persistent()
             .get(&DataKey::Event(event_id))
-            .unwrap_or_else(|| panic!("Event not found"))
+            .ok_or(Error::EventNotFound)
     }
 
     /// Get total number of events
@@ -143,19 +163,19 @@ impl EventManager {
     }
 
     /// Cancel an event
-    pub fn cancel_event(env: Env, event_id: u32) {
+    pub fn cancel_event(env: Env, event_id: u32) -> Result<(), Error> {
         let mut event: Event = env
             .storage()
             .persistent()
             .get(&DataKey::Event(event_id))
-            .unwrap_or_else(|| panic!("Event not found"));
+            .ok_or(Error::EventNotFound)?;
 
         // Only organizer can cancel
         event.organizer.require_auth();
 
         // Check if already canceled
         if event.is_canceled {
-            panic!("Event already canceled");
+            return Err(Error::EventAlreadyCanceled);
         }
 
         // Mark as canceled
@@ -169,6 +189,8 @@ impl EventManager {
         // Emit cancellation event
         env.events()
             .publish((Symbol::new(&env, "event_canceled"),), event_id);
+        
+        Ok(())
     }
 
     /// Update event details. Only the organizer can update. Cannot update a canceled event.
@@ -266,12 +288,12 @@ impl EventManager {
     }
 
     /// Update tickets sold (called by ticket purchase logic)
-    pub fn update_tickets_sold(env: Env, event_id: u32, amount: u128) {
+    pub fn update_tickets_sold(env: Env, event_id: u32, amount: u128) -> Result<(), Error> {
         let mut event: Event = env
             .storage()
             .persistent()
             .get(&DataKey::Event(event_id))
-            .unwrap_or_else(|| panic!("Event not found"));
+            .ok_or(Error::EventNotFound)?;
 
         // Verify the caller (should be the ticket NFT contract or authorized entity)
         event.ticket_nft_addr.require_auth();
@@ -280,17 +302,19 @@ impl EventManager {
         event.tickets_sold = event
             .tickets_sold
             .checked_add(amount)
-            .unwrap_or_else(|| panic!("Overflow in tickets sold"));
+            .ok_or(Error::CounterOverflow)?;
 
         // Ensure we don't oversell
         if event.tickets_sold > event.total_tickets {
-            panic!("Cannot sell more tickets than available");
+            return Err(Error::CannotSellMoreTickets);
         }
 
         // Update storage
         env.storage()
             .persistent()
             .set(&DataKey::Event(event_id), &event);
+        
+        Ok(())
     }
 
     /// Purchase a ticket for an event
@@ -354,30 +378,32 @@ impl EventManager {
         end_date: u64,
         ticket_price: i128,
         total_tickets: u128,
-    ) {
+    ) -> Result<(), Error> {
         let current_time = env.ledger().timestamp();
 
         // Validate dates
         if start_date < current_time {
-            panic!("Start date must be in the future");
+            return Err(Error::InvalidStartDate);
         }
 
         if end_date <= start_date {
-            panic!("End date must be after start date");
+            return Err(Error::InvalidEndDate);
         }
 
         // Validate ticket price
         if ticket_price < 0 {
-            panic!("Ticket price cannot be negative");
+            return Err(Error::NegativeTicketPrice);
         }
 
         // Validate total tickets
         if total_tickets == 0 {
-            panic!("Total tickets must be greater than 0");
+            return Err(Error::InvalidTicketCount);
         }
+        
+        Ok(())
     }
 
-    fn get_and_increment_counter(env: &Env) -> u32 {
+    fn get_and_increment_counter(env: &Env) -> Result<u32, Error> {
         let current: u32 = env
             .storage()
             .instance()
@@ -386,26 +412,152 @@ impl EventManager {
 
         let next = current
             .checked_add(1)
-            .unwrap_or_else(|| panic!("Event counter overflow"));
+            .ok_or(Error::CounterOverflow)?;
 
         env.storage().instance().set(&DataKey::EventCounter, &next);
 
-        current
+        Ok(current)
     }
 
-    fn deploy_ticket_nft(
-        env: &Env,
-        _event_id: u32,
-        _theme: String,
-        _total_supply: u128,
-    ) -> Address {
+    fn deploy_ticket_nft(env: &Env, event_id: u32, theme: String, total_supply: u128) -> Result<Address, Error> {
         let factory_addr: Address = env
             .storage()
             .instance()
             .get(&DataKey::TicketFactory)
+            .ok_or(Error::FactoryNotInitialized)?;
+
+        // Call the factory contract to deploy a new NFT contract
             .unwrap_or_else(|| panic!("Ticket factory not initialized"));
         // This is a cross-contract call
 
+        Ok(nft_addr)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use soroban_sdk::{testutils::Address as _, testutils::Ledger, vec, Env, Symbol};
+
+    #[contract]
+    pub struct MockFactory;
+
+    #[contractimpl]
+    impl MockFactory {
+        pub fn deploy_ticket_nft(
+            env: Env,
+            _event_id: u32,
+            _theme: String,
+            _total_supply: u128,
+        ) -> Address {
+            Address::generate(&env)
+        }
+    }
+
+    #[test]
+    fn test_create_event() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, EventManager);
+        let client = EventManagerClient::new(&env, &contract_id);
+
+        let factory_addr = env.register_contract(None, MockFactory);
+        let organizer = Address::generate(&env);
+
+        // Mock the organizer authorization
+        env.mock_all_auths();
+
+        // Initialize
+        client.initialize(&factory_addr).unwrap();
+
+        // Create event
+        let theme = String::from_str(&env, "Rust Conference 2026");
+        let event_type = String::from_str(&env, "Conference");
+        let start_date = env.ledger().timestamp() + 86400; // 1 day from now
+        let end_date = start_date + 86400; // 2 days from now
+        let ticket_price = 1000_0000000; // 100 XLM (7 decimals)
+        let total_tickets = 500;
+
+        let event_id = client.create_event(
+            &organizer,
+            &theme,
+            &event_type,
+            &start_date,
+            &end_date,
+            &ticket_price,
+            &total_tickets,
+        ).unwrap();
+
+        assert_eq!(event_id, 0);
+
+        // Get event
+        let event = client.get_event(&event_id).unwrap();
+        assert_eq!(event.id, 0);
+        assert_eq!(event.organizer, organizer);
+        assert_eq!(event.total_tickets, total_tickets);
+        assert_eq!(event.tickets_sold, 0);
+        assert_eq!(event.is_canceled, false);
+    }
+
+    #[test]
+    fn test_create_event_past_date() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, EventManager);
+        let client = EventManagerClient::new(&env, &contract_id);
+
+        let factory_addr = env.register_contract(None, MockFactory);
+        let organizer = Address::generate(&env);
+
+        env.mock_all_auths();
+        env.ledger().set_timestamp(1000);
+        client.initialize(&factory_addr).unwrap();
+
+        let theme = String::from_str(&env, "Past Event");
+        let event_type = String::from_str(&env, "Conference");
+        let start_date = env.ledger().timestamp().saturating_sub(1); // Past date
+        let end_date = start_date.saturating_add(86400);
+
+        let result = client.create_event(
+            &organizer,
+            &theme,
+            &event_type,
+            &start_date,
+            &end_date,
+            &1000_0000000,
+            &100,
+        );
+        
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), Error::InvalidStartDate);
+    }
+
+    #[test]
+    fn test_cancel_event() {
+        let env = Env::default();
+        let contract_id = env.register_contract(None, EventManager);
+        let client = EventManagerClient::new(&env, &contract_id);
+
+        let factory_addr = env.register_contract(None, MockFactory);
+        let organizer = Address::generate(&env);
+
+        env.mock_all_auths();
+        client.initialize(&factory_addr).unwrap();
+
+        let event_id = client.create_event(
+            &organizer,
+            &String::from_str(&env, "Event"),
+            &String::from_str(&env, "Type"),
+            &(env.ledger().timestamp() + 86400),
+            &(env.ledger().timestamp() + 172800),
+            &1000_0000000,
+            &100,
+        ).unwrap();
+
+        client.cancel_event(&event_id).unwrap();
+
+        let event = client.get_event(&event_id).unwrap();
+        assert_eq!(event.is_canceled, true);
+    }
+}
         let salt = BytesN::from_array(&env, &[0u8; 32]);
         let mut args = Vec::new(&env);
         args.push_back(env.current_contract_address().to_val());

@@ -4,7 +4,17 @@
 
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env};
+use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, Env};
+
+// Error handling
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum Error {
+    UserAlreadyHasTicket = 1,
+    InvalidTokenId = 2,
+    Unauthorized = 3,
+    RecipientAlreadyHasTicket = 4,
+}
 
 /// Storage keys for the NFT contract
 #[derive(Clone)]
@@ -53,10 +63,10 @@ impl TicketNft {
     /// # Returns
     /// The token ID of the minted ticket
     ///
-    /// # Panics
+    /// # Errors
     /// - If caller is not the minter
     /// - If recipient already has a ticket
-    pub fn mint_ticket_nft(env: Env, recipient: Address) -> u128 {
+    pub fn mint_ticket_nft(env: Env, recipient: Address) -> Result<u128, Error> {
         // Authorize: only minter can mint
         let minter: Address = env.storage().instance().get(&DataKey::Minter).unwrap();
         minter.require_auth();
@@ -69,7 +79,7 @@ impl TicketNft {
             .unwrap_or(0);
 
         if current_balance > 0 {
-            panic!("User already has a ticket");
+            return Err(Error::UserAlreadyHasTicket);
         }
 
         // Get next token ID
@@ -110,7 +120,7 @@ impl TicketNft {
             .instance()
             .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
 
-        token_id
+        Ok(token_id)
     }
 
     /// Get the owner of a token
@@ -118,11 +128,11 @@ impl TicketNft {
     /// # Arguments
     /// * `env` - The contract environment
     /// * `token_id` - The token ID to query
-    pub fn owner_of(env: Env, token_id: u128) -> Address {
+    pub fn owner_of(env: Env, token_id: u128) -> Result<Address, Error> {
         env.storage()
             .persistent()
             .get(&DataKey::Owner(token_id))
-            .expect("Token ID does not exist")
+            .ok_or(Error::InvalidTokenId)
     }
 
     /// Get the balance of an owner
@@ -147,23 +157,23 @@ impl TicketNft {
     /// * `to` - Recipient address
     /// * `token_id` - The token ID to transfer
     ///
-    /// # Panics
+    /// # Errors
     /// - If `from` is not the owner
     /// - If `to` already has a ticket
-    pub fn transfer_from(env: Env, from: Address, to: Address, token_id: u128) {
+    pub fn transfer_from(env: Env, from: Address, to: Address, token_id: u128) -> Result<(), Error> {
         from.require_auth();
 
         if !Self::is_valid(env.clone(), token_id) {
-            panic!("Token is not valid");
+            return Err(Error::InvalidTokenId);
         }
 
-        let owner = Self::owner_of(env.clone(), token_id);
+        let owner = Self::owner_of(env.clone(), token_id)?;
         if owner != from {
-            panic!("Not the owner");
+            return Err(Error::Unauthorized);
         }
 
         if Self::balance_of(env.clone(), to.clone()) > 0 {
-            panic!("Recipient already has a ticket");
+            return Err(Error::RecipientAlreadyHasTicket);
         }
 
         // Update ownership
@@ -178,6 +188,8 @@ impl TicketNft {
         env.storage()
             .persistent()
             .set(&DataKey::Balance(to), &1u128);
+        
+        Ok(())
     }
 
     /// Burn a ticket NFT, removing it from existence
@@ -189,7 +201,7 @@ impl TicketNft {
     /// # Panics
     /// - If caller is not the token owner
     pub fn burn(env: Env, token_id: u128) {
-        let owner = Self::owner_of(env.clone(), token_id);
+        let owner = Self::owner_of(env.clone(), token_id).expect("Invalid token id");
 
         // Authorize: only owner can burn
         // In a real implementation, we might want to allow minter too,
