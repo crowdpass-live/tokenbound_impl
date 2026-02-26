@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
     isConnected,
+    isAllowed,
     requestAccess,
 } from "@stellar/freighter-api";
 
@@ -25,13 +26,26 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     });
     const [isInstalled, setIsInstalled] = useState<boolean>(false);
 
-    useEffect(() => {
+useEffect(() => {
         const checkInstallation = async () => {
             try {
-                const installed = await isConnected();
-                setIsInstalled(!!installed);
+                const result = await isConnected();
+                const installed = result.isConnected;
+                setIsInstalled(installed);
+
+                if (installed) {
+                    const savedAddress = localStorage.getItem('wallet_address');
+                    if (savedAddress) {
+                        const allowedResult = await isAllowed();
+                        if (!allowedResult.isAllowed) {
+                            setAddress(null);
+                            localStorage.removeItem('wallet_address');
+                        }
+                    }
+                }
             } catch (e) {
                 console.error("Freighter installation check failed", e);
+                setIsInstalled(false);
             }
         };
         checkInstallation();
