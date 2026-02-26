@@ -4,6 +4,13 @@ use soroban_sdk::{
     contract, contractimpl, contracttype, Address, BytesN, Env, IntoVal, Symbol, Val, Vec,
 };
 
+// Error handling
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum Error {
+    AccountAlreadyDeployed = 1,
+}
+
 /// Storage keys for the registry contract
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -113,15 +120,15 @@ impl TbaRegistry {
     /// # Returns
     /// The address of the newly deployed TBA account
     ///
-    /// # Panics
-    /// Panics if the account has already been deployed for these parameters
+    /// # Errors
+    /// Returns error if the account has already been deployed for these parameters
     pub fn create_account(
         env: Env,
         implementation_hash: BytesN<32>,
         token_contract: Address,
         token_id: u128,
         salt: BytesN<32>,
-    ) -> Address {
+    ) -> Result<Address, Error>  {
         // Verify that the caller owns the NFT (Issue #26)
         // This is a cross-contract call to the NFT contract
         let owner: Address = env.invoke_contract(
@@ -140,7 +147,7 @@ impl TbaRegistry {
         );
 
         if env.storage().persistent().has(&account_key) {
-            panic!("Account already deployed for these parameters");
+            return Err(Error::AccountAlreadyDeployed);
         }
 
         // Get the WASM hash from storage
@@ -196,6 +203,7 @@ impl TbaRegistry {
         let new_count = current_count + 1;
         env.storage().persistent().set(&count_key, &new_count);
 
+        Ok(deployed_address)
         // Extend persistent TTL for count
         env.storage().persistent().extend_ttl(
             &count_key,
