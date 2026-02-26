@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { WalletProvider, useWallet } from '../../contexts/WalletContext';
-import { isConnected, isAllowed, requestAccess } from '@stellar/freighter-api';
+import { isConnected, requestAccess } from '@stellar/freighter-api';
 
 jest.mock('@stellar/freighter-api', () => ({
     isConnected: jest.fn(),
-    isAllowed: jest.fn(),
     requestAccess: jest.fn(),
 }));
 
@@ -29,12 +28,10 @@ describe('WalletContext Integration', () => {
         jest.clearAllMocks();
         // Clear local storage for each test run to prevent side effects
         window.localStorage.clear();
-        // Set default mock for isAllowed
-        (isAllowed as jest.Mock).mockResolvedValue({ isAllowed: true });
     });
 
     it('initializes with disconnected state but checks freighter installation', async () => {
-        (isConnected as jest.Mock).mockResolvedValue({ isConnected: true });
+        (isConnected as jest.Mock).mockResolvedValue(true);
 
         render(
             <WalletProvider>
@@ -53,7 +50,7 @@ describe('WalletContext Integration', () => {
     });
 
     it('connects to wallet and securely populates address state', async () => {
-        (isConnected as jest.Mock).mockResolvedValue({ isConnected: true });
+        (isConnected as jest.Mock).mockResolvedValue(true);
         const mockAddress = 'GBJ2V4YJ4V4BDK3NPGKQ2XZR2F2BQYQ2X2Y2Z2X2V2Y2Z2X2V2Y2Z2X2V2Y2';
         (requestAccess as jest.Mock).mockResolvedValue({ address: mockAddress, error: null });
 
@@ -77,7 +74,7 @@ describe('WalletContext Integration', () => {
     });
 
     it('disconnects and clears the address state', async () => {
-        (isConnected as jest.Mock).mockResolvedValue({ isConnected: true });
+        (isConnected as jest.Mock).mockResolvedValue(true);
         // Prerequisite: user is already connected
         window.localStorage.setItem('wallet_address', 'SOME_ADDRESS');
 
