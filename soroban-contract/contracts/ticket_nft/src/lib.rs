@@ -4,7 +4,7 @@
 
 #![no_std]
 
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env};
+use soroban_sdk::{contract, contracterror, contractimpl, contracttype, Address, Env};
 
 // Error handling
 #[contracterror]
@@ -120,7 +120,7 @@ impl TicketNft {
             .instance()
             .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
 
-        token_id
+        Ok(token_id)
     }
 
     /// Get the owner of a token
@@ -201,7 +201,7 @@ impl TicketNft {
     /// # Panics
     /// - If caller is not the token owner
     pub fn burn(env: Env, token_id: u128) {
-        let owner = Self::owner_of(env.clone(), token_id);
+        let owner = Self::owner_of(env.clone(), token_id).expect("Invalid token id");
 
         // Authorize: only owner can burn
         // In a real implementation, we might want to allow minter too,
