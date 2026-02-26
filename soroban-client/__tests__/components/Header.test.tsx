@@ -21,10 +21,11 @@ describe('Header Component', () => {
         render(<Header />);
 
         expect(screen.getByText('CrowdPass')).toBeInTheDocument();
-        expect(screen.getByText('Events')).toBeInTheDocument();
-        expect(screen.getByText('Marketplace')).toBeInTheDocument();
-        expect(screen.getByText('Create Events')).toBeInTheDocument();
-        expect(screen.getByText('Connect Wallet')).toBeInTheDocument();
+        // Events, Marketplace, Create Events may appear multiple times (desktop + mobile)
+        expect(screen.getAllByText('Events').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Marketplace').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Create Events').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Connect Wallet').length).toBeGreaterThan(0);
     });
 
     it('displays Install Freighter if wallet is not installed', () => {
@@ -37,7 +38,8 @@ describe('Header Component', () => {
         });
 
         render(<Header />);
-        expect(screen.getByText('Install Freighter')).toBeInTheDocument();
+        // Install Freighter may appear multiple times (desktop + mobile)
+        expect(screen.getAllByText('Install Freighter').length).toBeGreaterThan(0);
     });
 
     it('renders connected wallet address prefix and disconnect button when connected', () => {
@@ -54,11 +56,13 @@ describe('Header Component', () => {
 
         render(<Header />);
         const formattedAddress = 'GBJ2...V2Y2';
-        expect(screen.getByText(formattedAddress)).toBeInTheDocument();
+        // There are multiple address displays (desktop and mobile), so verify they exist
+        expect(screen.getAllByText(formattedAddress).length).toBeGreaterThan(0);
         
-        const disconnectBtn = screen.getByText('Disconnect');
-        expect(disconnectBtn).toBeInTheDocument();
-        fireEvent.click(disconnectBtn);
+        // Disconnect buttons may appear multiple times (desktop + mobile)
+        const disconnectBtns = screen.getAllByText('Disconnect');
+        expect(disconnectBtns.length).toBeGreaterThan(0);
+        fireEvent.click(disconnectBtns[0]);
         expect(disconnectMock).toHaveBeenCalledTimes(1);
     });
 });

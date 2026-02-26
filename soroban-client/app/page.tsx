@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <div className="bg-[#18181B] min-h-screen text-white font-sans selection:bg-[#FF5722] selection:text-white flex flex-col">
       <Header />
-      <main className="flex-grow flex flex-col">
+      <main className="grow flex flex-col">
         <Hero />
         <AboutSection />
         <FeaturesSection />

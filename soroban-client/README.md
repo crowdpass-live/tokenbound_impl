@@ -2,7 +2,15 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+Before running the app, configure a few environment variables in `.env.local` (see example in the repo). At a minimum you should set:
+
+```env
+NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org
+NEXT_PUBLIC_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
+NEXT_PUBLIC_EVENT_MANAGER_CONTRACT=C...   # address of deployed EventManager contract
+```
+
+Once your env file is populated, start the development server:
 
 ```bash
 npm run dev
