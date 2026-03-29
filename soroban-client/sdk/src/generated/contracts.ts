@@ -5,6 +5,7 @@ export type GeneratedContractName =
   | "eventManager"
   | "ticketFactory"
   | "ticketNft"
+  | "poapNft"
   | "tbaRegistry"
   | "tbaAccount";
 
@@ -35,108 +36,915 @@ export interface GeneratedContractSpec {
 export const GENERATED_CONTRACT_SPECS = {
   eventManager: {
     contract: "eventManager",
-    source: "soroban-contract/contracts/event_manager/src/lib.rs",
+    source: "../soroban-contract/contracts/event_manager/src/lib.rs",
     methods: [
-      { name: "initialize", args: [{ name: "ticket_factory", type: "Address" }], returns: "()", mutates: true },
-      { name: "create_event", args: [{ name: "params", type: "CreateEventParams" }], returns: "u32", mutates: true },
-      { name: "create_event", args: [{ name: "organizer", type: "Address" }, { name: "theme", type: "String" }, { name: "event_type", type: "String" }, { name: "start_date", type: "u64" }, { name: "end_date", type: "u64" }, { name: "ticket_price", type: "i128" }, { name: "total_tickets", type: "u128" }, { name: "payment_token", type: "Address" }], returns: "u32", mutates: true },
-      { name: "get_event", args: [{ name: "event_id", type: "u32" }], returns: "Event", mutates: false },
-      { name: "get_event_tiers", args: [{ name: "event_id", type: "u32" }], returns: "Vec<TicketTier>", mutates: false },
-      { name: "get_event_count", args: [], returns: "u32", mutates: false },
-      { name: "get_all_events", args: [], returns: "Vec<Event>", mutates: false },
-      { name: "get_buyer_purchase", args: [{ name: "event_id", type: "u32" }, { name: "buyer", type: "Address" }], returns: "Option<BuyerPurchase>", mutates: false },
-      { name: "cancel_event", args: [{ name: "event_id", type: "u32" }], returns: "()", mutates: true },
-      { name: "claim_refund", args: [{ name: "claimer", type: "Address" }, { name: "event_id", type: "u32" }], returns: "()", mutates: true },
-      { name: "update_event", args: [{ name: "event_id", type: "u32" }, { name: "theme", type: "Option<String>" }, { name: "ticket_price", type: "Option<i128>" }, { name: "total_tickets", type: "Option<u128>" }, { name: "start_date", type: "Option<u64>" }, { name: "end_date", type: "Option<u64>" }], returns: "()", mutates: true },
-      { name: "update_tickets_sold", args: [{ name: "event_id", type: "u32" }, { name: "amount", type: "u128" }], returns: "()", mutates: true },
-      { name: "purchase_ticket", args: [{ name: "buyer", type: "Address" }, { name: "event_id", type: "u32" }, { name: "tier_index", type: "u32" }], returns: "()", mutates: true },
-      { name: "purchase_tickets", args: [{ name: "buyer", type: "Address" }, { name: "event_id", type: "u32" }, { name: "quantity", type: "u128" }], returns: "()", mutates: true }
+      {
+        name: "initialize",
+        args: [
+          {
+            name: "ticket_factory",
+            type: "Address",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "create_event",
+        args: [
+          {
+            name: "params",
+            type: "CreateEventParams",
+          },
+        ],
+        returns: "u32",
+        mutates: true,
+      },
+      {
+        name: "get_event",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+        ],
+        returns: "Event",
+        mutates: false,
+      },
+      {
+        name: "get_event_tiers",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+        ],
+        returns: "Result<Vec<TicketTier>, Error>",
+        mutates: false,
+      },
+      {
+        name: "get_event_count",
+        args: [],
+        returns: "u32",
+        mutates: false,
+      },
+      {
+        name: "get_all_events",
+        args: [],
+        returns: "Vec<Event>",
+        mutates: false,
+      },
+      {
+        name: "get_buyer_purchase",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "buyer",
+            type: "Address",
+          },
+        ],
+        returns: "Option<BuyerPurchase>",
+        mutates: false,
+      },
+      {
+        name: "cancel_event",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "claim_refund",
+        args: [
+          {
+            name: "claimer",
+            type: "Address",
+          },
+          {
+            name: "event_id",
+            type: "u32",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "purchase_ticket",
+        args: [
+          {
+            name: "buyer",
+            type: "Address",
+          },
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "tier_index",
+            type: "u32",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "purchase_tickets",
+        args: [
+          {
+            name: "buyer",
+            type: "Address",
+          },
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "tier_index",
+            type: "u32",
+          },
+          {
+            name: "quantity",
+            type: "u128",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "update_tickets_sold",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "amount",
+            type: "u128",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "update_event",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "theme",
+            type: "Option<String>",
+          },
+          {
+            name: "ticket_price",
+            type: "Option<i128>",
+          },
+          {
+            name: "total_tickets",
+            type: "Option<u128>",
+          },
+          {
+            name: "start_date",
+            type: "Option<u64>",
+          },
+          {
+            name: "end_date",
+            type: "Option<u64>",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "withdraw_funds",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "mark_attendance",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "ticket_token_id",
+            type: "u128",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "distribute_poaps",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "poap_contract",
+            type: "Address",
+          },
+          {
+            name: "ticket_token_ids",
+            type: "Vec<u128>",
+          },
+          {
+            name: "tba_recipients",
+            type: "Vec<Address>",
+          },
+          {
+            name: "metadata_uri",
+            type: "String",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "is_attendance_marked",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "ticket_token_id",
+            type: "u128",
+          },
+        ],
+        returns: "bool",
+        mutates: false,
+      },
+      {
+        name: "is_poap_distributed",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "ticket_token_id",
+            type: "u128",
+          },
+        ],
+        returns: "bool",
+        mutates: false,
+      },
     ],
     errors: [
-      { name: "AlreadyInitialized", code: 1 },
-      { name: "EventNotFound", code: 2 },
-      { name: "EventAlreadyCanceled", code: 3 },
-      { name: "CannotSellMoreTickets", code: 4 },
-      { name: "InvalidStartDate", code: 5 },
-      { name: "InvalidEndDate", code: 6 },
-      { name: "NegativeTicketPrice", code: 7 },
-      { name: "InvalidTicketCount", code: 8 },
-      { name: "CounterOverflow", code: 9 },
-      { name: "FactoryNotInitialized", code: 10 },
-      { name: "InvalidTierIndex", code: 11 },
-      { name: "TierSoldOut", code: 12 },
-      { name: "InvalidTierConfig", code: 13 },
-      { name: "EventSoldOut", code: 14 },
-      { name: "TicketsBelowSold", code: 15 }
-    ]
+      {
+        name: "AlreadyInitialized",
+        code: 1,
+      },
+      {
+        name: "EventNotFound",
+        code: 2,
+      },
+      {
+        name: "EventAlreadyCanceled",
+        code: 3,
+      },
+      {
+        name: "CannotSellMoreTickets",
+        code: 4,
+      },
+      {
+        name: "InvalidStartDate",
+        code: 5,
+      },
+      {
+        name: "InvalidEndDate",
+        code: 6,
+      },
+      {
+        name: "NegativeTicketPrice",
+        code: 7,
+      },
+      {
+        name: "InvalidTicketCount",
+        code: 8,
+      },
+      {
+        name: "CounterOverflow",
+        code: 9,
+      },
+      {
+        name: "FactoryNotInitialized",
+        code: 10,
+      },
+      {
+        name: "InvalidTierIndex",
+        code: 11,
+      },
+      {
+        name: "TierSoldOut",
+        code: 12,
+      },
+      {
+        name: "InvalidTierConfig",
+        code: 13,
+      },
+      {
+        name: "EventNotCanceled",
+        code: 14,
+      },
+      {
+        name: "RefundAlreadyClaimed",
+        code: 15,
+      },
+      {
+        name: "NotABuyer",
+        code: 16,
+      },
+      {
+        name: "EventSoldOut",
+        code: 17,
+      },
+      {
+        name: "TicketsBelowSold",
+        code: 18,
+      },
+      {
+        name: "EventNotEnded",
+        code: 19,
+      },
+      {
+        name: "FundsAlreadyWithdrawn",
+        code: 20,
+      },
+      {
+        name: "AttendanceNotMarked",
+        code: 21,
+      },
+      {
+        name: "PoapAlreadyDistributed",
+        code: 22,
+      },
+      {
+        name: "MismatchedPoapBatch",
+        code: 23,
+      },
+      {
+        name: "InvalidTicketToken",
+        code: 24,
+      },
+      {
+        name: "EventNotEndedForPoap",
+        code: 25,
+      },
+      {
+        name: "EventNotStarted",
+        code: 26,
+      },
+      {
+        name: "PoapMinterMismatch",
+        code: 27,
+      },
+    ],
   },
   ticketFactory: {
     contract: "ticketFactory",
-    source: "soroban-contract/contracts/ticket_factory/src/lib.rs",
+    source: "../soroban-contract/contracts/ticket_factory/src/lib.rs",
     methods: [
-      { name: "__constructor", args: [{ name: "admin", type: "Address" }, { name: "ticket_wasm_hash", type: "BytesN<32>" }], returns: "()", mutates: true },
-      { name: "deploy_ticket", args: [{ name: "minter", type: "Address" }, { name: "salt", type: "BytesN<32>" }], returns: "Address", mutates: true },
-      { name: "get_ticket_contract", args: [{ name: "event_id", type: "u32" }], returns: "Option<Address>", mutates: false },
-      { name: "get_total_tickets", args: [], returns: "u32", mutates: false },
-      { name: "get_admin", args: [], returns: "Address", mutates: false }
+      {
+        name: "__constructor",
+        args: [
+          {
+            name: "admin",
+            type: "Address",
+          },
+          {
+            name: "ticket_wasm_hash",
+            type: "BytesN<32>",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "deploy_ticket",
+        args: [
+          {
+            name: "minter",
+            type: "Address",
+          },
+          {
+            name: "salt",
+            type: "BytesN<32>",
+          },
+        ],
+        returns: "Address",
+        mutates: true,
+      },
+      {
+        name: "get_ticket_contract",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+        ],
+        returns: "Option<Address>",
+        mutates: false,
+      },
+      {
+        name: "get_total_tickets",
+        args: [],
+        returns: "u32",
+        mutates: false,
+      },
+      {
+        name: "get_admin",
+        args: [],
+        returns: "Address",
+        mutates: false,
+      },
     ],
     errors: [
-      { name: "NotInitialized", code: 1 },
-      { name: "Unauthorized", code: 2 }
-    ]
+      {
+        name: "NotInitialized",
+        code: 1,
+      },
+      {
+        name: "Unauthorized",
+        code: 2,
+      },
+    ],
   },
   ticketNft: {
     contract: "ticketNft",
-    source: "soroban-contract/contracts/ticket_nft/src/lib.rs",
+    source: "../soroban-contract/contracts/ticket_nft/src/lib.rs",
     methods: [
-      { name: "__constructor", args: [{ name: "minter", type: "Address" }], returns: "()", mutates: true },
-      { name: "mint_ticket_nft", args: [{ name: "recipient", type: "Address" }], returns: "u128", mutates: true },
-      { name: "owner_of", args: [{ name: "token_id", type: "u128" }], returns: "Address", mutates: false },
-      { name: "balance_of", args: [{ name: "owner", type: "Address" }], returns: "u128", mutates: false },
-      { name: "transfer_from", args: [{ name: "from", type: "Address" }, { name: "to", type: "Address" }, { name: "token_id", type: "u128" }], returns: "()", mutates: true },
-      { name: "burn", args: [{ name: "token_id", type: "u128" }], returns: "()", mutates: true },
-      { name: "is_valid", args: [{ name: "token_id", type: "u128" }], returns: "bool", mutates: false },
-      { name: "get_minter", args: [], returns: "Address", mutates: false }
+      {
+        name: "__constructor",
+        args: [
+          {
+            name: "minter",
+            type: "Address",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "mint_ticket_nft",
+        args: [
+          {
+            name: "recipient",
+            type: "Address",
+          },
+        ],
+        returns: "u128",
+        mutates: true,
+      },
+      {
+        name: "owner_of",
+        args: [
+          {
+            name: "token_id",
+            type: "u128",
+          },
+        ],
+        returns: "Address",
+        mutates: false,
+      },
+      {
+        name: "balance_of",
+        args: [
+          {
+            name: "owner",
+            type: "Address",
+          },
+        ],
+        returns: "u128",
+        mutates: false,
+      },
+      {
+        name: "transfer_from",
+        args: [
+          {
+            name: "from",
+            type: "Address",
+          },
+          {
+            name: "to",
+            type: "Address",
+          },
+          {
+            name: "token_id",
+            type: "u128",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "burn",
+        args: [
+          {
+            name: "token_id",
+            type: "u128",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "is_valid",
+        args: [
+          {
+            name: "token_id",
+            type: "u128",
+          },
+        ],
+        returns: "bool",
+        mutates: false,
+      },
+      {
+        name: "get_minter",
+        args: [],
+        returns: "Address",
+        mutates: false,
+      },
     ],
     errors: [
-      { name: "UserAlreadyHasTicket", code: 1 },
-      { name: "InvalidTokenId", code: 2 },
-      { name: "Unauthorized", code: 3 },
-      { name: "RecipientAlreadyHasTicket", code: 4 },
-      { name: "NotInitialized", code: 5 }
-    ]
+      {
+        name: "UserAlreadyHasTicket",
+        code: 1,
+      },
+      {
+        name: "InvalidTokenId",
+        code: 2,
+      },
+      {
+        name: "Unauthorized",
+        code: 3,
+      },
+      {
+        name: "RecipientAlreadyHasTicket",
+        code: 4,
+      },
+      {
+        name: "NotInitialized",
+        code: 5,
+      },
+    ],
+  },
+  poapNft: {
+    contract: "poapNft",
+    source: "../soroban-contract/contracts/poap_nft/src/lib.rs",
+    methods: [
+      {
+        name: "__constructor",
+        args: [
+          {
+            name: "minter",
+            type: "Address",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "mint_poap",
+        args: [
+          {
+            name: "recipient",
+            type: "Address",
+          },
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "metadata_uri",
+            type: "String",
+          },
+        ],
+        returns: "u128",
+        mutates: true,
+      },
+      {
+        name: "batch_mint_poap",
+        args: [
+          {
+            name: "recipients",
+            type: "Vec<Address>",
+          },
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "metadata_uri",
+            type: "String",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "owner_of",
+        args: [
+          {
+            name: "token_id",
+            type: "u128",
+          },
+        ],
+        returns: "Address",
+        mutates: false,
+      },
+      {
+        name: "balance_of",
+        args: [
+          {
+            name: "owner",
+            type: "Address",
+          },
+        ],
+        returns: "u128",
+        mutates: false,
+      },
+      {
+        name: "token_metadata",
+        args: [
+          {
+            name: "token_id",
+            type: "u128",
+          },
+        ],
+        returns: "PoapTokenMeta",
+        mutates: false,
+      },
+      {
+        name: "has_claimed",
+        args: [
+          {
+            name: "event_id",
+            type: "u32",
+          },
+          {
+            name: "recipient",
+            type: "Address",
+          },
+        ],
+        returns: "bool",
+        mutates: false,
+      },
+      {
+        name: "get_minter",
+        args: [],
+        returns: "Address",
+        mutates: false,
+      },
+    ],
+    errors: [
+      {
+        name: "NotInitialized",
+        code: 1,
+      },
+      {
+        name: "InvalidTokenId",
+        code: 2,
+      },
+      {
+        name: "DuplicatePoapForRecipient",
+        code: 3,
+      },
+    ],
   },
   tbaRegistry: {
     contract: "tbaRegistry",
-    source: "soroban-contract/contracts/tba_registry/src/lib.rs",
+    source: "../soroban-contract/contracts/tba_registry/src/lib.rs",
     methods: [
-      { name: "__constructor", args: [{ name: "tba_account_wasm_hash", type: "BytesN<32>" }], returns: "()", mutates: true },
-      { name: "get_account", args: [{ name: "implementation_hash", type: "BytesN<32>" }, { name: "token_contract", type: "Address" }, { name: "token_id", type: "u128" }, { name: "salt", type: "BytesN<32>" }], returns: "Address", mutates: false },
-      { name: "create_account", args: [{ name: "implementation_hash", type: "BytesN<32>" }, { name: "token_contract", type: "Address" }, { name: "token_id", type: "u128" }, { name: "salt", type: "BytesN<32>" }], returns: "Address", mutates: true },
-      { name: "total_deployed_accounts", args: [{ name: "token_contract", type: "Address" }, { name: "token_id", type: "u128" }], returns: "u32", mutates: false },
-      { name: "get_deployed_address", args: [{ name: "implementation_hash", type: "BytesN<32>" }, { name: "token_contract", type: "Address" }, { name: "token_id", type: "u128" }, { name: "salt", type: "BytesN<32>" }], returns: "Option<Address>", mutates: false }
+      {
+        name: "__constructor",
+        args: [
+          {
+            name: "tba_account_wasm_hash",
+            type: "BytesN<32>",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "get_account",
+        args: [
+          {
+            name: "implementation_hash",
+            type: "BytesN<32>",
+          },
+          {
+            name: "token_contract",
+            type: "Address",
+          },
+          {
+            name: "token_id",
+            type: "u128",
+          },
+          {
+            name: "salt",
+            type: "BytesN<32>",
+          },
+        ],
+        returns: "Address",
+        mutates: false,
+      },
+      {
+        name: "create_account",
+        args: [
+          {
+            name: "implementation_hash",
+            type: "BytesN<32>",
+          },
+          {
+            name: "token_contract",
+            type: "Address",
+          },
+          {
+            name: "token_id",
+            type: "u128",
+          },
+          {
+            name: "salt",
+            type: "BytesN<32>",
+          },
+        ],
+        returns: "Address",
+        mutates: true,
+      },
+      {
+        name: "total_deployed_accounts",
+        args: [
+          {
+            name: "token_contract",
+            type: "Address",
+          },
+          {
+            name: "token_id",
+            type: "u128",
+          },
+        ],
+        returns: "u32",
+        mutates: true,
+      },
+      {
+        name: "get_deployed_address",
+        args: [
+          {
+            name: "implementation_hash",
+            type: "BytesN<32>",
+          },
+          {
+            name: "token_contract",
+            type: "Address",
+          },
+          {
+            name: "token_id",
+            type: "u128",
+          },
+          {
+            name: "salt",
+            type: "BytesN<32>",
+          },
+        ],
+        returns: "Option<Address>",
+        mutates: false,
+      },
     ],
     errors: [
-      { name: "AccountAlreadyDeployed", code: 1 },
-      { name: "NotInitialized", code: 2 }
-    ]
+      {
+        name: "AccountAlreadyDeployed",
+        code: 1,
+      },
+      {
+        name: "NotInitialized",
+        code: 2,
+      },
+    ],
   },
   tbaAccount: {
     contract: "tbaAccount",
-    source: "soroban-contract/contracts/tba_account/src/lib.rs",
+    source: "../soroban-contract/contracts/tba_account/src/lib.rs",
     methods: [
-      { name: "initialize", args: [{ name: "token_contract", type: "Address" }, { name: "token_id", type: "u128" }, { name: "implementation_hash", type: "BytesN<32>" }, { name: "salt", type: "BytesN<32>" }], returns: "()", mutates: true },
-      { name: "token_contract", args: [], returns: "Address", mutates: false },
-      { name: "token_id", args: [], returns: "u128", mutates: false },
-      { name: "owner", args: [], returns: "Address", mutates: false },
-      { name: "token", args: [], returns: "(u32, Address, u128)", mutates: false },
-      { name: "nonce", args: [], returns: "u64", mutates: false },
-      { name: "execute", args: [{ name: "to", type: "Address" }, { name: "func", type: "Symbol" }, { name: "args", type: "Vec<Val>" }], returns: "Vec<Val>", mutates: true },
-      { name: "__check_auth", args: [{ name: "signature_payload", type: "BytesN<32>" }, { name: "signatures", type: "Vec<BytesN<64>>" }, { name: "auth_context", type: "Vec<Context>" }], returns: "()", mutates: true }
+      {
+        name: "initialize",
+        args: [
+          {
+            name: "token_contract",
+            type: "Address",
+          },
+          {
+            name: "token_id",
+            type: "u128",
+          },
+          {
+            name: "implementation_hash",
+            type: "BytesN<32>",
+          },
+          {
+            name: "salt",
+            type: "BytesN<32>",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
+      {
+        name: "token_contract",
+        args: [],
+        returns: "Address",
+        mutates: false,
+      },
+      {
+        name: "token_id",
+        args: [],
+        returns: "u128",
+        mutates: false,
+      },
+      {
+        name: "owner",
+        args: [],
+        returns: "Address",
+        mutates: false,
+      },
+      {
+        name: "token",
+        args: [],
+        returns: "(u32",
+        mutates: false,
+      },
+      {
+        name: "nonce",
+        args: [],
+        returns: "u64",
+        mutates: false,
+      },
+      {
+        name: "execute",
+        args: [
+          {
+            name: "to",
+            type: "Address",
+          },
+          {
+            name: "func",
+            type: "Symbol",
+          },
+          {
+            name: "args",
+            type: "Vec<Val>",
+          },
+        ],
+        returns: "Result<Vec<Val>, Error>",
+        mutates: true,
+      },
+      {
+        name: "__check_auth",
+        args: [
+          {
+            name: "signature_payload",
+            type: "BytesN<32>",
+          },
+          {
+            name: "signatures",
+            type: "Vec<BytesN<64>>",
+          },
+          {
+            name: "auth_context",
+            type: "Vec<Context>",
+          },
+        ],
+        returns: "()",
+        mutates: true,
+      },
     ],
     errors: [
-      { name: "AlreadyInitialized", code: 1 },
-      { name: "NotInitialized", code: 2 }
-    ]
-  }
-} as const satisfies Record<GeneratedContractName, GeneratedContractSpec>;
+      {
+        name: "AlreadyInitialized",
+        code: 1,
+      },
+      {
+        name: "NotInitialized",
+        code: 2,
+      },
+    ],
+  },
+} as const;

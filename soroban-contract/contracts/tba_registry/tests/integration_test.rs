@@ -1,21 +1,18 @@
-#![cfg(test)]
+//! Build WASM first: `cargo build --target wasm32-unknown-unknown --release` from `soroban-contract/`.
 
 use soroban_sdk::{
-    contract, contractimpl,
-    testutils::{Address as _, Ledger},
-    vec, Address, BytesN, Env, IntoVal, Symbol, TryIntoVal, Val, Vec,
+    contract, contractimpl, testutils::Address as _, vec, Address, BytesN, Env, IntoVal, Symbol,
+    TryIntoVal, Vec,
 };
 
 // Import contracts
 mod nft {
-    use soroban_sdk::{Address, Env, Val, Vec};
     soroban_sdk::contractimport!(
         file = "../../target/wasm32-unknown-unknown/release/ticket_nft.wasm"
     );
 }
 
 mod registry {
-    use soroban_sdk::{Address, BytesN, Env, Val, Vec};
     soroban_sdk::contractimport!(
         file = "../../target/wasm32-unknown-unknown/release/tba_registry.wasm"
     );
@@ -23,7 +20,6 @@ mod registry {
 
 mod account {
     use soroban_sdk::auth::Context;
-    use soroban_sdk::{Address, BytesN, Env, Symbol, Val, Vec};
     soroban_sdk::contractimport!(
         file = "../../target/wasm32-unknown-unknown/release/tba_account.wasm"
     );
@@ -48,14 +44,13 @@ fn test_integration_flow() {
     let minter = Address::generate(&env);
     let user = Address::generate(&env);
 
-    // 1. Deploy Ticket NFT
-    let nft_id = env.register(nft::WASM, ());
+    // 1. Deploy Ticket NFT (constructor sets minter)
+    let nft_id = env.register(nft::WASM, (&minter,));
     let nft_client = nft::Client::new(&env, &nft_id);
-    nft_client.initialize(&minter);
 
     // 2. Mint ticket to user
     let token_id = nft_client.mint_ticket_nft(&user);
-    assert_eq!(token_id, 1);
+    assert_eq!(token_id, 1u128);
     assert_eq!(nft_client.owner_of(&token_id), user);
 
     // 3. Setup TBA Registry

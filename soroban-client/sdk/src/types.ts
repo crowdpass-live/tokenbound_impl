@@ -4,6 +4,7 @@ export type ContractName =
   | "eventManager"
   | "ticketFactory"
   | "ticketNft"
+  | "poapNft"
   | "tbaRegistry"
   | "tbaAccount";
 
@@ -43,7 +44,7 @@ export interface SorobanSubmitResult {
 
 export type SignTransactionFn = (
   txXdr: string,
-  options: { networkPassphrase: string; address: string }
+  options: { networkPassphrase: string; address: string },
 ) => Promise<string>;
 
 export interface TicketTier {
@@ -91,7 +92,10 @@ export interface CreateEventInput {
   readonly tiers?: readonly TierConfig[];
 }
 
-export interface CreateEventLegacyInput extends Omit<CreateEventInput, "tiers"> {}
+export interface CreateEventLegacyInput extends Omit<
+  CreateEventInput,
+  "tiers"
+> {}
 
 export interface UpdateEventInput {
   readonly organizer: string;

@@ -2,13 +2,25 @@ import fs from "node:fs";
 import path from "node:path";
 
 const repoRoot = path.resolve(process.cwd());
-const contractRoot = path.resolve(repoRoot, "..", "soroban-contract", "contracts");
-const outputFile = path.resolve(repoRoot, "sdk", "src", "generated", "contracts.ts");
+const contractRoot = path.resolve(
+  repoRoot,
+  "..",
+  "soroban-contract",
+  "contracts",
+);
+const outputFile = path.resolve(
+  repoRoot,
+  "sdk",
+  "src",
+  "generated",
+  "contracts.ts",
+);
 
 const CONTRACT_FILES = [
   ["eventManager", "event_manager/src/lib.rs"],
   ["ticketFactory", "ticket_factory/src/lib.rs"],
   ["ticketNft", "ticket_nft/src/lib.rs"],
+  ["poapNft", "poap_nft/src/lib.rs"],
   ["tbaRegistry", "tba_registry/src/lib.rs"],
   ["tbaAccount", "tba_account/src/lib.rs"],
 ];
@@ -21,7 +33,8 @@ function normalizeType(rustType) {
 }
 
 function parseMethods(source) {
-  const methodRegex = /pub fn ([a-zA-Z0-9_]+)\(([\s\S]*?)\)\s*(?:->\s*([^{]+))?\s*\{/g;
+  const methodRegex =
+    /pub fn ([a-zA-Z0-9_]+)\(([\s\S]*?)\)\s*(?:->\s*([^{]+))?\s*\{/g;
   const methods = [];
   for (const match of source.matchAll(methodRegex)) {
     const [, name, rawArgs, rawReturn] = match;
@@ -45,6 +58,11 @@ function parseMethods(source) {
         name === "owner_of" ||
         name === "balance_of" ||
         name === "is_valid" ||
+        name === "token_metadata" ||
+        name === "has_claimed" ||
+        name === "get_minter" ||
+        name === "is_attendance_marked" ||
+        name === "is_poap_distributed" ||
         name === "token" ||
         name === "token_contract" ||
         name === "token_id" ||
@@ -84,7 +102,7 @@ const specs = Object.fromEntries(
         errors: parseErrors(source),
       },
     ];
-  })
+  }),
 );
 
 const content = `/* eslint-disable */
@@ -94,6 +112,7 @@ export type GeneratedContractName =
   | "eventManager"
   | "ticketFactory"
   | "ticketNft"
+  | "poapNft"
   | "tbaRegistry"
   | "tbaAccount";
 

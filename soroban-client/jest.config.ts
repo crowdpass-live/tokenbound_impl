@@ -1,19 +1,20 @@
-import type { Config } from 'jest';
-import nextJest from 'next/jest.js';
+import type { Config } from "jest";
+import nextJest from "next/jest.js";
 
 const createJestConfig = nextJest({
   // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
-  dir: './',
+  dir: "./",
 });
 
 // Add any custom config to be passed to Jest
 const config: Config = {
-  coverageProvider: 'v8',
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  coverageProvider: "v8",
+  testEnvironment: "jsdom",
+  setupFiles: ["<rootDir>/jest.polyfills.ts"],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   collectCoverage: false,
-  coverageDirectory: '<rootDir>/coverage',
-  coverageReporters: ['text-summary', 'lcov', 'json-summary'],
+  coverageDirectory: "<rootDir>/coverage",
+  coverageReporters: ["text-summary", "lcov", "json-summary"],
   coverageThreshold: {
     global: {
       branches: 70,
@@ -23,8 +24,8 @@ const config: Config = {
     },
   },
   moduleNameMapper: {
-    // Handle module aliases
-    '^@/(.*)$': '<rootDir>/$1',
+    "^@/(.*)$": "<rootDir>/$1",
+    "^next-intl$": "<rootDir>/test/mocks/next-intl.ts",
   },
   // Add more setup options before each test is run
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],

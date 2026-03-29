@@ -69,7 +69,10 @@ impl TicketNft {
     /// - If recipient already has a ticket
     pub fn mint_ticket_nft(env: Env, recipient: Address) -> Result<u128, Error> {
         // Authorize: only minter can mint
-        let minter: Address = env.storage().instance().get(&DataKey::Minter)
+        let minter: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::Minter)
             .ok_or(Error::NotInitialized)?;
         minter.require_auth();
 
@@ -162,7 +165,12 @@ impl TicketNft {
     /// # Errors
     /// - If `from` is not the owner
     /// - If `to` already has a ticket
-    pub fn transfer_from(env: Env, from: Address, to: Address, token_id: u128) -> Result<(), Error> {
+    pub fn transfer_from(
+        env: Env,
+        from: Address,
+        to: Address,
+        token_id: u128,
+    ) -> Result<(), Error> {
         from.require_auth();
 
         if !Self::is_valid(env.clone(), token_id) {
@@ -190,7 +198,7 @@ impl TicketNft {
         env.storage()
             .persistent()
             .set(&DataKey::Balance(to), &1u128);
-        
+
         Ok(())
     }
 

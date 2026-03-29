@@ -1,19 +1,41 @@
-#![cfg(test)]
-
 use super::*;
-use soroban_sdk::{testutils::Address as _, testutils::Ledger, Address, BytesN, Env};
+use soroban_sdk::{testutils::Address as _, testutils::Ledger, Address, BytesN, Env, Vec};
+
+#[derive(Clone)]
+#[contracttype]
+enum MockTicketKey {
+    Owner(u128),
+    NextMint,
+}
 
 #[contract]
 pub struct MockContract;
 
 #[contractimpl]
 impl MockContract {
-    pub fn deploy_ticket(_env: Env, _minter: Address, _salt: BytesN<32>) -> Address {
-        _env.current_contract_address()
+    pub fn deploy_ticket(env: Env, _minter: Address, _salt: BytesN<32>) -> Address {
+        env.current_contract_address()
     }
 
-    pub fn mint_ticket_nft(_env: Env, _recipient: Address) -> u128 {
-        1
+    pub fn mint_ticket_nft(env: Env, recipient: Address) -> u128 {
+        let next: u128 = env
+            .storage()
+            .instance()
+            .get(&MockTicketKey::NextMint)
+            .unwrap_or(1u128);
+        env.storage()
+            .persistent()
+            .set(&MockTicketKey::Owner(next), &recipient);
+        env.storage()
+            .instance()
+            .set(&MockTicketKey::NextMint, &(next + 1));
+        next
+    }
+
+    pub fn is_valid(env: Env, token_id: u128) -> bool {
+        env.storage()
+            .persistent()
+            .has(&MockTicketKey::Owner(token_id))
     }
 
     pub fn transfer(_env: Env, _from: Address, _to: Address, _amount: i128) {}
@@ -78,7 +100,7 @@ fn test_create_event() {
         event_type: String::from_str(&env, "Conference"),
         start_date,
         end_date: start_date + 86_400,
-        ticket_price: 1_000_0000000,
+        ticket_price: 10_000_000_000,
         total_tickets: 500,
         payment_token: mock_addr,
         tiers: Vec::new(&env),
@@ -107,7 +129,7 @@ fn test_create_event_past_start_date_fails() {
         event_type: String::from_str(&env, "Conference"),
         start_date: 500,
         end_date: 1_500,
-        ticket_price: 1_000_0000000,
+        ticket_price: 10_000_000_000,
         total_tickets: 100,
         payment_token: mock_addr,
         tiers: Vec::new(&env),
@@ -379,7 +401,10 @@ fn test_backward_compat_single_tier() {
 
     let tiers = client.get_event_tiers(&event_id);
     assert_eq!(tiers.len(), 1);
-    assert_eq!(tiers.get(0).unwrap().name, String::from_str(&env, "General"));
+    assert_eq!(
+        tiers.get(0).unwrap().name,
+        String::from_str(&env, "General")
+    );
     assert_eq!(tiers.get(0).unwrap().price, 100);
     assert_eq!(tiers.get(0).unwrap().total_quantity, 10);
 }

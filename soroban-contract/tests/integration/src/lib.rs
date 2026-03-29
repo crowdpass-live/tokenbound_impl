@@ -8,6 +8,9 @@
 //! 2. Cancellation: Factory -> Event -> Purchase -> Cancel -> Refund
 //! 3. Transfer: Factory -> Event -> Purchase -> Transfer -> New owner TBA
 //! 4. TBA execution: Factory -> Event -> Purchase -> Create TBA -> Execute through TBA
+//!
+//! Build contract WASM before running these tests:
+//! `cargo build --target wasm32-unknown-unknown --release` (from `soroban-contract/`).
 
 #![cfg(test)]
 extern crate alloc;
@@ -15,7 +18,7 @@ extern crate std;
 
 use soroban_sdk::{
     contract, contractimpl,
-    testutils::Address as _,
+    testutils::{Address as _, Ledger},
     vec, Address, BytesN, Env, IntoVal, String, Symbol, TryIntoVal, Val, Vec,
 };
 
@@ -36,6 +39,12 @@ mod ticket_factory {
 mod event_manager {
     soroban_sdk::contractimport!(
         file = "../../target/wasm32-unknown-unknown/release/event_manager.wasm"
+    );
+}
+
+mod poap_nft {
+    soroban_sdk::contractimport!(
+        file = "../../target/wasm32-unknown-unknown/release/poap_nft.wasm"
     );
 }
 
@@ -81,6 +90,7 @@ struct TestSetup {
     #[allow(dead_code)]
     factory_client: ticket_factory::Client<'static>,
     event_client: event_manager::Client<'static>,
+    event_manager: Address,
     registry_client: tba_registry::Client<'static>,
     tba_wasm_hash: BytesN<32>,
     #[allow(dead_code)]
@@ -100,8 +110,8 @@ fn setup() -> TestSetup {
     let factory_client = ticket_factory::Client::new(&env, &factory_id);
 
     // 2. Deploy event manager, initialize with factory
-    let event_id = env.register(event_manager::WASM, ());
-    let event_client = event_manager::Client::new(&env, &event_id);
+    let event_manager = env.register(event_manager::WASM, ());
+    let event_client = event_manager::Client::new(&env, &event_manager);
     event_client.initialize(&factory_id);
 
     // 3. Deploy TBA registry
@@ -116,6 +126,7 @@ fn setup() -> TestSetup {
         env,
         factory_client,
         event_client,
+        event_manager,
         registry_client,
         tba_wasm_hash,
         admin,
@@ -126,16 +137,18 @@ fn setup() -> TestSetup {
 fn create_event(s: &TestSetup, organizer: &Address) -> u32 {
     let start = s.env.ledger().timestamp() + 86400;
     let end = start + 86400;
-    s.event_client.create_event(
-        organizer,
-        &String::from_str(&s.env, "Integration Test Event"),
-        &String::from_str(&s.env, "Conference"),
-        &start,
-        &end,
-        &100i128,
-        &10u128,
-        &s.payment_token,
-    )
+    let params = event_manager::CreateEventParams {
+        organizer: organizer.clone(),
+        theme: String::from_str(&s.env, "Integration Test Event"),
+        event_type: String::from_str(&s.env, "Conference"),
+        start_date: start,
+        end_date: end,
+        ticket_price: 100i128,
+        total_tickets: 10u128,
+        payment_token: s.payment_token.clone(),
+        tiers: Vec::new(&s.env),
+    };
+    s.event_client.create_event(&params)
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -155,7 +168,7 @@ fn test_full_happy_path_purchase_and_create_tba() {
     assert_eq!(event.total_tickets, 10);
 
     // Purchase ticket
-    s.event_client.purchase_ticket(&buyer, &event_id);
+    s.event_client.purchase_ticket(&buyer, &event_id, &0u32);
     let event = s.event_client.get_event(&event_id);
     assert_eq!(event.tickets_sold, 1);
 
@@ -169,12 +182,35 @@ fn test_full_happy_path_purchase_and_create_tba() {
     // Create TBA for the ticket (simulates POAP / badge account)
     let impl_hash = s.tba_wasm_hash.clone();
     let salt = BytesN::from_array(&s.env, &[1u8; 32]);
-    let tba_addr = s.registry_client.create_account(&impl_hash, &nft_addr, &token_id, &salt);
+    let tba_addr = s
+        .registry_client
+        .create_account(&impl_hash, &nft_addr, &token_id, &salt);
 
     let tba_client = tba_account::Client::new(&s.env, &tba_addr);
     assert_eq!(tba_client.token_contract(), nft_addr);
     assert_eq!(tba_client.token_id(), token_id);
     assert_eq!(tba_client.owner(), buyer);
+
+    // POAP: organizer marks attendance, then post-event drop to the ticket TBA
+    let poap_addr = s.env.register(poap_nft::WASM, (&s.event_manager,));
+
+    s.env.ledger().set_timestamp(event.start_date + 1);
+    s.event_client.mark_attendance(&event_id, &token_id);
+
+    s.env.ledger().set_timestamp(event.end_date + 1);
+
+    let mut ticket_ids = Vec::new(&s.env);
+    ticket_ids.push_back(token_id);
+    let mut tba_list = Vec::new(&s.env);
+    tba_list.push_back(tba_addr.clone());
+    let badge_uri = String::from_str(&s.env, "ipfs://integration-poap");
+
+    s.event_client
+        .distribute_poaps(&event_id, &poap_addr, &ticket_ids, &tba_list, &badge_uri);
+
+    let poap_client = poap_nft::Client::new(&s.env, &poap_addr);
+    assert_eq!(poap_client.balance_of(&tba_addr), 1u128);
+    assert!(s.event_client.is_poap_distributed(&event_id, &token_id));
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -191,8 +227,8 @@ fn test_cancel_event_and_claim_refund() {
     let event_id = create_event(&s, &organizer);
 
     // Two buyers purchase tickets
-    s.event_client.purchase_ticket(&buyer1, &event_id);
-    s.event_client.purchase_ticket(&buyer2, &event_id);
+    s.event_client.purchase_ticket(&buyer1, &event_id, &0u32);
+    s.event_client.purchase_ticket(&buyer2, &event_id, &0u32);
     assert_eq!(s.event_client.get_event(&event_id).tickets_sold, 2);
 
     // Organizer cancels
@@ -212,7 +248,7 @@ fn test_refund_fails_if_event_not_canceled() {
     let buyer = Address::generate(&s.env);
 
     let event_id = create_event(&s, &organizer);
-    s.event_client.purchase_ticket(&buyer, &event_id);
+    s.event_client.purchase_ticket(&buyer, &event_id, &0u32);
 
     // Attempt refund without cancellation
     s.event_client.claim_refund(&buyer, &event_id);
@@ -226,7 +262,7 @@ fn test_double_refund_fails() {
     let buyer = Address::generate(&s.env);
 
     let event_id = create_event(&s, &organizer);
-    s.event_client.purchase_ticket(&buyer, &event_id);
+    s.event_client.purchase_ticket(&buyer, &event_id, &0u32);
     s.event_client.cancel_event(&event_id);
 
     s.event_client.claim_refund(&buyer, &event_id);
@@ -242,7 +278,7 @@ fn test_refund_fails_for_non_buyer() {
     let stranger = Address::generate(&s.env);
 
     let event_id = create_event(&s, &organizer);
-    s.event_client.purchase_ticket(&buyer, &event_id);
+    s.event_client.purchase_ticket(&buyer, &event_id, &0u32);
     s.event_client.cancel_event(&event_id);
 
     s.event_client.claim_refund(&stranger, &event_id);
@@ -260,7 +296,7 @@ fn test_transfer_ticket_and_new_owner_creates_tba() {
     let recipient = Address::generate(&s.env);
 
     let event_id = create_event(&s, &organizer);
-    s.event_client.purchase_ticket(&buyer, &event_id);
+    s.event_client.purchase_ticket(&buyer, &event_id, &0u32);
 
     let event = s.event_client.get_event(&event_id);
     let nft_addr = event.ticket_nft_addr;
@@ -279,7 +315,9 @@ fn test_transfer_ticket_and_new_owner_creates_tba() {
     // New owner creates TBA
     let impl_hash = s.tba_wasm_hash.clone();
     let salt = BytesN::from_array(&s.env, &[2u8; 32]);
-    let tba_addr = s.registry_client.create_account(&impl_hash, &nft_addr, &token_id, &salt);
+    let tba_addr = s
+        .registry_client
+        .create_account(&impl_hash, &nft_addr, &token_id, &salt);
 
     let tba_client = tba_account::Client::new(&s.env, &tba_addr);
     assert_eq!(tba_client.owner(), recipient);
@@ -296,7 +334,7 @@ fn test_create_tba_and_execute_through_it() {
     let buyer = Address::generate(&s.env);
 
     let event_id = create_event(&s, &organizer);
-    s.event_client.purchase_ticket(&buyer, &event_id);
+    s.event_client.purchase_ticket(&buyer, &event_id, &0u32);
 
     let event = s.event_client.get_event(&event_id);
     let nft_addr = event.ticket_nft_addr;
@@ -305,7 +343,9 @@ fn test_create_tba_and_execute_through_it() {
     // Create TBA
     let impl_hash = s.tba_wasm_hash.clone();
     let salt = BytesN::from_array(&s.env, &[3u8; 32]);
-    let tba_addr = s.registry_client.create_account(&impl_hash, &nft_addr, &token_id, &salt);
+    let tba_addr = s
+        .registry_client
+        .create_account(&impl_hash, &nft_addr, &token_id, &salt);
     let tba_client = tba_account::Client::new(&s.env, &tba_addr);
 
     assert_eq!(tba_client.nonce(), 0);
@@ -340,20 +380,24 @@ fn test_purchase_sold_out_event() {
     // Create event with only 1 ticket
     let start = s.env.ledger().timestamp() + 86400;
     let end = start + 86400;
-    let event_id = s.event_client.create_event(
-        &organizer,
-        &String::from_str(&s.env, "Tiny Event"),
-        &String::from_str(&s.env, "Workshop"),
-        &start,
-        &end,
-        &50i128,
-        &1u128,
-        &s.payment_token,
-    );
+    let params = event_manager::CreateEventParams {
+        organizer: organizer.clone(),
+        theme: String::from_str(&s.env, "Tiny Event"),
+        event_type: String::from_str(&s.env, "Workshop"),
+        start_date: start,
+        end_date: end,
+        ticket_price: 50i128,
+        total_tickets: 1u128,
+        payment_token: s.payment_token.clone(),
+        tiers: Vec::new(&s.env),
+    };
+    let event_id = s.event_client.create_event(&params);
 
-    s.event_client.purchase_ticket(&Address::generate(&s.env), &event_id);
+    s.event_client
+        .purchase_ticket(&Address::generate(&s.env), &event_id, &0u32);
     // Second purchase should fail
-    s.event_client.purchase_ticket(&Address::generate(&s.env), &event_id);
+    s.event_client
+        .purchase_ticket(&Address::generate(&s.env), &event_id, &0u32);
 }
 
 #[test]
@@ -365,7 +409,8 @@ fn test_purchase_canceled_event_fails() {
     let event_id = create_event(&s, &organizer);
     s.event_client.cancel_event(&event_id);
 
-    s.event_client.purchase_ticket(&Address::generate(&s.env), &event_id);
+    s.event_client
+        .purchase_ticket(&Address::generate(&s.env), &event_id, &0u32);
 }
 
 #[test]

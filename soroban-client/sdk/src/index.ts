@@ -1,6 +1,7 @@
 import { SorobanSdkCore } from "./core";
 import {
   EventManagerContract,
+  PoapNftContract,
   TbaAccountContract,
   TbaRegistryContract,
   TicketFactoryContract,
@@ -19,6 +20,7 @@ export class TokenboundSdk extends SorobanSdkCore {
   readonly eventManager: EventManagerContract;
   readonly ticketFactory: TicketFactoryContract;
   readonly ticketNft: TicketNftContract;
+  readonly poapNft: PoapNftContract;
   readonly tbaRegistry: TbaRegistryContract;
   readonly tbaAccount: TbaAccountContract;
   readonly generated = GENERATED_CONTRACT_SPECS;
@@ -28,6 +30,7 @@ export class TokenboundSdk extends SorobanSdkCore {
     this.eventManager = new EventManagerContract(this);
     this.ticketFactory = new TicketFactoryContract(this);
     this.ticketNft = new TicketNftContract(this);
+    this.poapNft = new PoapNftContract(this);
     this.tbaRegistry = new TbaRegistryContract(this);
     this.tbaAccount = new TbaAccountContract(this);
   }

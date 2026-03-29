@@ -10,19 +10,23 @@ describe("tokenbound sdk", () => {
       "eventManager",
       "ticketFactory",
       "ticketNft",
+      "poapNft",
       "tbaRegistry",
       "tbaAccount",
     ]);
 
     expect(
       GENERATED_CONTRACT_SPECS.eventManager.methods.some(
-        (method) => method.name === "create_event"
-      )
+        (method) => method.name === "create_event",
+      ),
     ).toBe(true);
   });
 
   it("decodes mapped contract errors", () => {
-    const decoded = decodeContractError("eventManager", "HostError: Error(Contract, #5)");
+    const decoded = decodeContractError(
+      "eventManager",
+      "HostError: Error(Contract, #5)",
+    );
     expect(decoded).not.toBeNull();
     expect(decoded?.name).toBe("InvalidStartDate");
   });
@@ -33,7 +37,8 @@ describe("tokenbound sdk", () => {
       sorobanRpcUrl: "https://soroban-testnet.stellar.org",
       networkPassphrase: "Test SDF Network ; September 2015",
       contracts: {
-        eventManager: "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
+        eventManager:
+          "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
       },
     });
 

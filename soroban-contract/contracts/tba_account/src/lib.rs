@@ -1,7 +1,7 @@
 #![no_std]
 use soroban_sdk::{
-    auth::Context, contract, contracterror, contractimpl, contracttype, Address, BytesN, Env, IntoVal, Symbol,
-    Val, Vec,
+    auth::Context, contract, contracterror, contractimpl, contracttype, Address, BytesN, Env,
+    IntoVal, Symbol, Val, Vec,
 };
 
 // Error handling
@@ -51,24 +51,10 @@ fn set_token_id(env: &Env, token_id: &u128) {
     env.storage().instance().set(&DataKey::TokenId, token_id);
 }
 
-fn get_implementation_hash(env: &Env) -> Result<BytesN<32>, Error> {
-    env.storage()
-        .instance()
-        .get(&DataKey::ImplementationHash)
-        .ok_or(Error::NotInitialized)
-}
-
 fn set_implementation_hash(env: &Env, implementation_hash: &BytesN<32>) {
     env.storage()
         .instance()
         .set(&DataKey::ImplementationHash, implementation_hash);
-}
-
-fn get_salt(env: &Env) -> Result<BytesN<32>, Error> {
-    env.storage()
-        .instance()
-        .get(&DataKey::Salt)
-        .ok_or(Error::NotInitialized)
 }
 
 fn set_salt(env: &Env, salt: &BytesN<32>) {
@@ -143,7 +129,7 @@ impl TbaAccount {
         set_implementation_hash(&env, &implementation_hash);
         set_salt(&env, &salt);
         set_initialized(&env, &true);
-        
+
         // Extend instance TTL
         env.storage()
             .instance()
@@ -252,7 +238,7 @@ impl TbaAccount {
             Val::from(signatures),
             Val::from(auth_context),
         ]);
-        
+
         Ok(())
     }
 }

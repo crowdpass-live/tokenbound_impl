@@ -1,7 +1,8 @@
 #![no_std]
 use soroban_sdk::xdr::ToXdr;
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, Address, BytesN, Env, IntoVal, Symbol, Val, Vec,
+    contract, contracterror, contractimpl, contracttype, Address, BytesN, Env, IntoVal, Symbol,
+    Val, Vec,
 };
 
 // Error handling
@@ -129,7 +130,7 @@ impl TbaRegistry {
         token_contract: Address,
         token_id: u128,
         salt: BytesN<32>,
-    ) -> Result<Address, Error>  {
+    ) -> Result<Address, Error> {
         // Verify that the caller owns the NFT (Issue #26)
         // This is a cross-contract call to the NFT contract
         let owner: Address = env.invoke_contract(

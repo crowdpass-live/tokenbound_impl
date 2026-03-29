@@ -31,6 +31,13 @@ pub enum Error {
     TicketsBelowSold = 18,
     EventNotEnded = 19,
     FundsAlreadyWithdrawn = 20,
+    AttendanceNotMarked = 21,
+    PoapAlreadyDistributed = 22,
+    MismatchedPoapBatch = 23,
+    InvalidTicketToken = 24,
+    EventNotEndedForPoap = 25,
+    EventNotStarted = 26,
+    PoapMinterMismatch = 27,
 }
 
 #[contracttype]
@@ -45,6 +52,8 @@ pub enum DataKey {
     EventBalance(u32),
     FundsWithdrawn(u32),
     Waitlist(u32),
+    AttendanceMarked(u32, u128),
+    PoapDistributed(u32, u128),
 }
 
 /// A single ticket tier (e.g. VIP, General, Early Bird)
@@ -184,12 +193,8 @@ impl EventManager {
             .unwrap_or(params.ticket_price);
 
         let event_id = Self::get_and_increment_counter(&env)?;
-        let ticket_nft_addr = Self::deploy_ticket_nft(
-            &env,
-            event_id,
-            params.theme.clone(),
-            agg_total,
-        )?;
+        let ticket_nft_addr =
+            Self::deploy_ticket_nft(&env, event_id, params.theme.clone(), agg_total)?;
 
         let event = Event {
             id: event_id,
@@ -348,14 +353,11 @@ impl EventManager {
 
             // Deduct refunded amount from the escrowed balance
             let balance_key = DataKey::EventBalance(event_id);
-            let current_balance: i128 = env
-                .storage()
-                .persistent()
-                .get(&balance_key)
-                .unwrap_or(0);
-            env.storage()
-                .persistent()
-                .set(&balance_key, &current_balance.saturating_sub(purchase.total_paid));
+            let current_balance: i128 = env.storage().persistent().get(&balance_key).unwrap_or(0);
+            env.storage().persistent().set(
+                &balance_key,
+                &current_balance.saturating_sub(purchase.total_paid),
+            );
         }
 
         env.events().publish(
@@ -410,7 +412,7 @@ impl EventManager {
         }
 
         let mut tier = tiers.get(tier_index).unwrap();
-        
+
         if tier.sold_quantity + quantity > tier.total_quantity {
             return Err(Error::TierSoldOut);
         }
@@ -424,11 +426,7 @@ impl EventManager {
             token_client.transfer(&buyer, &env.current_contract_address(), &total_price);
 
             let balance_key = DataKey::EventBalance(event_id);
-            let current_balance: i128 = env
-                .storage()
-                .persistent()
-                .get(&balance_key)
-                .unwrap_or(0);
+            let current_balance: i128 = env.storage().persistent().get(&balance_key).unwrap_or(0);
             env.storage()
                 .persistent()
                 .set(&balance_key, &(current_balance + total_price));
@@ -643,11 +641,156 @@ impl EventManager {
         Ok(())
     }
 
-    // ========== Private helpers ==========
+    /// Record that a ticket (NFT) was present for the event. Callable only by the organizer,
+    /// after the event start time, while the event is not canceled.
+    pub fn mark_attendance(env: Env, event_id: u32, ticket_token_id: u128) -> Result<(), Error> {
+        let event: Event = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Event(event_id))
+            .ok_or(Error::EventNotFound)?;
 
-    fn try_promote_from_waitlist(_env: &Env, _event_id: u32) {
-        // Placeholder: waitlist promotion is handled externally via join_waitlist / return_ticket
+        event.organizer.require_auth();
+
+        if event.is_canceled {
+            return Err(Error::EventAlreadyCanceled);
+        }
+
+        let now = env.ledger().timestamp();
+        if now < event.start_date {
+            return Err(Error::EventNotStarted);
+        }
+
+        let valid: bool = env.invoke_contract(
+            &event.ticket_nft_addr,
+            &Symbol::new(&env, "is_valid"),
+            soroban_sdk::vec![&env, ticket_token_id.into_val(&env)],
+        );
+        if !valid {
+            return Err(Error::InvalidTicketToken);
+        }
+
+        let key = DataKey::AttendanceMarked(event_id, ticket_token_id);
+        if env.storage().persistent().has(&key) {
+            return Ok(());
+        }
+
+        env.storage().persistent().set(&key, &true);
+        Self::extend_persistent_ttl(&env, &key);
+
+        env.events().publish(
+            (Symbol::new(&env, "attendance_marked"),),
+            (event_id, ticket_token_id),
+        );
+
+        Ok(())
     }
+
+    /// Batch-mint POAPs to ticket TBAs after the event ends. Only the organizer may call.
+    /// The POAP contract must list this event manager as its minter so mint authorization succeeds.
+    pub fn distribute_poaps(
+        env: Env,
+        event_id: u32,
+        poap_contract: Address,
+        ticket_token_ids: Vec<u128>,
+        tba_recipients: Vec<Address>,
+        metadata_uri: String,
+    ) -> Result<(), Error> {
+        let event: Event = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Event(event_id))
+            .ok_or(Error::EventNotFound)?;
+
+        event.organizer.require_auth();
+
+        if event.is_canceled {
+            return Err(Error::EventAlreadyCanceled);
+        }
+
+        if env.ledger().timestamp() <= event.end_date {
+            return Err(Error::EventNotEndedForPoap);
+        }
+
+        let pc_minter: Address = env.invoke_contract(
+            &poap_contract,
+            &Symbol::new(&env, "get_minter"),
+            soroban_sdk::vec![&env],
+        );
+        if pc_minter != env.current_contract_address() {
+            return Err(Error::PoapMinterMismatch);
+        }
+
+        if ticket_token_ids.len() != tba_recipients.len() {
+            return Err(Error::MismatchedPoapBatch);
+        }
+
+        let mut batch_recipients = Vec::new(&env);
+        let len = ticket_token_ids.len();
+        let mut i = 0u32;
+        while i < len {
+            let tid = ticket_token_ids.get(i).unwrap();
+            let tba = tba_recipients.get(i).unwrap();
+
+            if !env
+                .storage()
+                .persistent()
+                .has(&DataKey::AttendanceMarked(event_id, tid))
+            {
+                return Err(Error::AttendanceNotMarked);
+            }
+
+            if env
+                .storage()
+                .persistent()
+                .has(&DataKey::PoapDistributed(event_id, tid))
+            {
+                return Err(Error::PoapAlreadyDistributed);
+            }
+
+            batch_recipients.push_back(tba.clone());
+            i += 1;
+        }
+
+        env.invoke_contract::<()>(
+            &poap_contract,
+            &Symbol::new(&env, "batch_mint_poap"),
+            soroban_sdk::vec![
+                &env,
+                batch_recipients.into_val(&env),
+                event_id.into_val(&env),
+                metadata_uri.into_val(&env),
+            ],
+        );
+
+        let mut j = 0u32;
+        while j < len {
+            let tid = ticket_token_ids.get(j).unwrap();
+            let dist_key = DataKey::PoapDistributed(event_id, tid);
+            env.storage().persistent().set(&dist_key, &true);
+            Self::extend_persistent_ttl(&env, &dist_key);
+            j += 1;
+        }
+
+        env.events()
+            .publish((Symbol::new(&env, "poaps_distributed"),), (event_id, len));
+
+        Ok(())
+    }
+
+    pub fn is_attendance_marked(env: Env, event_id: u32, ticket_token_id: u128) -> bool {
+        env.storage()
+            .persistent()
+            .has(&DataKey::AttendanceMarked(event_id, ticket_token_id))
+    }
+
+    pub fn is_poap_distributed(env: Env, event_id: u32, ticket_token_id: u128) -> bool {
+        env.storage()
+            .persistent()
+            .has(&DataKey::PoapDistributed(event_id, ticket_token_id))
+    }
+
+    // ========== Private helpers ==========
 
     fn get_and_increment_counter(env: &Env) -> Result<u32, Error> {
         let current: u32 = env
@@ -656,9 +799,7 @@ impl EventManager {
             .get(&DataKey::EventCounter)
             .unwrap_or(0);
 
-        let next = current
-            .checked_add(1)
-            .ok_or(Error::CounterOverflow)?;
+        let next = current.checked_add(1).ok_or(Error::CounterOverflow)?;
         env.storage().instance().set(&DataKey::EventCounter, &next);
         env.storage()
             .instance()
@@ -686,23 +827,13 @@ impl EventManager {
         let nft_addr: Address = env.invoke_contract(
             &factory_addr,
             &Symbol::new(env, "deploy_ticket"),
-            soroban_sdk::vec![
-                env,
-                env.current_contract_address().to_val(),
-                salt.to_val(),
-            ],
+            soroban_sdk::vec![env, env.current_contract_address().to_val(), salt.to_val(),],
         );
 
         Ok(nft_addr)
     }
 
-    fn record_purchase(
-        env: &Env,
-        event_id: u32,
-        buyer: Address,
-        quantity: u128,
-        total_paid: i128,
-    ) {
+    fn record_purchase(env: &Env, event_id: u32, buyer: Address, quantity: u128, total_paid: i128) {
         let key = DataKey::BuyerPurchase(event_id, buyer.clone());
         let existing = env.storage().persistent().get::<_, BuyerPurchase>(&key);
 
@@ -741,8 +872,8 @@ impl EventManager {
         if ticket_price <= 0 {
             return 0;
         }
-        let quantity_i128 = i128::try_from(quantity)
-            .unwrap_or_else(|_| panic!("Quantity exceeds pricing range"));
+        let quantity_i128 =
+            i128::try_from(quantity).unwrap_or_else(|_| panic!("Quantity exceeds pricing range"));
         let subtotal = ticket_price
             .checked_mul(quantity_i128)
             .unwrap_or_else(|| panic!("Price overflow"));
