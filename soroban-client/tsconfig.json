@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@crowdpass/tokenbound-sdk": ["./sdk/src/index.ts"]
     }
   },
   "include": [

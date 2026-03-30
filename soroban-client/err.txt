@@ -1,0 +1,12 @@
+app/create-event/page.tsx(16,28): error TS2353: Object literal may only specify known properties, and 'invalid_type_error' does not exist in type '{ error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; }'.
+app/create-event/page.tsx(17,30): error TS2353: Object literal may only specify known properties, and 'invalid_type_error' does not exist in type '{ error?: string | $ZodErrorMap<$ZodIssueInvalidType<unknown>> | undefined; message?: string | undefined; }'.
+app/create-event/page.tsx(56,5): error TS2322: Type 'Resolver<{ theme: string; startDate: string; endDate: string; price: unknown; tickets: unknown; description?: string | undefined; }, any, { theme: string; startDate: string; endDate: string; price: number; tickets: number; description?: string | undefined; }>' is not assignable to type 'Resolver<{ theme: string; startDate: string; endDate: string; price: number; tickets: number; description?: string | undefined; }, any, { theme: string; startDate: string; endDate: string; price: number; tickets: number; description?: string | undefined; }>'.
+  Types of parameters 'options' and 'options' are incompatible.
+    Type 'ResolverOptions<{ theme: string; startDate: string; endDate: string; price: number; tickets: number; description?: string | undefined; }>' is not assignable to type 'ResolverOptions<{ theme: string; startDate: string; endDate: string; price: unknown; tickets: unknown; description?: string | undefined; }>'.
+      Type 'unknown' is not assignable to type 'number'.
+app/create-event/page.tsx(118,36): error TS2345: Argument of type '(data: EventFormData) => Promise<void>' is not assignable to parameter of type 'SubmitHandler<TFieldValues>'.
+  Types of parameters 'data' and 'data' are incompatible.
+    Type 'TFieldValues' is not assignable to type '{ theme: string; startDate: string; endDate: string; price: number; tickets: number; description?: string | undefined; }'.
+      Type 'FieldValues' is missing the following properties from type '{ theme: string; startDate: string; endDate: string; price: number; tickets: number; description?: string | undefined; }': theme, startDate, endDate, price, tickets
+lib/soroban.ts(1,24): error TS2307: Cannot find module '@stellar/stellar-sdk' or its corresponding type declarations.
+lib/soroban.ts(2,31): error TS2307: Cannot find module '@stellar/stellar-base' or its corresponding type declarations.

@@ -1,0 +1,277 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import AnalyticsPageView from "@/components/AnalyticsPageView";
+import Header from "@/components/Header";
+import { useWallet } from "@/contexts/WalletContext";
+import { createEvent } from "@/lib/soroban";
+
+const eventSchema = z
+  .object({
+    theme: z.string().min(1, "Event name required"),
+    description: z.string().optional(),
+    startDate: z.string().min(1, "Start date is required"),
+    endDate: z.string().min(1, "End date is required"),
+    price: z
+      .string()
+      .min(1, "Price required")
+      .refine((s) => !Number.isNaN(parseFloat(s)), "Price must be a number")
+      .refine((s) => parseFloat(s) >= 0, "Price cannot be negative")
+      .refine((s) => parseFloat(s) <= 1_000_000, "Price is too high"),
+    tickets: z
+      .string()
+      .min(1, "Total tickets required")
+      .refine((s) => /^[0-9]+$/.test(s), "Tickets must be a whole number")
+      .refine((s) => parseInt(s, 10) > 0, "Must be a positive integer"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.startDate) {
+      const start = new Date(data.startDate).getTime();
+      if (start <= Date.now()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["startDate"],
+          message: "Start date must be in the future",
+        });
+      }
+    }
+
+    if (data.startDate && data.endDate) {
+      const start = new Date(data.startDate).getTime();
+      const end = new Date(data.endDate).getTime();
+      if (end <= start) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["endDate"],
+          message: "End date must be after start date",
+        });
+      }
+    }
+  });
+
+type EventFormData = z.infer<typeof eventSchema>;
+
+export default function CreateEventPage() {
+  const router = useRouter();
+  const { address, isInstalled, connect, providerName, signTransaction } =
+    useWallet();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm<EventFormData>({
+    resolver: zodResolver(eventSchema),
+    mode: "onChange",
+  });
+
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const onSubmit = async (data: EventFormData) => {
+    let organizerAddress = address;
+
+    if (!organizerAddress) {
+      if (isInstalled) {
+        await connect();
+        organizerAddress = localStorage.getItem("wallet_address");
+      } else {
+        alert(
+          `Please install ${providerName} (or another Stellar wallet) to create an event.`
+        );
+        return;
+      }
+    }
+
+    if (!organizerAddress) {
+      setErrorMsg("Connect your wallet before creating an event.");
+      return;
+    }
+
+    setErrorMsg("");
+    setSuccessMsg("");
+
+    try {
+      const startUnix = Math.floor(new Date(data.startDate).getTime() / 1000);
+      const endUnix = Math.floor(new Date(data.endDate).getTime() / 1000);
+      const ticketPrice = BigInt(
+        Math.floor(parseFloat(data.price) * 10_000_000)
+      );
+      const totalTickets = BigInt(parseInt(data.tickets, 10));
+
+      const paymentToken =
+        "0000000000000000000000000000000000000000000000000000000000000000";
+
+      const res = await createEvent(
+        {
+          organizer: organizerAddress,
+          theme: data.theme,
+          eventType: data.description || "",
+          startTimeUnix: startUnix,
+          endTimeUnix: endUnix,
+          ticketPrice,
+          totalTickets,
+          paymentToken,
+        },
+        signTransaction
+      );
+
+      setSuccessMsg(`Event created (ledger ${res.ledger}, tx ${res.hash})`);
+      setTimeout(() => router.push("/"), 3000);
+    } catch (err: unknown) {
+      console.error(err);
+      const message =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message?: string }).message)
+          : "Unknown error";
+      setErrorMsg(message);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#18181B] text-white selection:bg-[#FF5722] selection:text-white">
+      <AnalyticsPageView page="create-event" />
+      <Header />
+
+      <main className="mx-auto max-w-3xl px-4 pb-20 pt-36 sm:px-6">
+        <div className="rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/20">
+          <h1 className="mb-2 text-3xl font-bold">Create Event</h1>
+          <p className="mb-6 text-zinc-300">
+            Launch a new CrowdPass experience with on-chain pricing, inventory,
+            and organizer ownership.
+          </p>
+
+          {successMsg && (
+            <div className="mb-4 rounded-2xl bg-green-500/15 p-3 text-green-200">
+              {successMsg}
+            </div>
+          )}
+          {errorMsg && (
+            <div className="mb-4 rounded-2xl bg-red-500/15 p-3 text-red-200">
+              {errorMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-medium text-gray-300">
+                  Event Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., Stellar DevCon 2026"
+                  {...register("theme")}
+                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-gray-500 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                />
+                {errors.theme && (
+                  <p className="mt-1.5 text-sm text-red-400">
+                    {errors.theme.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-medium text-gray-300">
+                  Description
+                </label>
+                <textarea
+                  {...register("description")}
+                  placeholder="Tell your audience about the event..."
+                  rows={4}
+                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-gray-500 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">
+                  Start Date &amp; Time
+                </label>
+                <input
+                  type="datetime-local"
+                  {...register("startDate")}
+                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white transition [color-scheme:dark] focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                />
+                {errors.startDate && (
+                  <p className="mt-1.5 text-sm text-red-400">
+                    {errors.startDate.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">
+                  End Date &amp; Time
+                </label>
+                <input
+                  type="datetime-local"
+                  {...register("endDate")}
+                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white transition [color-scheme:dark] focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                />
+                {errors.endDate && (
+                  <p className="mt-1.5 text-sm text-red-400">
+                    {errors.endDate.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">
+                  Ticket Price (XLM)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-medium text-gray-400">
+                    XLM
+                  </span>
+                  <input
+                    type="number"
+                    step="0.0000001"
+                    placeholder="0.00"
+                    {...register("price")}
+                    className="w-full rounded-xl border border-white/10 bg-black/20 py-3 pl-12 pr-4 text-white placeholder-gray-500 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                  />
+                </div>
+                {errors.price && (
+                  <p className="mt-1.5 text-sm text-red-400">
+                    {errors.price.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-gray-300">
+                  Total Tickets
+                </label>
+                <input
+                  type="number"
+                  placeholder="e.g., 500"
+                  {...register("tickets")}
+                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-gray-500 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                />
+                {errors.tickets && (
+                  <p className="mt-1.5 text-sm text-red-400">
+                    {errors.tickets.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={
+                isSubmitting || (!isValid && Object.keys(errors).length > 0)
+              }
+              className="w-full rounded-xl bg-[#FF5722] px-6 py-4 text-lg font-bold text-white shadow-[0_0_20px_rgba(255,87,34,0.3)] transition hover:-translate-y-0.5 hover:bg-[#F4511E] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+            >
+              {isSubmitting ? "Creating…" : "Launch Event"}
+            </button>
+          </form>
+        </div>
+      </main>
+    </div>
+  );
+}

@@ -30,6 +30,10 @@ export default {
         "black": "#000000",
         "base-white": "#F5F5F5",
         "white": "#FFFFFF",
+        "dark-bg": "#14141A",
+        "accent-orange": "#FF6932",
+        "light-green": "#B3DFC0",
+        "gray-text": "#9CA3AF",
       }
     },
   },

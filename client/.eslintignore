@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.config.js
+.env*
+!.env.example
+coverage/
+public/
+*.log
+

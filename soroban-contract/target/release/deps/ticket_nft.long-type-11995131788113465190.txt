@@ -1,0 +1,47 @@
+TryFromVal<E, &(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)>
+TryFromVal<E, &(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)>
+TryFromVal<E, &(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)>
+TryFromVal<E, &(T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)>
+TryFromVal<E, &soroban_env_common::bytes::BytesObject>
+TryFromVal<E, &soroban_env_common::num::DurationObject>
+TryFromVal<E, &soroban_env_common::num::DurationSmall>
+TryFromVal<E, &soroban_env_common::num::TimepointObject>
+TryFromVal<E, &soroban_env_common::num::TimepointSmall>
+TryFromVal<E, &soroban_env_common::string::StringObject>
+TryFromVal<E, &soroban_env_common::symbol::SymbolObject>
+TryFromVal<E, &soroban_env_common::symbol::SymbolSmall>
+TryFromVal<E, &soroban_env_common::val::AddressObject>
+TryFromVal<E, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9)>
+TryFromVal<E, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)>
+TryFromVal<E, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)>
+TryFromVal<E, (T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)>
+TryFromVal<E, soroban_env_common::num::DurationObject>
+TryFromVal<E, soroban_env_common::num::TimepointObject>
+TryFromVal<E, soroban_env_common::num::TimepointSmall>
+TryFromVal<E, soroban_env_common::string::StringObject>
+TryFromVal<E, soroban_env_common::symbol::SymbolObject>
+TryFromVal<E, soroban_env_common::symbol::SymbolSmall>
+TryFromVal<Env, CreateContractWithConstructorHostFnContext>
+TryFromVal<Env, soroban_sdk::auth::ContractExecutable>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::account_contract::AccountEd25519Signature>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::account_contract::AuthorizationContext>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::account_contract::ContractAuthorizationContext>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::account_contract::CreateContractHostFnContext>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::account_contract::CreateContractWithConstructorHostFnContext>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::base_types::Address>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::base_types::BytesN<N>>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::base_types::String>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::base_types::Vec>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::common_types::ContractExecutable>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::invoker_contract_auth::InvokerContractAuthEntry>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::invoker_contract_auth::SubContractInvocation>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::stellar_asset_contract::metadata::StellarAssetContractMetadata>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::stellar_asset_contract::public_types::AlphaNum12AssetInfo>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::stellar_asset_contract::public_types::AlphaNum4AssetInfo>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::stellar_asset_contract::public_types::AssetInfo>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::stellar_asset_contract::storage_types::AllowanceDataKey>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::stellar_asset_contract::storage_types::AllowanceValue>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::stellar_asset_contract::storage_types::BalanceValue>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::stellar_asset_contract::storage_types::DataKey>
+TryFromVal<soroban_env_host::host::Host, soroban_env_host::builtin_contracts::stellar_asset_contract::storage_types::InstanceDataKey>
+TryFromVal<Env, core::option::Option<OffChainMetadata>>

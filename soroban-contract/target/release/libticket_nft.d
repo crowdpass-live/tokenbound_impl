@@ -1,0 +1,1 @@
+/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/libticket_nft.so: /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft/src/lib.rs

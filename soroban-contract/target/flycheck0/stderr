@@ -1,0 +1,291 @@
+warning: profiles for the non root package will be ignored, specify profiles at the workspace root:
+package:   /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/event_manager/Cargo.toml
+workspace: /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/Cargo.toml
+   0.151059938s  INFO prepare_target{force=false package_id=event_manager v0.1.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/event_manager) target="event_manager"}: cargo::core::compiler::fingerprint: fingerprint error for event_manager v0.1.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/event_manager)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("event_manager", ["cdylib"], "/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/event_manager/src/lib.rs", Edition2021) }
+   0.151109660s  INFO prepare_target{force=false package_id=event_manager v0.1.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/event_manager) target="event_manager"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/debug/.fingerprint/event_manager-098c7a38cd401a5b/test-lib-event_manager`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/core/src/ops/function.rs:287:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  16: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  17: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  20: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  21: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:171:5
+  23: main
+  24: __libc_start_call_main
+             at ./csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+  25: __libc_start_main_impl
+             at ./csu/../csu/libc-start.c:360:3
+  26: <unknown>
+   0.223673135s  INFO prepare_target{force=false package_id=integration_tests v0.1.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/tests/integration) target="integration_tests"}: cargo::core::compiler::fingerprint: fingerprint error for integration_tests v0.1.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/tests/integration)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("integration_tests", ["rlib"], "/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/tests/integration/src/lib.rs", Edition2021) }
+   0.223698147s  INFO prepare_target{force=false package_id=integration_tests v0.1.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/tests/integration) target="integration_tests"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/debug/.fingerprint/integration_tests-c05f5579ddc77920/test-lib-integration_tests`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/core/src/ops/function.rs:287:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  16: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  17: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  20: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  21: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:171:5
+  23: main
+  24: __libc_start_call_main
+             at ./csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+  25: __libc_start_main_impl
+             at ./csu/../csu/libc-start.c:360:3
+  26: <unknown>
+   0.224730826s  INFO prepare_target{force=false package_id=tba_account v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_account) target="tba_account"}: cargo::core::compiler::fingerprint: fingerprint error for tba_account v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_account)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("tba_account", ["cdylib"], "/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_account/src/lib.rs", Edition2021) }
+   0.224742049s  INFO prepare_target{force=false package_id=tba_account v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_account) target="tba_account"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/debug/.fingerprint/tba_account-45129ee205f10090/test-lib-tba_account`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/core/src/ops/function.rs:287:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  16: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  17: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  20: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  21: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:171:5
+  23: main
+  24: __libc_start_call_main
+             at ./csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+  25: __libc_start_main_impl
+             at ./csu/../csu/libc-start.c:360:3
+  26: <unknown>
+   0.225392228s  INFO prepare_target{force=false package_id=tba_registry v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_registry) target="tba_registry"}: cargo::core::compiler::fingerprint: fingerprint error for tba_registry v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_registry)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("tba_registry", ["cdylib"], "/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_registry/src/lib.rs", Edition2021) }
+   0.225403132s  INFO prepare_target{force=false package_id=tba_registry v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_registry) target="tba_registry"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/debug/.fingerprint/tba_registry-f366145ccefbce45/test-lib-tba_registry`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/core/src/ops/function.rs:287:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  16: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  17: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  20: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  21: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:171:5
+  23: main
+  24: __libc_start_call_main
+             at ./csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+  25: __libc_start_main_impl
+             at ./csu/../csu/libc-start.c:360:3
+  26: <unknown>
+   0.225862707s  INFO prepare_target{force=false package_id=tba_registry v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_registry) target="integration_test"}: cargo::core::compiler::fingerprint: fingerprint error for tba_registry v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_registry)/Check { test: true }/TargetInner { kind: "test", name: "integration_test", benched: false, ..: with_path("/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_registry/tests/integration_test.rs", Edition2021) }
+   0.225873531s  INFO prepare_target{force=false package_id=tba_registry v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_registry) target="integration_test"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/debug/.fingerprint/tba_registry-0ce8b8a3e56408d2/test-integration-test-integration_test`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/core/src/ops/function.rs:287:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  16: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  17: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  20: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  21: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:171:5
+  23: main
+  24: __libc_start_call_main
+             at ./csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+  25: __libc_start_main_impl
+             at ./csu/../csu/libc-start.c:360:3
+  26: <unknown>
+   0.226502346s  INFO prepare_target{force=false package_id=ticket_factory v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_factory) target="ticket_factory"}: cargo::core::compiler::fingerprint: fingerprint error for ticket_factory v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_factory)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("ticket_factory", ["cdylib"], "/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_factory/src/lib.rs", Edition2021) }
+   0.226512926s  INFO prepare_target{force=false package_id=ticket_factory v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_factory) target="ticket_factory"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/debug/.fingerprint/ticket_factory-67815090c56c7ab4/test-lib-ticket_factory`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/core/src/ops/function.rs:287:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  16: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  17: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:590:40
+  20: std::panicking::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panicking.rs:553:19
+  21: std::panic::catch_unwind
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/ed61e7d7e242494fb7057f2657300d9e77bb4fcb/library/std/src/rt.rs:171:5
+  23: main
+  24: __libc_start_call_main
+             at ./csu/../sysdeps/nptl/libc_start_call_main.h:58:16
+  25: __libc_start_main_impl
+             at ./csu/../csu/libc-start.c:360:3
+  26: <unknown>
+   0.227098310s  INFO prepare_target{force=false package_id=ticket_nft v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft) target="ticket_nft"}: cargo::core::compiler::fingerprint: stale: changed "/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft/src/test.rs"
+   0.227104481s  INFO prepare_target{force=false package_id=ticket_nft v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft) target="ticket_nft"}: cargo::core::compiler::fingerprint:           (vs) "/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/debug/.fingerprint/ticket_nft-3aaca2a38dd37dbd/dep-test-lib-ticket_nft"
+   0.227108080s  INFO prepare_target{force=false package_id=ticket_nft v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft) target="ticket_nft"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1774765953, nanos: 781059022 } < FileTime { seconds: 1774766151, nanos: 438576794 }
+   0.227161269s  INFO prepare_target{force=false package_id=ticket_nft v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft) target="ticket_nft"}: cargo::core::compiler::fingerprint: fingerprint dirty for ticket_nft v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("ticket_nft", ["cdylib"], "/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft/src/lib.rs", Edition2021) }
+   0.227171284s  INFO prepare_target{force=false package_id=ticket_nft v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft) target="ticket_nft"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/debug/.fingerprint/ticket_nft-3aaca2a38dd37dbd/dep-test-lib-ticket_nft", reference_mtime: FileTime { seconds: 1774765953, nanos: 781059022 }, stale: "/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft/src/test.rs", stale_mtime: FileTime { seconds: 1774766151, nanos: 438576794 } }))
+    Checking ticket_nft v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft)
+    Checking tba_registry v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_registry)
+    Checking ticket_factory v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_factory)
+    Checking tba_account v0.0.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_account)
+    Checking integration_tests v0.1.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/tests/integration)
+    Checking event_manager v0.1.0 (/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/event_manager)
+error: could not compile `tba_registry` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `event_manager` (lib test) due to 1 previous error
+error: could not compile `tba_registry` (test "integration_test") due to 9 previous errors; 5 warnings emitted
+error: could not compile `integration_tests` (lib test) due to 21 previous errors; 1 warning emitted
+error: could not compile `ticket_factory` (lib test) due to 12 previous errors
+error: could not compile `tba_account` (lib test) due to 9 previous errors

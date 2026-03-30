@@ -1,0 +1,1 @@
+/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/libtba_registry.so: /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_registry/src/lib.rs

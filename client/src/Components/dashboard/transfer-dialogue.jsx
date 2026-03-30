@@ -10,7 +10,7 @@ import {
     DialogTrigger,
 } from "../shared/dialog"
 import { KitContext } from "../../context/kit-context"
-import toast from "react-hot-toast"
+import { toast } from "sonner"
 import { TokenboundClient } from 'starknet-tokenbound-sdk';
 import { cairo } from "starknet"
 
@@ -51,7 +51,7 @@ export function TransferDialog({ tba }) {
             recipient: formData.receiver,
             amount: Number(formData.amount) * 1e18
         })
-        toast.remove(toast1);
+        toast.dismiss(toast1);
         toast.success("Transfer successful")
     }
 

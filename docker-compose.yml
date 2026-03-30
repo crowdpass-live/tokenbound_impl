@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  stellar:
+    image: stellar/quickstart:latest
+    container_name: stellar-quickstart
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    command: /start --local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  contracts:
+    build:
+      context: ./soroban-contract
+      dockerfile: Dockerfile
+    container_name: crowdpass-contracts
+    volumes:
+      - ./soroban-contract:/app
+      - cargo-cache:/usr/local/cargo/registry
+    depends_on:
+      - stellar
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: crowdpass-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      - VITE_STELLAR_NETWORK=local
+      - VITE_STELLAR_RPC_URL=http://stellar:8000
+    depends_on:
+      stellar:
+        condition: service_healthy
+
+volumes:
+  cargo-cache:

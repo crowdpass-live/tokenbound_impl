@@ -1,0 +1,1 @@
+/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/wasm32v1-none/release/ticket_factory.wasm: /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_factory/src/lib.rs /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_factory/src/test.rs

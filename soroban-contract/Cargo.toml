@@ -1,12 +1,16 @@
 [workspace]
 resolver = "2"
 members = [
+  "contracts/upgradeable",
   "contracts/tba_account",
   "contracts/tba_registry",
   "contracts/ticket_nft",
   "contracts/ticket_factory",
   "contracts/event_manager",
+  "contracts/marketplace",
+  "tests/integration",
 ]
+exclude = ["contracts/hello-world"]
 
 [workspace.dependencies]
 soroban-sdk = "22.0.0"

@@ -1,0 +1,11 @@
+/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/debug/deps/wasmi_core-e51f6c5115f03ebd.d: /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/lib.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/host_error.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/nan_preserving_float.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/trap.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/units.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/untyped.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/value.rs
+
+/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/debug/deps/libwasmi_core-e51f6c5115f03ebd.rmeta: /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/lib.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/host_error.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/nan_preserving_float.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/trap.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/units.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/untyped.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/value.rs
+
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/lib.rs:
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/host_error.rs:
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/nan_preserving_float.rs:
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/trap.rs:
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/units.rs:
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/untyped.rs:
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wasmi_core-0.13.0/src/value.rs:

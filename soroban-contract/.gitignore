@@ -1,5 +1,4 @@
 # Rust/Cargo
-target/
 **/*.rs.bk
 *.pdb
 Cargo.lock
@@ -24,7 +23,6 @@ Cargo.lock
 .env.*.local
 
 # Build artifacts
-/target
 **/.soroban-cache
 
 # Test artifacts

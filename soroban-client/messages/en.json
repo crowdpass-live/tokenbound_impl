@@ -1,0 +1,98 @@
+{
+  "nav": {
+    "home": "Home",
+    "events": "Events",
+    "marketplace": "Marketplace",
+    "dashboard": "Dashboard",
+    "createEvent": "Create Events",
+    "connect": "Connect {provider}",
+    "selectWallet": "Select Wallet",
+    "disconnect": "Disconnect",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "toggleMenu": "Toggle navigation menu"
+  },
+  "hero": {
+    "tagline": "Reinvent your events",
+    "headline": "Secure Tickets, Seamless Access — Anytime, Anywhere with",
+    "brand": "CrowdPass",
+    "cta": "Get Started"
+  },
+  "about": {
+    "title": "About Us",
+    "p1": "Welcome to CrowdPass, your premier event ticketing and management solution. Our platform is designed to help event organizers create, manage, and promote their events with ease.",
+    "p2": "At CrowdPass, we believe that events have the power to bring people together and create lasting memories. That's why we're dedicated to providing a seamless and secure ticketing experience for attendees, while also offering a range of tools and resources to help event organizers succeed.",
+    "p3": "CrowdPass helps you transform your event into an unforgettable experience. With seamless attendee management, secure ticketing, and enhanced engagement tools.",
+    "cta": "Explore"
+  },
+  "features": {
+    "title": "Our Features",
+    "eventManagement": {
+      "title": "Event Management",
+      "description": "Streamline your event planning process with our intuitive event management tools. Create, manage, and promote your events with ease."
+    },
+    "analytics": {
+      "title": "Real Time Analytics",
+      "description": "Get real-time insights into your event's performance with our analytics dashboard. Track attendance, engagement, and revenue in real-time."
+    },
+    "marketplace": {
+      "title": "Ticket Marketplace",
+      "description": "Transform event ticketing with a decentralized marketplace, enabling secure buying, selling, and transferring of tickets with full transparency and trust."
+    },
+    "security": {
+      "title": "Security",
+      "description": "Ensure the security and integrity of your event data with our robust security measures. Protect your attendees' information and prevent unauthorized access."
+    },
+    "identity": {
+      "title": "Decentralized Identity",
+      "description": "Empower your attendees with decentralized identity management. Allow them to control their own data and identity, while ensuring a seamless event experience."
+    }
+  },
+  "howItWorks": {
+    "title": "How it Works",
+    "step1": {
+      "title": "Browse Events.",
+      "description": "Explore a wide range of events on the platform, filter by category, location, or date, and select the event that interests you."
+    },
+    "step2": {
+      "title": "Connect Your Wallet.",
+      "description": "Securely connect your digital wallet to purchase tickets and manage your event identity."
+    },
+    "step3": {
+      "title": "Purchase Your Ticket.",
+      "description": "Buy tickets instantly using cryptocurrency or credit card. Your ticket is stored as an NFT for easy access."
+    },
+    "step4": {
+      "title": "Attend the Event.",
+      "description": "Simply show your QR code at the entrance. Enjoy the event and connect with other attendees!"
+    }
+  },
+  "partners": {
+    "title": "Our Partners"
+  },
+  "footer": {
+    "tagline": "Step into the future with CrowdPass — where every ticket unlocks more than just entry, it tells a story of secure, seamless experiences. From exclusive events to unforgettable moments, your next adventure starts here.",
+    "newsletter": "Enter email to subscribe to our newsletter",
+    "quickLinks": "Quick Links",
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "signUp": "Sign Up",
+    "logIn": "Log In",
+    "terms": "Terms & Condition",
+    "privacy": "Privacy Policy",
+    "createEvent": "Create Event",
+    "getSpok": "Get SPOK",
+    "attendEvent": "Attend Event",
+    "copyright": "All Rights Reserved, CrowdPass {year}."
+  },
+  "wallet": {
+    "chooseProvider": "Choose Wallet Provider",
+    "available": "Available",
+    "install": "Install",
+    "notInstalled": "Not installed? Click to open the official install page then refresh."
+  },
+  "language": {
+    "label": "Language"
+  }
+}

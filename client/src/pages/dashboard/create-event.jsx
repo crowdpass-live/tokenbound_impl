@@ -42,11 +42,11 @@ const CreateEvent = () => {
         try {
 
             await eventContract.create_event(formData.theme, formData.type, _start_date, _end_date, cairo.uint256(formData.ticketPrice * 1e18), formData.total_ticket)
-            toast.remove(toast1);
+            toast.dismiss(toast1);
             toast.success("Event Created")
 
         } catch (error) {
-            toast.remove(toast1)
+            toast.dismiss(toast1)
             toast.error(error.message)
         }
     }

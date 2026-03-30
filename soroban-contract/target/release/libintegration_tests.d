@@ -1,0 +1,1 @@
+/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/libintegration_tests.rlib: /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/tests/integration/src/lib.rs

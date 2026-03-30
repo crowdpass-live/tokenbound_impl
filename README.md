@@ -4,6 +4,9 @@
 
 *Secure, transparent, and fraud-proof event management powered by blockchain technology*
 
+[![CI](https://github.com/crowdpass-live/tokenbound_impl/actions/workflows/ci.yml/badge.svg)](https://github.com/crowdpass-live/tokenbound_impl/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/crowdpass-live/tokenbound_impl/graph/badge.svg?branch=main)](https://codecov.io/gh/crowdpass-live/tokenbound_impl)
+
 
 ## Overview
 
@@ -144,35 +147,67 @@ CrowdPass utilizes Stellar's Soroban smart contracts to implement:
 
 ### Installation
 
+#### Using Makefile (Recommended)
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/crowdpass.git
-cd crowdpass
+git clone https://github.com/crowdpass-live/tokenbound_impl.git
+cd tokenbound_impl
 
-# Install dependencies
+# Setup all dependencies (client and contracts)
+make setup
+
+# Build all components
+make build
+```
+
+#### Using Docker (Local Development)
+```bash
+# Start all services (Stellar node, Contracts, Frontend)
+make docker-up
+
+# View logs
+docker-compose logs -f frontend
+```
+
+#### Manual Installation
+```bash
+# Install root dependencies (if any)
 npm install
 
 # Build smart contracts
-cd contracts
-soroban contract build
+cd soroban-contract
+cargo build --target wasm32-unknown-unknown --release
 
-# Deploy to testnet
-soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/crowdpass.wasm \
-  --network testnet
+# Run frontend
+cd ../client
+npm install
+npm run dev
 ```
 
-### Quick Start
+### Quick Start Commands
+- `make setup` - Install all dependencies
+- `make build` - Build contracts and frontend
+- `make test` - Run all tests
+- `make docker-up` - Spin up local development environment
+- `make docker-down` - Stop local environment
+- `make lint` - Run linters
+
+### Coverage Reporting
+
+CI publishes coverage reports for the Soroban contracts and the Next.js frontend to Codecov.
+
+- Rust coverage runs with `cargo-llvm-cov` in `soroban-contract`
+- Frontend coverage runs with Jest in `soroban-client`
+- CI enforces a minimum 70% line coverage floor for both stacks
+
+Run coverage locally with:
 
 ```bash
-# Run local development server
-npm run dev
+cd soroban-client
+npm run test:coverage
 
-# Run tests
-npm test
-
-# Deploy to production
-npm run deploy
+cd ../soroban-contract
+cargo llvm-cov --workspace --lcov --output-path coverage/lcov.info --fail-under-lines 70
 ```
 
 ## Use Cases

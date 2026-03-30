@@ -1,0 +1,14 @@
+/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/deps/serde-00bfc60491fccab7.d: /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/build/serde-d73e49df48c91e17/out/private.rs
+
+/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/deps/libserde-00bfc60491fccab7.rlib: /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/build/serde-d73e49df48c91e17/out/private.rs
+
+/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/deps/libserde-00bfc60491fccab7.rmeta: /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/build/serde-d73e49df48c91e17/out/private.rs
+
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/home/dell/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/build/serde-d73e49df48c91e17/out/private.rs:
+
+# env-dep:OUT_DIR=/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/build/serde-d73e49df48c91e17/out

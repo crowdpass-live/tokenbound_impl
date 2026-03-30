@@ -1,0 +1,74 @@
+version: 2
+updates:
+  # soroban-client (Next.js frontend)
+  - package-ecosystem: "npm"
+    directory: "/soroban-client"
+    schedule:
+      interval: "weekly"
+    groups:
+      react:
+        patterns: ["react", "react-dom", "@types/react*"]
+      next:
+        patterns: ["next", "@next/*"]
+      stellar:
+        patterns: ["@stellar/*", "stellar-sdk"]
+    auto-merge:
+      match:
+        dependency-type: "all"
+        update-type: "semver:patch"
+
+  # client (Vite/React frontend)
+  - package-ecosystem: "npm"
+    directory: "/client"
+    schedule:
+      interval: "weekly"
+    groups:
+      react:
+        patterns: ["react", "react-dom", "@types/react*"]
+      vite:
+        patterns: ["vite", "@vitejs/*"]
+      stellar:
+        patterns: ["@stellar/*", "stellar-sdk"]
+    auto-merge:
+      match:
+        dependency-type: "all"
+        update-type: "semver:patch"
+
+  # tokenbound-client (Next.js)
+  - package-ecosystem: "npm"
+    directory: "/tokenbound-client"
+    schedule:
+      interval: "weekly"
+    groups:
+      next:
+        patterns: ["next", "@next/*"]
+    auto-merge:
+      match:
+        dependency-type: "all"
+        update-type: "semver:patch"
+
+  # docs-site (Docusaurus)
+  - package-ecosystem: "npm"
+    directory: "/docs-site"
+    schedule:
+      interval: "weekly"
+    groups:
+      docusaurus:
+        patterns: ["@docusaurus/*", "docusaurus"]
+    auto-merge:
+      match:
+        dependency-type: "all"
+        update-type: "semver:patch"
+
+  # soroban-contract (Cargo workspace)
+  - package-ecosystem: "cargo"
+    directory: "/soroban-contract"
+    schedule:
+      interval: "weekly"
+    groups:
+      soroban:
+        patterns: ["soroban-*"]
+    auto-merge:
+      match:
+        dependency-type: "all"
+        update-type: "semver:patch"

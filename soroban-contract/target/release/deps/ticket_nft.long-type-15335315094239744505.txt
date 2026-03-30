@@ -1,0 +1,2 @@
+soroban_sdk::Bytes: TryFromVal<Env, soroban_sdk::String>
+TryFromVal<Env, soroban_env_common::bytes::BytesObject>

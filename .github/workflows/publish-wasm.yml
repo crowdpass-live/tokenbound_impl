@@ -1,0 +1,88 @@
+name: Publish WASM Artifacts
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32v1-none
+          override: true
+
+      - name: Build all contracts
+        run: |
+          cd soroban-contract
+          
+          # Build only the contract packages (exclude integration tests)
+          cargo build --target wasm32v1-none --release \
+            -p tba_account \
+            -p tba_registry \
+            -p ticket_nft \
+            -p ticket_factory \
+            -p event_manager \
+            -p marketplace
+          
+          echo "=== WASM files in release directory ==="
+          ls -la target/wasm32v1-none/release/*.wasm 2>/dev/null || echo "No WASM files found"
+
+      - name: Generate checksums
+        run: |
+          cd soroban-contract/target/wasm32v1-none/release/
+          
+          # Check if any WASM files exist
+          if [ -z "$(ls *.wasm 2>/dev/null)" ]; then
+            echo "Error: No WASM files found!"
+            exit 1
+          fi
+          
+          sha256sum *.wasm > checksums.txt
+          echo "Checksums generated:"
+          cat checksums.txt
+
+      - name: Generate changelog
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "# Release $VERSION" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "## Contracts" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          
+          cd soroban-contract/target/wasm32v1-none/release/
+          echo "| Contract | Size (bytes) | SHA256 |" >> ../../../CHANGELOG.md
+          echo "|----------|--------------|--------|" >> ../../../CHANGELOG.md
+          
+          for wasm in *.wasm; do
+            size=$(stat -c%s "$wasm")
+            hash=$(sha256sum "$wasm" | cut -d' ' -f1)
+            echo "| $wasm | $size | $hash |" >> ../../../CHANGELOG.md
+          done
+          
+          cd ../../..
+          echo "" >> CHANGELOG.md
+          echo "## Changes" >> CHANGELOG.md
+          git log $(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "HEAD")..HEAD --pretty=format:"- %s" >> CHANGELOG.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body_path: CHANGELOG.md
+          files: |
+            soroban-contract/target/wasm32v1-none/release/*.wasm
+            soroban-contract/target/wasm32v1-none/release/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,3 @@
+# Ignore deployment configs (contain network-specific addresses)
+*.json
+!.gitkeep

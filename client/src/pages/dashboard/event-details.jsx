@@ -15,7 +15,7 @@ import { Dialog } from '../../Components/shared/dialog';
 import TicketDialog from '../../Components/dashboard/ticket-dialog';
 import { cairo } from 'starknet';
 import strkAbi from '../../Abis/strkAbi.json'
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 
 const EventDetails = () => {
@@ -68,10 +68,10 @@ const EventDetails = () => {
         try {
 
             await strkContract.approve(contract?.address, cairo.uint256(data?.ticket_price))
-            toast.remove(toast1);
+            toast.dismiss(toast1);
             toast.success("App approval successful")
         } catch (error) {
-            toast.remove(toast1);
+            toast.dismiss(toast1);
             toast.error(error.message)
         }
     }
@@ -86,10 +86,10 @@ const EventDetails = () => {
             // await strkContract.approve(contract?.address, cairo.uint256(2))
             handleApprove()
             await eventContract.purchase_ticket(id)
-            toast.remove(toast1);
+            toast.dismiss(toast1);
             toast.success("Ticket purchase successful")
         } catch (error) {
-            toast.remove(toast1);
+            toast.dismiss(toast1);
             toast.error(error.message)
         }
     }
@@ -121,10 +121,10 @@ const EventDetails = () => {
         try {
 
             await eventContract.cancel_event(id)
-            toast.remove(toast1);
+            toast.dismiss(toast1);
             toast.success("Event Cancelled")
         } catch (error) {
-            toast.remove(toast1);
+            toast.dismiss(toast1);
             toast.error(error.message)
         }
     }
@@ -136,11 +136,11 @@ const EventDetails = () => {
         try {
 
             await eventContract.claim_ticket_refund(id)
-            toast.remove(toast1);
+            toast.dismiss(toast1);
             toast.success("Refund claimed")
             setReclaimed(true)
         } catch (error) {
-            toast.remove(toast1);
+            toast.dismiss(toast1);
             toast.error(error.message)
         }
     }

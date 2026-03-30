@@ -1,0 +1,98 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "events": "Événements",
+    "marketplace": "Marché",
+    "dashboard": "Tableau de bord",
+    "createEvent": "Créer un événement",
+    "connect": "Connecter {provider}",
+    "selectWallet": "Choisir un portefeuille",
+    "disconnect": "Déconnecter",
+    "menu": "Menu",
+    "closeMenu": "Fermer le menu",
+    "toggleMenu": "Basculer le menu de navigation"
+  },
+  "hero": {
+    "tagline": "Réinventez vos événements",
+    "headline": "Billets sécurisés, accès fluide — n'importe quand, n'importe où avec",
+    "brand": "CrowdPass",
+    "cta": "Commencer"
+  },
+  "about": {
+    "title": "À propos",
+    "p1": "Bienvenue sur CrowdPass, votre solution de billetterie et de gestion d'événements de premier plan. Notre plateforme est conçue pour aider les organisateurs à créer, gérer et promouvoir leurs événements facilement.",
+    "p2": "Chez CrowdPass, nous croyons que les événements ont le pouvoir de rassembler les gens et de créer des souvenirs durables. C'est pourquoi nous nous engageons à offrir une expérience de billetterie fluide et sécurisée.",
+    "p3": "CrowdPass vous aide à transformer votre événement en une expérience inoubliable. Avec une gestion fluide des participants, une billetterie sécurisée et des outils d'engagement améliorés.",
+    "cta": "Explorer"
+  },
+  "features": {
+    "title": "Nos fonctionnalités",
+    "eventManagement": {
+      "title": "Gestion d'événements",
+      "description": "Simplifiez votre planification avec nos outils intuitifs. Créez, gérez et promouvez vos événements facilement."
+    },
+    "analytics": {
+      "title": "Analyses en temps réel",
+      "description": "Obtenez des informations en temps réel sur les performances de votre événement. Suivez la fréquentation, l'engagement et les revenus."
+    },
+    "marketplace": {
+      "title": "Marché de billets",
+      "description": "Transformez la billetterie avec un marché décentralisé permettant l'achat, la vente et le transfert sécurisé de billets."
+    },
+    "security": {
+      "title": "Sécurité",
+      "description": "Assurez la sécurité de vos données d'événement avec nos mesures robustes. Protégez les informations des participants."
+    },
+    "identity": {
+      "title": "Identité décentralisée",
+      "description": "Donnez à vos participants le contrôle de leur identité décentralisée pour une expérience d'événement fluide."
+    }
+  },
+  "howItWorks": {
+    "title": "Comment ça marche",
+    "step1": {
+      "title": "Parcourir les événements.",
+      "description": "Explorez une large gamme d'événements, filtrez par catégorie, lieu ou date, et sélectionnez celui qui vous intéresse."
+    },
+    "step2": {
+      "title": "Connectez votre portefeuille.",
+      "description": "Connectez votre portefeuille numérique en toute sécurité pour acheter des billets et gérer votre identité."
+    },
+    "step3": {
+      "title": "Achetez votre billet.",
+      "description": "Achetez des billets instantanément en crypto ou par carte. Votre billet est stocké en tant que NFT."
+    },
+    "step4": {
+      "title": "Assistez à l'événement.",
+      "description": "Montrez simplement votre QR code à l'entrée. Profitez de l'événement et connectez-vous avec les autres participants !"
+    }
+  },
+  "partners": {
+    "title": "Nos partenaires"
+  },
+  "footer": {
+    "tagline": "Entrez dans le futur avec CrowdPass — où chaque billet ouvre plus qu'une simple entrée, il raconte une histoire d'expériences sécurisées et fluides.",
+    "newsletter": "Entrez votre email pour vous abonner à notre newsletter",
+    "quickLinks": "Liens rapides",
+    "home": "Accueil",
+    "about": "À propos",
+    "contact": "Contact",
+    "signUp": "S'inscrire",
+    "logIn": "Se connecter",
+    "terms": "Conditions générales",
+    "privacy": "Politique de confidentialité",
+    "createEvent": "Créer un événement",
+    "getSpok": "Obtenir SPOK",
+    "attendEvent": "Assister à un événement",
+    "copyright": "Tous droits réservés, CrowdPass {year}."
+  },
+  "wallet": {
+    "chooseProvider": "Choisir un fournisseur de portefeuille",
+    "available": "Disponible",
+    "install": "Installer",
+    "notInstalled": "Pas installé ? Cliquez pour ouvrir la page d'installation officielle puis actualisez."
+  },
+  "language": {
+    "label": "Langue"
+  }
+}

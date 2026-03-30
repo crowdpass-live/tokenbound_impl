@@ -6,21 +6,39 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "jest",
+    "test:coverage": "jest --coverage --ci --watchAll=false"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@stellar/freighter-api": "^6.0.1",
+    "@stellar/stellar-base": "^14.1.0",
+    "@stellar/stellar-sdk": "^14.6.1",
+    "html5-qrcode": "^2.3.8",
+    "lucide-react": "^0.575.0",
     "next": "16.1.4",
+    "next-intl": "^4.8.3",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-hook-form": "^7.72.0",
+    "react-qr-code": "^2.0.18",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
