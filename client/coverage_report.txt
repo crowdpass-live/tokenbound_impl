@@ -1,0 +1,749 @@
+8:35:56 AM [vite] warning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-swc" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.
+`esbuild` option is set to false, but `oxc` option was not set to false. `esbuild: false` does not have effect any more. If you want to disable the default transformation, which is now handled by Oxc, please set `oxc: false` instead.
+
+[1m[46m RUN [49m[22m [36mv4.1.2 [39m[90m/home/idealz/Drips-Projects/tokenbound_impl/client[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[90mstdout[2m | src/__tests__/CoverageBooster.test.jsx[2m > [22m[2mCoverage Booster Tests[2m > [22m[2mtriggers EventDetails interactive functions as organizer
+[22m[39m{
+  theme: [33m291n[39m,
+  event_type: [33m1110n[39m,
+  status: [33m1n[39m,
+  start_date: [33m123456n[39m,
+  end_date: [33m234567n[39m,
+  ticket_price: [33m10000000000000000000n[39m,
+  total_tickets: [33m100n[39m,
+  tickets_sold: [33m20n[39m,
+  is_canceled: [33mfalse[39m,
+  organizer: [33m291n[39m,
+  event_ticket_addr: [33m1929n[39m
+}
+[33m1[39m
+TokenboundClient {
+  transferERC20: [Function: Mock] {
+    _isMockFunction: [33mtrue[39m,
+    getMockImplementation: [36m[Function (anonymous)][39m,
+    mock: {
+      calls: [],
+      contexts: [],
+      instances: [],
+      invocationCallOrder: [],
+      settledResults: [],
+      results: [],
+      lastCall: [36m[Getter][39m
+    },
+    mockImplementation: [36m[Function: mockImplementation][39m,
+    mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+    withImplementation: [36m[Function: withImplementation][39m,
+    mockReturnThis: [36m[Function: mockReturnThis][39m,
+    mockReturnValue: [36m[Function: mockReturnValue][39m,
+    mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+    mockThrow: [36m[Function: mockThrow][39m,
+    mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+    mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+    mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+    mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+    mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+    mockClear: [36m[Function: mockClear][39m,
+    mockReset: [36m[Function: mockReset][39m,
+    mockRestore: [36m[Function: mockRestore][39m,
+    mockName: [36m[Function: mockName][39m,
+    getMockName: [36m[Function: getMockName][39m,
+    [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+  },
+  checkAccountDeployment: [Function: Mock] {
+    _isMockFunction: [33mtrue[39m,
+    getMockImplementation: [36m[Function (anonymous)][39m,
+    mock: {
+      calls: [],
+      contexts: [],
+      instances: [],
+      invocationCallOrder: [],
+      settledResults: [],
+      results: [],
+      lastCall: [36m[Getter][39m
+    },
+    mockImplementation: [36m[Function: mockImplementation][39m,
+    mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+    withImplementation: [36m[Function: withImplementation][39m,
+    mockReturnThis: [36m[Function: mockReturnThis][39m,
+    mockReturnValue: [36m[Function: mockReturnValue][39m,
+    mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+    mockThrow: [36m[Function: mockThrow][39m,
+    mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+    mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+    mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+    mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+    mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+    mockClear: [36m[Function: mockClear][39m,
+    mockReset: [36m[Function: mockReset][39m,
+    mockRestore: [36m[Function: mockRestore][39m,
+    mockName: [36m[Function: mockName][39m,
+    getMockName: [36m[Function: getMockName][39m,
+    [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+  },
+  createAccount: [Function: Mock] {
+    _isMockFunction: [33mtrue[39m,
+    getMockImplementation: [36m[Function (anonymous)][39m,
+    mock: {
+      calls: [],
+      contexts: [],
+      instances: [],
+      invocationCallOrder: [],
+      settledResults: [],
+      results: [],
+      lastCall: [36m[Getter][39m
+    },
+    mockImplementation: [36m[Function: mockImplementation][39m,
+    mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+    withImplementation: [36m[Function: withImplementation][39m,
+    mockReturnThis: [36m[Function: mockReturnThis][39m,
+    mockReturnValue: [36m[Function: mockReturnValue][39m,
+    mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+    mockThrow: [36m[Function: mockThrow][39m,
+    mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+    mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+    mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+    mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+    mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+    mockClear: [36m[Function: mockClear][39m,
+    mockReset: [36m[Function: mockReset][39m,
+    mockRestore: [36m[Function: mockRestore][39m,
+    mockName: [36m[Function: mockName][39m,
+    getMockName: [36m[Function: getMockName][39m,
+    [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+  },
+  getAccount: [Function: Mock] {
+    _isMockFunction: [33mtrue[39m,
+    getMockImplementation: [36m[Function (anonymous)][39m,
+    mock: {
+      calls: [],
+      contexts: [],
+      instances: [],
+      invocationCallOrder: [],
+      settledResults: [],
+      results: [],
+      lastCall: [36m[Getter][39m
+    },
+    mockImplementation: [36m[Function: mockImplementation][39m,
+    mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+    withImplementation: [36m[Function: withImplementation][39m,
+    mockReturnThis: [36m[Function: mockReturnThis][39m,
+    mockReturnValue: [36m[Function: mockReturnValue][39m,
+    mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+    mockThrow: [36m[Function: mockThrow][39m,
+    mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+    mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+    mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+    mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+    mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+    mockClear: [36m[Function: mockClear][39m,
+    mockReset: [36m[Function: mockReset][39m,
+    mockRestore: [36m[Function: mockRestore][39m,
+    mockName: [36m[Function: mockName][39m,
+    getMockName: [36m[Function: getMockName][39m,
+    [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+  }
+}
+
+[33m100n[39m
+
+[90mstdout[2m | src/__tests__/CoverageBooster.test.jsx[2m > [22m[2mCoverage Booster Tests[2m > [22m[2mtriggers EventDetails interactive functions as organizer
+[22m[39m[33mtrue[39m
+
+[90mstdout[2m | src/__tests__/CoverageBooster.test.jsx[2m > [22m[2mCoverage Booster Tests[2m > [22m[2mrenders EventDetails as regular user and triggers purchase
+[22m[39m{
+  theme: [33m291n[39m,
+  event_type: [33m1110n[39m,
+  status: [33m1n[39m,
+  start_date: [33m123456n[39m,
+  end_date: [33m234567n[39m,
+  ticket_price: [33m10000000000000000000n[39m,
+  total_tickets: [33m100n[39m,
+  tickets_sold: [33m20n[39m,
+  is_canceled: [33mfalse[39m,
+  organizer: [33m291n[39m,
+  event_ticket_addr: [33m1929n[39m
+}
+[33m1[39m
+TokenboundClient {
+  transferERC20: [Function: Mock] {
+    _isMockFunction: [33mtrue[39m,
+    getMockImplementation: [36m[Function (anonymous)][39m,
+    mock: {
+      calls: [],
+      contexts: [],
+      instances: [],
+      invocationCallOrder: [],
+      settledResults: [],
+      results: [],
+      lastCall: [36m[Getter][39m
+    },
+    mockImplementation: [36m[Function: mockImplementation][39m,
+    mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+    withImplementation: [36m[Function: withImplementation][39m,
+    mockReturnThis: [36m[Function: mockReturnThis][39m,
+    mockReturnValue: [36m[Function: mockReturnValue][39m,
+    mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+    mockThrow: [36m[Function: mockThrow][39m,
+    mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+    mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+    mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+    mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+    mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+    mockClear: [36m[Function: mockClear][39m,
+    mockReset: [36m[Function: mockReset][39m,
+    mockRestore: [36m[Function: mockRestore][39m,
+    mockName: [36m[Function: mockName][39m,
+    getMockName: [36m[Function: getMockName][39m,
+    [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+  },
+  checkAccountDeployment: [Function: Mock] {
+    _isMockFunction: [33mtrue[39m,
+    getMockImplementation: [36m[Function (anonymous)][39m,
+    mock: {
+      calls: [],
+      contexts: [],
+      instances: [],
+      invocationCallOrder: [],
+      settledResults: [],
+      results: [],
+      lastCall: [36m[Getter][39m
+    },
+    mockImplementation: [36m[Function: mockImplementation][39m,
+    mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+    withImplementation: [36m[Function: withImplementation][39m,
+    mockReturnThis: [36m[Function: mockReturnThis][39m,
+    mockReturnValue: [36m[Function: mockReturnValue][39m,
+    mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+    mockThrow: [36m[Function: mockThrow][39m,
+    mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+    mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+    mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+    mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+    mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+    mockClear: [36m[Function: mockClear][39m,
+    mockReset: [36m[Function: mockReset][39m,
+    mockRestore: [36m[Function: mockRestore][39m,
+    mockName: [36m[Function: mockName][39m,
+    getMockName: [36m[Function: getMockName][39m,
+    [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+  },
+  createAccount: [Function: Mock] {
+    _isMockFunction: [33mtrue[39m,
+    getMockImplementation: [36m[Function (anonymous)][39m,
+    mock: {
+      calls: [],
+      contexts: [],
+      instances: [],
+      invocationCallOrder: [],
+      settledResults: [],
+      results: [],
+      lastCall: [36m[Getter][39m
+    },
+    mockImplementation: [36m[Function: mockImplementation][39m,
+    mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+    withImplementation: [36m[Function: withImplementation][39m,
+    mockReturnThis: [36m[Function: mockReturnThis][39m,
+    mockReturnValue: [36m[Function: mockReturnValue][39m,
+    mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+    mockThrow: [36m[Function: mockThrow][39m,
+    mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+    mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+    mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+    mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+    mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+    mockClear: [36m[Function: mockClear][39m,
+    mockReset: [36m[Function: mockReset][39m,
+    mockRestore: [36m[Function: mockRestore][39m,
+    mockName: [36m[Function: mockName][39m,
+    getMockName: [36m[Function: getMockName][39m,
+    [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+  },
+  getAccount: [Function: Mock] {
+    _isMockFunction: [33mtrue[39m,
+    getMockImplementation: [36m[Function (anonymous)][39m,
+    mock: {
+      calls: [],
+      contexts: [],
+      instances: [],
+      invocationCallOrder: [],
+      settledResults: [],
+      results: [],
+      lastCall: [36m[Getter][39m
+    },
+    mockImplementation: [36m[Function: mockImplementation][39m,
+    mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+    withImplementation: [36m[Function: withImplementation][39m,
+    mockReturnThis: [36m[Function: mockReturnThis][39m,
+    mockReturnValue: [36m[Function: mockReturnValue][39m,
+    mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+    mockThrow: [36m[Function: mockThrow][39m,
+    mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+    mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+    mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+    mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+    mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+    mockClear: [36m[Function: mockClear][39m,
+    mockReset: [36m[Function: mockReset][39m,
+    mockRestore: [36m[Function: mockRestore][39m,
+    mockName: [36m[Function: mockName][39m,
+    getMockName: [36m[Function: getMockName][39m,
+    [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+  }
+}
+
+[33m100n[39m
+
+[90mstdout[2m | src/__tests__/CoverageBooster.test.jsx[2m > [22m[2mCoverage Booster Tests[2m > [22m[2mrenders EventDetails as regular user and triggers purchase
+[22m[39m[33mtrue[39m
+
+ [32m✓[39m src/__tests__/DashboardExpanded.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 2021[2mms[22m[39m
+     [33m[2m✓[22m[39m renders TransferDialog and handles input changes [33m 1363[2mms[22m[39m
+     [33m[2m✓[22m[39m renders Shared Dialog correctly [33m 331[2mms[22m[39m
+Error: [vitest] No "alchemyProvider" export is defined on the "@starknet-react/core" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/vitest/dist/chunks/startVitestModuleRunner.bRl2_oI_.js:62:17)
+    at Object.alchemyProvider [as get] (file:///home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/vitest/dist/chunks/startVitestModuleRunner.bRl2_oI_.js:324:16)
+    at StarknetProvider (/home/idealz/Drips-Projects/tokenbound_impl/client/src/context/starknet-provider.jsx:29:20)
+    at renderWithHooks (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/jsdom/lib/generated/idl/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:360:16)
+    at invokeEventListeners (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:296:3)
+Error: [vitest] No "alchemyProvider" export is defined on the "@starknet-react/core" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/vitest/dist/chunks/startVitestModuleRunner.bRl2_oI_.js:62:17)
+    at Object.alchemyProvider [as get] (file:///home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/vitest/dist/chunks/startVitestModuleRunner.bRl2_oI_.js:324:16)
+    at StarknetProvider (/home/idealz/Drips-Projects/tokenbound_impl/client/src/context/starknet-provider.jsx:29:20)
+    at renderWithHooks (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
+    at mountIndeterminateComponent (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
+    at beginWork (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
+    at HTMLUnknownElement.callCallback (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/jsdom/lib/generated/idl/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:360:16)
+    at invokeEventListeners (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:296:3)
+[90mstderr[2m | src/__tests__/AppDisconnected.test.jsx[2m > [22m[2mApp Disconnected State[2m > [22m[2mrenders landing page when disconnected
+[22m[39mThe above error occurred in the <StarknetProvider> component:
+
+    at StarknetProvider (/home/idealz/Drips-Projects/tokenbound_impl/client/src/context/starknet-provider.jsx:11:29)
+    at App
+    at Router (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-router/dist/umd/react-router.development.js:1163:17)
+    at BrowserRouter (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:694:7)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+
+ [31m❯[39m src/__tests__/CoverageBooster.test.jsx [2m([22m[2m4 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 2295[2mms[22m[39m
+[31m     [31m×[31m triggers EventDetails interactive functions as organizer[39m[33m 814[2mms[22m[39m
+[31m     [31m×[31m renders EventDetails as regular user and triggers purchase[39m[32m 223[2mms[22m[39m
+     [32m✓[39m triggers Sidebar with long and short addresses[32m 176[2mms[22m[39m
+     [33m[2m✓[22m[39m triggers TransferDialog success path [33m 1070[2mms[22m[39m
+ [31m❯[39m src/__tests__/AppDisconnected.test.jsx [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 202[2mms[22m[39m
+[31m     [31m×[31m renders landing page when disconnected[39m[32m 187[2mms[22m[39m
+ [32m✓[39m src/__tests__/Footer.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 1566[2mms[22m[39m
+     [33m[2m✓[22m[39m renders logo and newsletter section [33m 1287[2mms[22m[39m
+ [32m✓[39m src/__tests__/HowItWorksSection.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 2138[2mms[22m[39m
+     [33m[2m✓[22m[39m renders section title correctly [33m 1785[2mms[22m[39m
+     [33m[2m✓[22m[39m displays titles when rendered [33m 341[2mms[22m[39m
+ [32m✓[39m src/__tests__/CreateEvent.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 2001[2mms[22m[39m
+     [33m[2m✓[22m[39m renders the creation form correctly [33m 332[2mms[22m[39m
+     [33m[2m✓[22m[39m submits form correctly [33m 1382[2mms[22m[39m
+ [32m✓[39m src/__tests__/Shared.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1057[2mms[22m[39m
+       [33m[2m✓[22m[39m renders correctly [33m 793[2mms[22m[39m
+ [32m✓[39m src/__tests__/PartnersSection.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1011[2mms[22m[39m
+     [33m[2m✓[22m[39m renders navigation buttons [33m 793[2mms[22m[39m
+ [32m✓[39m src/__tests__/SharedExpanded.test.jsx [2m([22m[2m5 tests[22m[2m)[22m[33m 1364[2mms[22m[39m
+       [33m[2m✓[22m[39m renders closed state correctly with plus icon [33m 971[2mms[22m[39m
+[90mstderr[2m | src/__tests__/DashboardSubComponents.test.jsx[2m > [22m[2mDashboard Individual Components Tests[2m > [22m[2mrenders TicketCard correctly
+[22m[39mWarning: Received `false` for a non-boolean attribute `prefetch`.
+
+If you want to write it to the DOM, pass a string instead: prefetch="false" or prefetch={value.toString()}.
+
+If you used to conditionally omit it with prefetch={condition && value}, pass prefetch={condition ? value : undefined} instead.
+    at a
+    at LinkWithRef (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:810:9)
+    at div
+    at TicketCard (/home/idealz/Drips-Projects/tokenbound_impl/client/src/Components/dashboard/ticket-card.jsx:11:23)
+    at Router (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-router/dist/umd/react-router.development.js:1163:17)
+    at BrowserRouter (/home/idealz/Drips-Projects/tokenbound_impl/client/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:694:7)
+
+ [32m✓[39m src/__tests__/Header.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 807[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly with logo and links [33m 741[2mms[22m[39m
+ [32m✓[39m src/__tests__/DashboardSubComponents.test.jsx [2m([22m[2m5 tests[22m[2m)[22m[33m 328[2mms[22m[39m
+[90mstdout[2m | src/__tests__/DashboardPages.test.jsx[2m > [22m[2mDashboard Pages Rendering Tests[2m > [22m[2mrenders Dashboard page correctly
+[22m[39m{}
+
+[90mstdout[2m | src/__tests__/DashboardPages.test.jsx[2m > [22m[2mDashboard Pages Rendering Tests[2m > [22m[2mrenders Events page correctly
+[22m[39m{}
+1
+
+[90mstdout[2m | src/__tests__/DashboardPages.test.jsx[2m > [22m[2mDashboard Pages Rendering Tests[2m > [22m[2mrenders EventDetails page correctly
+[22m[39m{
+  theme: [33m291n[39m,
+  event_type: [33m1110n[39m,
+  status: [33m1n[39m,
+  start_date: [33m123456n[39m,
+  end_date: [33m234567n[39m,
+  ticket_price: [33m10000000000000000000n[39m,
+  total_tickets: [33m100n[39m,
+  tickets_sold: [33m20n[39m,
+  is_canceled: [33mfalse[39m,
+  organizer: [33m291n[39m,
+  event_ticket_addr: [33m1929n[39m
+}
+[33m1[39m
+C {
+  account: {},
+  jsonRPC: [32m'https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/RCp5m7oq9i9myxsvC8ctUmNq2Wq2Pa_v'[39m,
+  registryAddress: [32m'0x4101d3fa033024654083dd982273a300cb019b8cb96dd829267a4daf59f7b7e'[39m,
+  implementationAddress: [32m'0x45d67b8590561c9b54e14dd309c9f38c4e2c554dd59414021f9d079811621bd'[39m,
+  isInitialized: [33mfalse[39m
+}
+
+[33m100n[39m
+
+ [32m✓[39m src/__tests__/DashboardPages.test.jsx [2m([22m[2m7 tests[22m[2m)[22m[33m 996[2mms[22m[39m
+     [33m[2m✓[22m[39m renders EventDetails page correctly [33m 677[2mms[22m[39m
+ [32m✓[39m src/__tests__/AboutSection.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 440[2mms[22m[39m
+     [33m[2m✓[22m[39m renders with images and correctly titled card [33m 382[2mms[22m[39m
+ [32m✓[39m src/__tests__/WalletContext.test.jsx [2m([22m[2m1 test[22m[2m)[22m[32m 200[2mms[22m[39m
+ [32m✓[39m src/__tests__/FeaturesSection.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[32m 180[2mms[22m[39m
+[90mstdout[2m | src/__tests__/Soroban.test.js[2m > [22m[2mSoroban Library Mock[2m > [22m[2mprovides a functional sorobanContract mock for creating events
+[22m[39mCreating event on Soroban with params: {
+  theme: [32m'Test Event'[39m,
+  type: [32m'meetup'[39m,
+  startTime: [33m123456[39m,
+  endTime: [33m234567[39m,
+  ticketPrice: [33m10[39m,
+  total_ticket: [33m100[39m
+}
+
+[90mstdout[2m | src/__tests__/Soroban.test.js[2m > [22m[2mSoroban Library Mock[2m > [22m[2mprovides a functional sorobanContract mock for canceling events
+[22m[39mCanceling event on Soroban: event_id_123
+
+ [32m✓[39m src/__tests__/Soroban.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/__tests__/AppLogic.test.jsx [2m([22m[2m1 test[22m[2m)[22m[32m 70[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 3 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/AppDisconnected.test.jsx[2m > [22mApp Disconnected State[2m > [22mrenders landing page when disconnected
+[31m[1mError[22m: [vitest] No "alchemyProvider" export is defined on the "@starknet-react/core" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+[39m
+vi.mock(import("@starknet-react/core"), async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    // your mocked methods
+  }
+})
+
+[36m [2m❯[22m StarknetProvider src/context/starknet-provider.jsx:[2m29:20[22m[39m
+    [90m 27|[39m
+    [90m 28|[39m //   const provider = jsonRpcProvider({ rpc: 'https://starknet-sepolia…
+    [90m 29|[39m   const provider = alchemyProvider({ apiKey: 'RCp5m7oq9i9myxsvC8ctUmNq…
+    [90m   |[39m                    [31m^[39m
+    [90m 30|[39m
+    [90m 31|[39m   [35mreturn[39m (
+[90m [2m❯[22m renderWithHooks node_modules/react-dom/cjs/react-dom.development.js:[2m15486:18[22m[39m
+[90m [2m❯[22m mountIndeterminateComponent node_modules/react-dom/cjs/react-dom.development.js:[2m20103:13[22m[39m
+[90m [2m❯[22m beginWork node_modules/react-dom/cjs/react-dom.development.js:[2m21626:16[22m[39m
+[90m [2m❯[22m beginWork$1 node_modules/react-dom/cjs/react-dom.development.js:[2m27465:14[22m[39m
+[90m [2m❯[22m performUnitOfWork node_modules/react-dom/cjs/react-dom.development.js:[2m26599:12[22m[39m
+[90m [2m❯[22m workLoopSync node_modules/react-dom/cjs/react-dom.development.js:[2m26505:5[22m[39m
+[90m [2m❯[22m renderRootSync node_modules/react-dom/cjs/react-dom.development.js:[2m26473:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/CoverageBooster.test.jsx[2m > [22mCoverage Booster Tests[2m > [22mtriggers EventDetails interactive functions as organizer
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: /Cancel Event/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"bg-deep-blue w-screen md:w-full flex overflow-x-hidden min-h-screen"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"hidden h-screen w-64 md:block fixed bg-deep-blue"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-col py-2 2xl:py-6 justify-between h-screen"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-col gap-10"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"my-2 mx-6 flex items-center"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"flex items-center"[39m
+                [33mhref[39m=[32m"/"[39m
+              [36m>[39m
+                [36m<img[39m
+                  [33malt[39m=[32m"logo"[39m
+                  [33mheight[39m=[32m"36"[39m
+                  [33msrc[39m=[32m"/assets/hostit-logo-light.png"[39m
+                  [33mwidth[39m=[32m"150"[39m
+                [36m/>[39m
+              [36m</a>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m""[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"({ isActive })=>isActive ? \"bg-primary\" : \"\""[39m
+                [33mhref[39m=[32m"/dashboard"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"normalLink py-3 px-10 mt-2 flex items-center rounded-l-full"[39m
+                [36m>[39m
+                  [36m<div>[39m
+                    [36m<svg[39m
+                      [33mbaseProfile[39m=[32m"tiny"[39m
+                      [33mclass[39m=[32m"w-6 h-6"[39m
+                      [33mfill[39m=[32m"currentColor"[39m
+                      [33mheight[39m=[32m"1em"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-width[39m=[32m"0"[39m
+                      [33mversion[39m=[32m"1.2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"1em"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M12 3s-6.186 5.34-9.643 8.232c-.203.184-.357.452-.357.768 0 .553.447 1 1 1h2v7c0 .553.447 1 1 1h3c.553 0 1-.448 1-1v-4h4v4c0 .552.447 1 1 1h3c.553 0 1-.447 1-1v-7h2c.553 0 1-.447 1-1 0-.316-.154-.584-.383-.768-3.433-2.892-9.617-8.232-9.617-8.232z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"ml-4 text-lg font-semibold"[39m
+                  [36m>[39m
+                    [0mDashboard[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"({ isActive })=>isActive ? \"bg-primary\" : \"\""[39m
+                [33mhref[39m=[32m"/events"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"normalLink py-3 px-10 mt-2 flex items-center rounded-l-full"[39m
+                [36m>[39m
+                  [36m<div>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"w-6 h-6"[39m
+                      [33mfill[39m=[32m"currentColor"[39m
+                      [33mheight[39m=[32m"1em"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-width[39m=[32m"0"[39m
+                      [33mviewBox[39m=[32m"0 0 576 512"[39m
+                      [33mwidth[39m=[32m"1em"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M572.694 292.093L500.27 416.248A63.997 63.997 0 0 1 444.989 448H45.025c-18.523 0-30.064-20.093-20.731-36.093l72.424-124.155A64 64 0 0 1 152 256h399.964c18.523 0 30.064 20.093 20.73 36.093zM152 224h328v-48c0-26.51-21.49-48-48-48H272l-64-64H48C21.49 64 0 85.49 0 112v278.046l69.077-118.418C86.214 242.25 117.989 224 152 224z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"ml-4 text-lg font-semibold"[39m
+                  [36m>[39m
+                    [0mEvents[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"({ isActive })=>isActive ? \"bg-primary\" : \"\""[39m
+                [33mhref[39m=[32m"/tickets"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"normalLink py-3 px-10 mt-2 flex items-center rounded-l-full"[39m
+                [36m>[39m
+                  [36m<div>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"w-6 h-6"[39m
+                      [33mfill[39m=[32m"currentColor"[39m
+                      [33mheight[39m=[32m"1em"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-width[39m=[32m"0"[39m
+                      [33mviewBox[39m=[32m"0 0 512 512"[39m
+                      [33mwidth[39m=[32m"1em"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m490.18 181.4-44.13-44.13a20 20 0 0 0-27-1 30.81 30.81 0 0 1-41.68-1.6 30.81 30.81 0 0 1-1.6-41.67 20 20 0 0 0-1-27L330.6 21.82a19.91 19.91 0 0 0-28.13 0l-70.35 70.34a39.87 39.87 0 0 0-9.57 15.5 7.71 7.71 0 0 1-4.83 4.83 39.78 39.78 0 0 0-15.5 9.58l-180.4 180.4a19.91 19.91 0 0 0 0 28.13L66 374.73a20 20 0 0 0 27 1 30.69 30.69 0 0 1 43.28 43.28 20 20 0 0 0 1 27l44.13 44.13a19.91 19.91 0 0 0 28.13 0l180.4-180.4a39.82 39.82 0 0 0 9.58-15.49 7.69 7.69 0 0 1 4.84-4.84 39.84 39.84 0 0 0 15.49-9.57l70.34-70.35a19.91 19.91 0 0 0-.01-28.09zm-228.37-29.65a16 16 0 0 1-22.63 0l-11.51-11.51a16 16 0 0 1 22.63-22.62l11.51 11.5a16 16 0 0 1 0 22.63zm44 44a16 16 0 0 1-22.62 0l-11-11a16 16 0 1 1 22.63-22.63l11 11a16 16 0 0 1 .01 22.66zm44 44a16 16 0 0 1-22.63 0l-11-11a16 16 0 0 1 22.63-22.62l11 11a16 16 0 0 1 .05 22.67zm44.43 44.54a16 16 0 0 1-22.63 0l-11.44-11.5a16 16 0 1 1 22.68-22.57l11.45 11.49a16 16 0 0 1-.01 22.63z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"ml-4 text-lg font-semibold"[39m
+                  [36m>[39m
+              ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m getByText node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/__tests__/CoverageBooster.test.jsx:[2m93:34[22m[39m
+    [90m 91|[39m             [33m<[39m[33m/[39m[33mKitContext[39m[33m.[39m[33mProvider[39m[33m>[39m
+    [90m 92|[39m         )[33m;[39m
+    [90m 93|[39m         [35mconst[39m cancelBtn [33m=[39m screen[33m.[39m[34mgetByText[39m([36m/Cancel Event/i[39m)[33m;[39m
+    [90m   |[39m                                  [31m^[39m
+    [90m 94|[39m         fireEvent[33m.[39m[34mclick[39m(cancelBtn)[33m;[39m
+    [90m 95|[39m         expect(mockContext.eventContract.cancel_event).toHaveBeenCalle…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/CoverageBooster.test.jsx[2m > [22mCoverage Booster Tests[2m > [22mrenders EventDetails as regular user and triggers purchase
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: /Get ticket/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"bg-deep-blue w-screen md:w-full flex overflow-x-hidden min-h-screen"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"hidden h-screen w-64 md:block fixed bg-deep-blue"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex flex-col py-2 2xl:py-6 justify-between h-screen"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-col gap-10"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"my-2 mx-6 flex items-center"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"flex items-center"[39m
+                [33mhref[39m=[32m"/"[39m
+              [36m>[39m
+                [36m<img[39m
+                  [33malt[39m=[32m"logo"[39m
+                  [33mheight[39m=[32m"36"[39m
+                  [33msrc[39m=[32m"/assets/hostit-logo-light.png"[39m
+                  [33mwidth[39m=[32m"150"[39m
+                [36m/>[39m
+              [36m</a>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m""[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"({ isActive })=>isActive ? \"bg-primary\" : \"\""[39m
+                [33mhref[39m=[32m"/dashboard"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"normalLink py-3 px-10 mt-2 flex items-center rounded-l-full"[39m
+                [36m>[39m
+                  [36m<div>[39m
+                    [36m<svg[39m
+                      [33mbaseProfile[39m=[32m"tiny"[39m
+                      [33mclass[39m=[32m"w-6 h-6"[39m
+                      [33mfill[39m=[32m"currentColor"[39m
+                      [33mheight[39m=[32m"1em"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-width[39m=[32m"0"[39m
+                      [33mversion[39m=[32m"1.2"[39m
+                      [33mviewBox[39m=[32m"0 0 24 24"[39m
+                      [33mwidth[39m=[32m"1em"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M12 3s-6.186 5.34-9.643 8.232c-.203.184-.357.452-.357.768 0 .553.447 1 1 1h2v7c0 .553.447 1 1 1h3c.553 0 1-.448 1-1v-4h4v4c0 .552.447 1 1 1h3c.553 0 1-.447 1-1v-7h2c.553 0 1-.447 1-1 0-.316-.154-.584-.383-.768-3.433-2.892-9.617-8.232-9.617-8.232z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"ml-4 text-lg font-semibold"[39m
+                  [36m>[39m
+                    [0mDashboard[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"({ isActive })=>isActive ? \"bg-primary\" : \"\""[39m
+                [33mhref[39m=[32m"/events"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"normalLink py-3 px-10 mt-2 flex items-center rounded-l-full"[39m
+                [36m>[39m
+                  [36m<div>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"w-6 h-6"[39m
+                      [33mfill[39m=[32m"currentColor"[39m
+                      [33mheight[39m=[32m"1em"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-width[39m=[32m"0"[39m
+                      [33mviewBox[39m=[32m"0 0 576 512"[39m
+                      [33mwidth[39m=[32m"1em"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"M572.694 292.093L500.27 416.248A63.997 63.997 0 0 1 444.989 448H45.025c-18.523 0-30.064-20.093-20.731-36.093l72.424-124.155A64 64 0 0 1 152 256h399.964c18.523 0 30.064 20.093 20.73 36.093zM152 224h328v-48c0-26.51-21.49-48-48-48H272l-64-64H48C21.49 64 0 85.49 0 112v278.046l69.077-118.418C86.214 242.25 117.989 224 152 224z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"ml-4 text-lg font-semibold"[39m
+                  [36m>[39m
+                    [0mEvents[0m
+                  [36m</div>[39m
+                [36m</div>[39m
+              [36m</a>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"({ isActive })=>isActive ? \"bg-primary\" : \"\""[39m
+                [33mhref[39m=[32m"/tickets"[39m
+              [36m>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"normalLink py-3 px-10 mt-2 flex items-center rounded-l-full"[39m
+                [36m>[39m
+                  [36m<div>[39m
+                    [36m<svg[39m
+                      [33mclass[39m=[32m"w-6 h-6"[39m
+                      [33mfill[39m=[32m"currentColor"[39m
+                      [33mheight[39m=[32m"1em"[39m
+                      [33mstroke[39m=[32m"currentColor"[39m
+                      [33mstroke-width[39m=[32m"0"[39m
+                      [33mviewBox[39m=[32m"0 0 512 512"[39m
+                      [33mwidth[39m=[32m"1em"[39m
+                      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                    [36m>[39m
+                      [36m<path[39m
+                        [33md[39m=[32m"m490.18 181.4-44.13-44.13a20 20 0 0 0-27-1 30.81 30.81 0 0 1-41.68-1.6 30.81 30.81 0 0 1-1.6-41.67 20 20 0 0 0-1-27L330.6 21.82a19.91 19.91 0 0 0-28.13 0l-70.35 70.34a39.87 39.87 0 0 0-9.57 15.5 7.71 7.71 0 0 1-4.83 4.83 39.78 39.78 0 0 0-15.5 9.58l-180.4 180.4a19.91 19.91 0 0 0 0 28.13L66 374.73a20 20 0 0 0 27 1 30.69 30.69 0 0 1 43.28 43.28 20 20 0 0 0 1 27l44.13 44.13a19.91 19.91 0 0 0 28.13 0l180.4-180.4a39.82 39.82 0 0 0 9.58-15.49 7.69 7.69 0 0 1 4.84-4.84 39.84 39.84 0 0 0 15.49-9.57l70.34-70.35a19.91 19.91 0 0 0-.01-28.09zm-228.37-29.65a16 16 0 0 1-22.63 0l-11.51-11.51a16 16 0 0 1 22.63-22.62l11.51 11.5a16 16 0 0 1 0 22.63zm44 44a16 16 0 0 1-22.62 0l-11-11a16 16 0 1 1 22.63-22.63l11 11a16 16 0 0 1 .01 22.66zm44 44a16 16 0 0 1-22.63 0l-11-11a16 16 0 0 1 22.63-22.62l11 11a16 16 0 0 1 .05 22.67zm44.43 44.54a16 16 0 0 1-22.63 0l-11.44-11.5a16 16 0 1 1 22.68-22.57l11.45 11.49a16 16 0 0 1-.01 22.63z"[39m
+                      [36m/>[39m
+                    [36m</svg>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"ml-4 text-lg font-semibold"[39m
+                  [36m>[39m
+              ...
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m76:38[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m getByText node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/__tests__/CoverageBooster.test.jsx:[2m111:23[22m[39m
+    [90m109|[39m             [33m<[39m[33m/[39m[33mKitContext[39m[33m.[39m[33mProvider[39m[33m>[39m
+    [90m110|[39m         )[33m;[39m
+    [90m111|[39m         [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/Get ticket/i[39m))[33m.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m   |[39m                       [31m^[39m
+    [90m112|[39m         fireEvent[33m.[39m[34mclick[39m(screen[33m.[39m[34mgetByText[39m([36m/Give app approval/i[39m))[33m;[39m
+    [90m113|[39m         fireEvent[33m.[39m[34mclick[39m(screen[33m.[39m[34mgetByText[39m([36m/Get ticket/i[39m))[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m15 passed[39m[22m[90m (17)[39m
+[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m52 passed[39m[22m[90m (55)[39m
+[2m   Start at [22m 08:35:57
+[2m   Duration [22m 97.21s[2m (transform 14.02s, setup 20.46s, import 29.98s, tests 16.69s, environment 189.65s)[22m
+

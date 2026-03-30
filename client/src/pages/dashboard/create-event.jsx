@@ -3,17 +3,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '../../Components/shared/button'
 import Layout from '../../Components/dashboard/layout'
 import { KitContext } from '../../context/kit-context'
-import {ethers} from 'ethers'
+import { ethers } from 'ethers'
 import toast from 'react-hot-toast'
 import { cairo } from 'starknet'
 
 
 const CreateEvent = () => {
-    const {eventContract} = useContext(KitContext)
+    const { eventContract } = useContext(KitContext)
 
     function padWithZeros(value) {
         return BigInt(value + '0'.repeat(18));
-      }
+    }
 
 
     const [formData, setFormData] = useState({
@@ -24,7 +24,7 @@ const CreateEvent = () => {
         endTime: '',
         ticketPrice: ''
     })
-    
+
     const inputChange = (e) => {
         setFormData((prevState) => ({
             ...prevState, [e.target.name]: e.target.value
@@ -38,9 +38,9 @@ const CreateEvent = () => {
         const _end_date = new Date(formData.endTime).getTime() / 1000;
         const toast1 = toast.loading('Creating Events')
 
-        
+
         try {
-           
+
             await eventContract.create_event(formData.theme, formData.type, _start_date, _end_date, cairo.uint256(formData.ticketPrice * 1e18), formData.total_ticket)
             toast.remove(toast1);
             toast.success("Event Created")
@@ -63,17 +63,17 @@ const CreateEvent = () => {
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2 flex flex-col">
                                 <label htmlFor="theme" className="text-deep-blue">Event Name</label>
-                                <input 
-                                    id="theme" placeholder="Input event name" type='text' 
+                                <input
+                                    id="theme" placeholder="Input event name" type='text'
                                     name='theme'
                                     value={formData.theme}
                                     onChange={inputChange}
                                 />
                             </div>
                             <div className="space-y-2 flex flex-col">
-                                <label htmlFor="organizer" className="text-deep-blue">Expected Attendee</label>
-                                <input 
-                                    id="total_ticket" placeholder="100" type='number' 
+                                <label htmlFor="total_ticket" className="text-deep-blue">Expected Attendee</label>
+                                <input
+                                    id="total_ticket" placeholder="100" type='number'
                                     name='total_ticket'
                                     value={formData.total_ticket}
                                     onChange={inputChange}
@@ -83,7 +83,7 @@ const CreateEvent = () => {
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2 flex flex-col">
                                 <label htmlFor="event-type" className="text-deep-blue">Event Type</label>
-                                <select 
+                                <select
                                     id="event-type"
                                     name='type'
                                     value={formData.type}
@@ -98,8 +98,8 @@ const CreateEvent = () => {
                             </div>
                             <div className="space-y-2 flex flex-col">
                                 <label htmlFor="ticket-price" className="text-deep-blue">Ticket Price</label>
-                                <input 
-                                    id="ticket-price" type="number" placeholder="0.00" 
+                                <input
+                                    id="ticket-price" type="number" placeholder="0.00"
                                     name='ticketPrice'
                                     value={formData.ticketPrice}
                                     onChange={inputChange}
@@ -108,18 +108,20 @@ const CreateEvent = () => {
                         </div>
                         <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2 flex flex-col">
-                                <label htmlFor="start-date" className="text-deep-blue">Start Date</label>
-                                <input 
-                                    type='date' 
+                                <label htmlFor="startTime" className="text-deep-blue">Start Date</label>
+                                <input
+                                    id="startTime"
+                                    type='date'
                                     name='startTime'
                                     value={formData.startTime}
                                     onChange={inputChange}
                                 />
                             </div>
                             <div className="space-y-2 flex flex-col">
-                                <label htmlFor="start-date" className="text-deep-blue">End Date</label>
-                                <input 
-                                    type='date' 
+                                <label htmlFor="endTime" className="text-deep-blue">End Date</label>
+                                <input
+                                    id="endTime"
+                                    type='date'
                                     name='endTime'
                                     value={formData.endTime}
                                     onChange={inputChange}

@@ -56,16 +56,16 @@ export function RescheduleDialog({ id }) {
                 <DialogHeader>
                     <DialogTitle>Reschedule Event</DialogTitle>
                     <DialogDescription>
-                        change the start and end date of your event 
+                        change the start and end date of your event
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="flex flex-col  gap-4">
-                        <label htmlFor="name" >
+                        <label htmlFor="startTime" >
                             Start Date
                         </label>
                         <input
-                        type="date"
+                            type="date"
                             id="startTime"
                             name="startTime"
                             className="col-span-3 w-full"
@@ -74,8 +74,8 @@ export function RescheduleDialog({ id }) {
                         />
                     </div>
                     <div className="flex flex-col  gap-4">
-                        <label htmlFor="username" >
-                            End Date 
+                        <label htmlFor="endTime" >
+                            End Date
                         </label>
                         <input
                             type="date"
