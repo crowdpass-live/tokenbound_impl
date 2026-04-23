@@ -42,6 +42,11 @@ pub enum Error {
     PurchaseQuantityTooLarge = 27,
     AlreadyArchived = 28,
     ArchiveNotAllowed = 29,
+    AlreadyCheckedIn = 30,
+    UnauthorizedCheckIn = 31,
+    InvalidTicketToken = 32,
+    TooManyEventStaff = 33,
+    StaffNotFound = 34,
 }
 
 #[contracttype]
@@ -59,6 +64,8 @@ pub enum DataKey {
     FundsWithdrawn(u32),
     OrganizerOpenEventCount(Address),
     OrganizerLastCreateTs(Address),
+    CheckIn(u32, u128), // (event_id, token_id) -> timestamp
+    EventStaff(u32),
 }
 
 #[contracttype]
@@ -142,6 +149,7 @@ impl EventManager {
     const MAX_EVENT_DURATION_SECS: u64 = 366 * 86_400;
     const MAX_EVENT_START_AHEAD_SECS: u64 = 5 * 366 * 86_400;
     const MAX_PURCHASE_QUANTITY: u128 = 500;
+    const MAX_EVENT_STAFF: u32 = 50;
 
     pub fn initialize(env: Env, admin: Address, ticket_factory: Address) -> Result<(), Error> {
         if env.storage().instance().has(&DataKey::TicketFactory) {
@@ -797,12 +805,160 @@ impl EventManager {
         env.storage()
             .persistent()
             .remove(&DataKey::FundsWithdrawn(event_id));
+        env.storage()
+            .persistent()
+            .remove(&DataKey::EventStaff(event_id));
         env.storage().persistent().remove(&DataKey::Event(event_id));
 
         env.events()
             .publish((Symbol::new(&env, "event_archived"),), (event_id, now));
 
         Ok(archived)
+    }
+
+    /// Register a wallet that may call [`Self::check_in`] for this event. Organizer only.
+    pub fn add_event_staff(env: Env, event_id: u32, staff: Address) -> Result<(), Error> {
+        upg::require_not_paused(&env);
+
+        let event: Event = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Event(event_id))
+            .ok_or(Error::EventNotFound)?;
+
+        event.organizer.require_auth();
+
+        if staff == event.organizer {
+            return Ok(());
+        }
+
+        let key = DataKey::EventStaff(event_id);
+        let mut list: Vec<Address> = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| Vec::new(&env));
+
+        for existing in list.iter() {
+            if existing == staff {
+                return Ok(());
+            }
+        }
+
+        if list.len() >= Self::MAX_EVENT_STAFF {
+            return Err(Error::TooManyEventStaff);
+        }
+
+        list.push_back(staff);
+        env.storage().persistent().set(&key, &list);
+        Self::extend_persistent_ttl(&env, &key);
+
+        Ok(())
+    }
+
+    /// Revoke check-in privileges for an address. Organizer only.
+    pub fn remove_event_staff(env: Env, event_id: u32, staff: Address) -> Result<(), Error> {
+        upg::require_not_paused(&env);
+
+        let event: Event = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Event(event_id))
+            .ok_or(Error::EventNotFound)?;
+
+        event.organizer.require_auth();
+
+        let key = DataKey::EventStaff(event_id);
+        let list: Vec<Address> = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| Vec::new(&env));
+
+        let mut out = Vec::new(&env);
+        let mut found = false;
+        for a in list.iter() {
+            if a == staff {
+                found = true;
+            } else {
+                out.push_back(a);
+            }
+        }
+
+        if !found {
+            return Err(Error::StaffNotFound);
+        }
+
+        env.storage().persistent().set(&key, &out);
+        Self::extend_persistent_ttl(&env, &key);
+
+        Ok(())
+    }
+
+    pub fn get_event_staff(env: Env, event_id: u32) -> Result<Vec<Address>, Error> {
+        // Ensure event exists
+        let _ = Self::get_event(env.clone(), event_id)?;
+
+        let key = DataKey::EventStaff(event_id);
+        Ok(env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| Vec::new(&env)))
+    }
+
+    /// Returns the stored check-in timestamp, or `0` if no check-in exists.
+    pub fn get_check_in_timestamp(env: Env, event_id: u32, token_id: u128) -> Result<u64, Error> {
+        // Ensure event exists
+        let _ = Self::get_event(env.clone(), event_id)?;
+
+        let key = DataKey::CheckIn(event_id, token_id);
+        Ok(env.storage().persistent().get(&key).unwrap_or(0u64))
+    }
+
+    /// Record on-chain entry for ticket `token_id`. `caller` must sign; must be organizer or
+    /// [`Self::add_event_staff`]. Logical parameters are `(event_id, token_id)`; `caller` is the
+    /// authenticated scanner (standard Soroban auth pattern).
+    pub fn check_in(env: Env, caller: Address, event_id: u32, token_id: u128) -> Result<(), Error> {
+        upg::require_not_paused(&env);
+        caller.require_auth();
+
+        let event: Event = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Event(event_id))
+            .ok_or(Error::EventNotFound)?;
+
+        if event.is_canceled {
+            return Err(Error::EventAlreadyCanceled);
+        }
+
+        Self::require_check_in_authority(&env, &event, &caller)?;
+
+        let checkin_key = DataKey::CheckIn(event_id, token_id);
+        if env.storage().persistent().has(&checkin_key) {
+            return Err(Error::AlreadyCheckedIn);
+        }
+
+        let is_valid: bool = env.invoke_contract(
+            &event.ticket_nft_addr,
+            &Symbol::new(&env, "is_valid"),
+            soroban_sdk::vec![&env, token_id.into_val(&env)],
+        );
+        if !is_valid {
+            return Err(Error::InvalidTicketToken);
+        }
+
+        let ts = env.ledger().timestamp();
+        env.storage().persistent().set(&checkin_key, &ts);
+        Self::extend_persistent_ttl(&env, &checkin_key);
+
+        env.events().publish(
+            (Symbol::new(&env, "check_in"),),
+            (event_id, token_id, ts, caller),
+        );
+
+        Ok(())
     }
 
     pub fn schedule_upgrade(env: Env, new_wasm_hash: BytesN<32>) {
@@ -896,45 +1052,47 @@ impl EventManager {
         Ok(())
     }
 
-    fn validate_bounded_string(s: &String, max_bytes: u32) -> Result<(), Error> {
-        if s.len() > max_bytes {
-            return Err(Error::InvalidTierConfig); // Or some appropriate error
+    fn require_check_in_authority(env: &Env, event: &Event, caller: &Address) -> Result<(), Error> {
+        if caller == &event.organizer {
+            return Ok(());
         }
-        Ok(())
-    }
-
-    fn validate_ticket_price(price: i128) -> Result<(), Error> {
-        if price < 0 {
-            return Err(Error::NegativeTicketPrice);
+        let key = DataKey::EventStaff(event.id);
+        let staff: Vec<Address> = env
+            .storage()
+            .persistent()
+            .get(&key)
+            .unwrap_or_else(|| Vec::new(env));
+        for a in staff.iter() {
+            if &a == caller {
+                return Ok(());
+            }
         }
-        Ok(())
-    }
-
-    fn enforce_organizer_limits_and_rate(_env: &Env, _organizer: &Address) -> Result<(), Error> {
-        // Placeholder for real logic
-        Ok(())
-    }
-
-    fn validate_event_span(start: u64, end: u64) -> Result<(), Error> {
-        if end <= start {
-            return Err(Error::InvalidEndDate);
-        }
-        Ok(())
-    }
-
-    fn validate_start_not_too_far(_start: u64, _current: u64) -> Result<(), Error> {
-        Ok(())
+        Err(Error::UnauthorizedCheckIn)
     }
 
     fn commit_organizer_create(env: &Env, organizer: &Address) {
-        let ts_key = DataKey::EventCounter; // Dummy key for timestamp if not defined
+        let count_key = DataKey::OrganizerOpenEventCount(organizer.clone());
+        let open_count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0);
+        let next = open_count.saturating_add(1);
+        env.storage().persistent().set(&count_key, &next);
+        Self::extend_persistent_ttl(env, &count_key);
+
+        let ts_key = DataKey::OrganizerLastCreateTs(organizer.clone());
         env.storage()
             .instance()
             .set(&ts_key, &env.ledger().timestamp());
         upg::extend_instance_ttl(env);
     }
 
-    fn decrement_organizer_open_events(_env: &Env, _organizer: &Address) {
+    fn decrement_organizer_open_events(env: &Env, organizer: &Address) {
+        let count_key = DataKey::OrganizerOpenEventCount(organizer.clone());
+        let open_count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0);
+        if open_count == 0 {
+            return;
+        }
+        let next = open_count.saturating_sub(1);
+        env.storage().persistent().set(&count_key, &next);
+        Self::extend_persistent_ttl(env, &count_key);
     }
 
     fn get_and_increment_counter(env: &Env) -> Result<u32, Error> {
@@ -1040,6 +1198,11 @@ impl EventManager {
 
     fn extend_persistent_ttl(env: &Env, key: &DataKey) {
         upg::extend_persistent_ttl(env, key);
+    }
+
+    fn try_promote_from_waitlist(_env: &Env, _event_id: u32) {
+        // Current contract doesn't implement waitlist promotion logic yet.
+        // This is a no-op placeholder to keep `withdraw_funds` behavior intact.
     }
 }
 

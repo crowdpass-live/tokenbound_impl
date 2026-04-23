@@ -16,6 +16,10 @@ impl MockContract {
         1
     }
 
+    pub fn is_valid(_env: Env, token_id: u128) -> bool {
+        token_id == 1
+    }
+
     pub fn transfer(_env: Env, _from: Address, _to: Address, _amount: i128) {}
 }
 
@@ -804,4 +808,76 @@ fn test_refund_cannot_be_claimed_twice() {
 
     let result = client.try_claim_refund(&buyer, &event_id);
     assert!(result.is_err());
+}
+
+// ========== Check-in ==========
+
+#[test]
+fn test_check_in_organizer_records_timestamp() {
+    let env = Env::default();
+    let (client, mock_addr) = setup(&env);
+    let (organizer, event_id) = make_event(&env, &client, &mock_addr, Vec::new(&env));
+    let buyer = Address::generate(&env);
+
+    client.purchase_ticket(&buyer, &event_id, &0u32);
+
+    assert!(client.try_check_in(&organizer, &event_id, &1u128).is_ok());
+
+    let ts = client.get_check_in_timestamp(&event_id, &1u128);
+    assert_eq!(ts, env.ledger().timestamp());
+}
+
+#[test]
+fn test_check_in_double_fails() {
+    let env = Env::default();
+    let (client, mock_addr) = setup(&env);
+    let (organizer, event_id) = make_event(&env, &client, &mock_addr, Vec::new(&env));
+    let buyer = Address::generate(&env);
+
+    client.purchase_ticket(&buyer, &event_id, &0u32);
+    client.check_in(&organizer, &event_id, &1u128);
+
+    let second = client.try_check_in(&organizer, &event_id, &1u128);
+    assert!(second.is_err());
+}
+
+#[test]
+fn test_check_in_random_wallet_fails() {
+    let env = Env::default();
+    let (client, mock_addr) = setup(&env);
+    let (_, event_id) = make_event(&env, &client, &mock_addr, Vec::new(&env));
+    let buyer = Address::generate(&env);
+    let stranger = Address::generate(&env);
+
+    client.purchase_ticket(&buyer, &event_id, &0u32);
+
+    let res = client.try_check_in(&stranger, &event_id, &1u128);
+    assert!(res.is_err());
+}
+
+#[test]
+fn test_check_in_staff_after_add() {
+    let env = Env::default();
+    let (client, mock_addr) = setup(&env);
+    let (_organizer, event_id) = make_event(&env, &client, &mock_addr, Vec::new(&env));
+    let buyer = Address::generate(&env);
+    let staff = Address::generate(&env);
+
+    client.purchase_ticket(&buyer, &event_id, &0u32);
+    client.add_event_staff(&event_id, &staff);
+
+    assert!(client.try_check_in(&staff, &event_id, &1u128).is_ok());
+}
+
+#[test]
+fn test_check_in_invalid_token_fails() {
+    let env = Env::default();
+    let (client, mock_addr) = setup(&env);
+    let (organizer, event_id) = make_event(&env, &client, &mock_addr, Vec::new(&env));
+    let buyer = Address::generate(&env);
+
+    client.purchase_ticket(&buyer, &event_id, &0u32);
+
+    let res = client.try_check_in(&organizer, &event_id, &99u128);
+    assert!(res.is_err());
 }

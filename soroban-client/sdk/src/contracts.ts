@@ -204,6 +204,55 @@ export class EventManagerContract extends BaseContract {
     return normalizePurchase(raw);
   }
 
+  checkIn(caller: string, eventId: number, tokenId: bigint, options: WriteInvokeOptions) {
+    return this.write(
+      "check_in",
+      [
+        nativeToScVal(caller, { type: "address" }),
+        nativeToScVal(eventId, { type: "u32" }),
+        nativeToScVal(tokenId, { type: "u128" }),
+      ],
+      options
+    );
+  }
+
+  addEventStaff(eventId: number, staff: string, options: WriteInvokeOptions) {
+    return this.write(
+      "add_event_staff",
+      [nativeToScVal(eventId, { type: "u32" }), nativeToScVal(staff, { type: "address" })],
+      options
+    );
+  }
+
+  removeEventStaff(eventId: number, staff: string, options: WriteInvokeOptions) {
+    return this.write(
+      "remove_event_staff",
+      [nativeToScVal(eventId, { type: "u32" }), nativeToScVal(staff, { type: "address" })],
+      options
+    );
+  }
+
+  async getEventStaff(eventId: number, options?: InvokeOptions): Promise<string[]> {
+    return this.read<string[]>(
+      "get_event_staff",
+      [nativeToScVal(eventId, { type: "u32" })],
+      options
+    );
+  }
+
+  async getCheckInTimestamp(
+    eventId: number,
+    tokenId: bigint,
+    options?: InvokeOptions
+  ): Promise<number> {
+    const raw = await this.read<number>(
+      "get_check_in_timestamp",
+      [nativeToScVal(eventId, { type: "u32" }), nativeToScVal(tokenId, { type: "u128" })],
+      options
+    );
+    return Number(raw);
+  }
+
   cancelEvent(eventId: number, options: WriteInvokeOptions) {
     return this.write("cancel_event", [nativeToScVal(eventId, { type: "u32" })], options);
   }

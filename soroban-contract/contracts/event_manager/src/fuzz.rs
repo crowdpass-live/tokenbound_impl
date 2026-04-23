@@ -9,7 +9,7 @@
 //! panics that could lead to a Denial of Service (DoS).
 
 use super::*;
-use soroban_sdk::{testutils::Address as _, Address, Env, String, Vec};
+use soroban_sdk::{testutils::Address as _, testutils::Ledger, Address, Env, String, Vec};
 use proptest::prelude::*;
 
 // Mock implementation for cross-contract calls
@@ -24,6 +24,10 @@ impl MockContract {
 
     pub fn mint_ticket_nft(_env: Env, _recipient: Address) -> u128 {
         1
+    }
+
+    pub fn is_valid(_env: Env, token_id: u128) -> bool {
+        token_id == 1
     }
 
     pub fn transfer(_env: Env, _from: Address, _to: Address, _amount: i128) {}
@@ -75,7 +79,7 @@ proptest! {
 
         // Try to create event. We expect it to either succeed or return an Error.
         // It MUST NOT panic.
-        let result = client.try_create_event(&params);
+        let result = client.try_create_event_with_tiers(&params);
         
         if let Ok(Ok(event_id)) = result {
             let event = client.get_event(&event_id);
@@ -115,7 +119,7 @@ proptest! {
             tiers: Vec::new(&env),
         };
         
-        if let Ok(Ok(event_id)) = client.try_create_event(&params) {
+        if let Ok(Ok(event_id)) = client.try_create_event_with_tiers(&params) {
             // Test purchase
             let purchase_res = client.try_purchase_tickets(&buyer, &event_id, &tier_index, &quantity);
             

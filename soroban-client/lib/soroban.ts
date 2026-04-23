@@ -132,6 +132,57 @@ export async function createEvent(
   return await server.submitTransaction(signedTx as any);
 }
 
+export interface CheckInTicketParams {
+  /** Wallet signing the tx; must be event organizer or on-chain staff. */
+  scanner: string;
+  eventId: number;
+  tokenId: bigint;
+}
+
+export async function checkInTicket(
+  params: CheckInTicketParams,
+  signTransactionFn: SignTransactionFn
+) {
+  if (!isEventManagerConfigured()) {
+    throw new Error(
+      "EVENT_MANAGER_CONTRACT is not configured. Set NEXT_PUBLIC_EVENT_MANAGER_CONTRACT in your env."
+    );
+  }
+
+  const server = new Server(HORIZON_URL);
+  const sourceAccount = await server.loadAccount(params.scanner);
+  const fee = await server.fetchBaseFee();
+
+  const args = [
+    nativeToScVal(params.scanner, { type: "address" }),
+    nativeToScVal(params.eventId, { type: "u32" }),
+    nativeToScVal(params.tokenId, { type: "u128" }),
+  ];
+
+  const operation = Operation.invokeContractFunction({
+    contract: EVENT_MANAGER_CONTRACT,
+    function: "check_in",
+    args,
+  });
+
+  const tx = new TransactionBuilder(sourceAccount, {
+    fee: fee.toString(),
+    networkPassphrase: NETWORK_PASSPHRASE,
+  })
+    .addOperation(operation)
+    .setTimeout(30)
+    .build();
+
+  const txXdr = tx.toXDR();
+  const signedTxXdr = await signTransactionFn(txXdr, {
+    networkPassphrase: NETWORK_PASSPHRASE,
+    address: params.scanner,
+  });
+
+  const signedTx = TransactionBuilder.fromXDR(signedTxXdr, NETWORK_PASSPHRASE);
+  return await server.submitTransaction(signedTx as any);
+}
+
 export async function buyTickets(
   params: BuyTicketsParams,
   signTransactionFn: SignTransactionFn
