@@ -17,7 +17,7 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!address) {
       setError("Please connect your wallet first");
       return;
@@ -44,7 +44,7 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         onSuccess();
         setTicketContract("");
@@ -63,13 +63,13 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <h3 className="text-xl font-semibold text-white">List a Ticket for Resale</h3>
-      <p className="text-sm text-zinc-400">
+      <h3 className="text-xl font-semibold text-zinc-950 dark:text-white">List a Ticket for Resale</h3>
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">
         List your ticket on the marketplace. All listings are subject to price caps to prevent scalping.
       </p>
 
       <div>
-        <label htmlFor="ticketContract" className="block text-sm font-medium text-zinc-300 mb-2">
+        <label htmlFor="ticketContract" className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Ticket Contract Address
         </label>
         <input
@@ -78,13 +78,13 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
           value={ticketContract}
           onChange={(e) => setTicketContract(e.target.value)}
           placeholder="C..."
-          className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-zinc-500 focus:border-[#FF5722] focus:outline-none"
+          className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder:text-zinc-400 focus:border-[#FF5722] focus:outline-none dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder:text-zinc-500"
           required
         />
       </div>
 
       <div>
-        <label htmlFor="tokenId" className="block text-sm font-medium text-zinc-300 mb-2">
+        <label htmlFor="tokenId" className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Token ID
         </label>
         <input
@@ -93,13 +93,13 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
           value={tokenId}
           onChange={(e) => setTokenId(e.target.value)}
           placeholder="Enter token ID"
-          className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-zinc-500 focus:border-[#FF5722] focus:outline-none"
+          className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder:text-zinc-400 focus:border-[#FF5722] focus:outline-none dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder:text-zinc-500"
           required
         />
       </div>
 
       <div>
-        <label htmlFor="price" className="block text-sm font-medium text-zinc-300 mb-2">
+        <label htmlFor="price" className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
           Asking Price (XLM)
         </label>
         <input
@@ -109,7 +109,7 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           placeholder="Enter price in XLM"
-          className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-zinc-500 focus:border-[#FF5722] focus:outline-none"
+          className="w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder:text-zinc-400 focus:border-[#FF5722] focus:outline-none dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder:text-zinc-500"
           required
         />
         <p className="mt-2 text-xs text-zinc-500">

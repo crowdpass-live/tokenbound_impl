@@ -7,26 +7,26 @@ export default function Footer() {
   const t = useTranslations("footer");
 
   return (
-    <footer className="bg-[#52525b] text-white py-16">
+    <footer className="bg-zinc-100 py-16 text-zinc-900 dark:bg-[#52525b] dark:text-white">
       <div className="container mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+        <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand & Newsletter */}
           <div className="space-y-6">
             <div className="flex items-center gap-2">
               <div className="grid grid-cols-2 gap-0.5">
-                <div className="w-3 h-3 bg-white" />
-                <div className="w-3 h-3 bg-white" />
-                <div className="w-3 h-3 bg-white" />
-                <div className="w-3 h-3 bg-white/50" />
+                <div className="h-3 w-3 bg-zinc-900 dark:bg-white" />
+                <div className="h-3 w-3 bg-zinc-900 dark:bg-white" />
+                <div className="h-3 w-3 bg-zinc-900 dark:bg-white" />
+                <div className="h-3 w-3 bg-zinc-500/40 dark:bg-white/50" />
               </div>
               <span className="text-2xl font-semibold tracking-tight">CrowdPass</span>
             </div>
-            <p className="text-gray-200 text-sm leading-relaxed max-w-xs">{t("tagline")}</p>
+            <p className="max-w-xs text-sm leading-relaxed text-zinc-600 dark:text-gray-200">{t("tagline")}</p>
             <div className="relative max-w-xs">
               <input
                 type="email"
                 placeholder={t("newsletter")}
-                className="w-full bg-[#65656e] text-white placeholder-gray-300 px-4 py-3 rounded border border-gray-500 focus:outline-none focus:border-white text-sm pr-12"
+                className="w-full rounded border border-zinc-300 bg-white px-4 py-3 pr-12 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-[#FF5722] focus:outline-none dark:border-gray-500 dark:bg-[#65656e] dark:text-white dark:placeholder-gray-300 dark:focus:border-white"
               />
               <button className="absolute right-1 top-1 bottom-1 bg-[#F97316] hover:bg-[#ea580c] text-white rounded px-3 flex items-center justify-center transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -39,38 +39,38 @@ export default function Footer() {
 
           {/* Quick Links 1 */}
           <div className="md:ml-auto">
-            <h3 className="font-semibold text-lg mb-6">{t("quickLinks")}</h3>
-            <ul className="space-y-4 text-gray-200 text-sm">
-              <li><Link href="/" className="hover:text-white transition-colors">{t("home")}</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">{t("about")}</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors">{t("contact")}</Link></li>
+            <h3 className="mb-6 text-lg font-semibold">{t("quickLinks")}</h3>
+            <ul className="space-y-4 text-sm text-zinc-600 dark:text-gray-200">
+              <li><Link href="/" className="transition-colors hover:text-zinc-950 dark:hover:text-white">{t("home")}</Link></li>
+              <li><Link href="/about" className="transition-colors hover:text-zinc-950 dark:hover:text-white">{t("about")}</Link></li>
+              <li><Link href="/contact" className="transition-colors hover:text-zinc-950 dark:hover:text-white">{t("contact")}</Link></li>
             </ul>
           </div>
 
           {/* Quick Links 2 */}
           <div className="md:ml-auto">
-            <h3 className="font-semibold text-lg mb-6">{t("quickLinks")}</h3>
-            <ul className="space-y-4 text-gray-200 text-sm">
-              <li><Link href="/signup" className="hover:text-white transition-colors">{t("signUp")}</Link></li>
-              <li><Link href="/login" className="hover:text-white transition-colors">{t("logIn")}</Link></li>
-              <li><Link href="/terms" className="hover:text-white transition-colors">{t("terms")}</Link></li>
-              <li><Link href="/privacy" className="hover:text-white transition-colors">{t("privacy")}</Link></li>
+            <h3 className="mb-6 text-lg font-semibold">{t("quickLinks")}</h3>
+            <ul className="space-y-4 text-sm text-zinc-600 dark:text-gray-200">
+              <li><Link href="/signup" className="transition-colors hover:text-zinc-950 dark:hover:text-white">{t("signUp")}</Link></li>
+              <li><Link href="/login" className="transition-colors hover:text-zinc-950 dark:hover:text-white">{t("logIn")}</Link></li>
+              <li><Link href="/terms" className="transition-colors hover:text-zinc-950 dark:hover:text-white">{t("terms")}</Link></li>
+              <li><Link href="/privacy" className="transition-colors hover:text-zinc-950 dark:hover:text-white">{t("privacy")}</Link></li>
             </ul>
           </div>
 
           {/* Quick Links 3 */}
           <div className="md:ml-auto">
-            <h3 className="font-semibold text-lg mb-6">{t("quickLinks")}</h3>
-            <ul className="space-y-4 text-gray-200 text-sm">
-              <li><Link href="/create-event" className="hover:text-white transition-colors">{t("createEvent")}</Link></li>
-              <li><Link href="/get-spok" className="hover:text-white transition-colors">{t("getSpok")}</Link></li>
-              <li><Link href="/attend" className="hover:text-white transition-colors">{t("attendEvent")}</Link></li>
+            <h3 className="mb-6 text-lg font-semibold">{t("quickLinks")}</h3>
+            <ul className="space-y-4 text-sm text-zinc-600 dark:text-gray-200">
+              <li><Link href="/create-event" className="transition-colors hover:text-zinc-950 dark:hover:text-white">{t("createEvent")}</Link></li>
+              <li><Link href="/get-spok" className="transition-colors hover:text-zinc-950 dark:hover:text-white">{t("getSpok")}</Link></li>
+              <li><Link href="/attend" className="transition-colors hover:text-zinc-950 dark:hover:text-white">{t("attendEvent")}</Link></li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-600/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2 text-sm text-gray-300">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-zinc-300/80 pt-8 dark:border-gray-600/50 md:flex-row">
+          <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-gray-300">
             <span>©</span>
             <span>{t("copyright", { year: new Date().getFullYear() })}</span>
           </div>
@@ -91,7 +91,7 @@ export default function Footer() {
                 <path key="x2" d="M4 20l6.768-6.768m2.46-2.46L20 4" />
               </>,
             ].map((icon, i) => (
-              <a key={i} href="#" className="bg-[#F97316] p-1.5 rounded text-white hover:bg-[#ea580c] transition-colors">
+              <a key={i} href="#" className="rounded bg-[#F97316] p-1.5 text-white transition-colors hover:bg-[#ea580c]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   {icon}
                 </svg>

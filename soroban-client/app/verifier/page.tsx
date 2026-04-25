@@ -111,110 +111,107 @@ export default function VerifierPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#09090B] text-zinc-100">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
 
       <main className="mx-auto flex w-full max-w-4xl flex-col gap-8 px-4 pb-20 pt-36 sm:px-6">
         <div className="text-center space-y-4">
-           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-sm font-medium">
-             <Camera size={16} /> Organizer Mode
-           </div>
-           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Ticket Verifier</h1>
-           <p className="text-zinc-500 max-w-xl mx-auto">
-             Scan participant QR codes to verify ticket ownership and authenticity via cryptographic signatures and on-chain records.
-           </p>
+          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
+            <Camera size={16} /> Organizer Mode
+          </div>
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-950 dark:text-white sm:text-5xl">Ticket Verifier</h1>
+          <p className="mx-auto max-w-xl text-zinc-500">
+            Scan participant QR codes to verify ticket ownership and authenticity via cryptographic signatures and on-chain records.
+          </p>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">
-           {/* Scanner Section */}
-           <div className="relative overflow-hidden rounded-[40px] border border-white/10 bg-zinc-900/50 p-4 shadow-2xl shadow-sky-500/5 ring-1 ring-white/5">
-              <div id="reader" className="overflow-hidden rounded-[32px] bg-black"></div>
-              {verificationStatus !== "idle" && (
-                <div className="mt-6 flex justify-center">
-                   <button
-                    onClick={resetScanner}
-                    className="flex items-center gap-2 rounded-2xl bg-white/5 border border-white/10 px-6 py-3 font-bold text-white hover:bg-white/10 transition"
-                   >
-                     Scan Next Ticket
-                   </button>
-                </div>
-              )}
-           </div>
+          {/* Scanner Section */}
+          <div className="relative overflow-hidden rounded-[40px] border border-zinc-200 bg-white p-4 shadow-2xl shadow-zinc-900/10 dark:border-white/10 dark:bg-zinc-900/50 dark:shadow-sky-500/5 dark:ring-1 dark:ring-white/5">
+            <div id="reader" className="overflow-hidden rounded-[32px] bg-black"></div>
+            {verificationStatus !== "idle" && (
+              <div className="mt-6 flex justify-center">
+                <button
+                  onClick={resetScanner}
+                  className="flex items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-6 py-3 font-bold text-zinc-900 transition hover:bg-zinc-100 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                >
+                  Scan Next Ticket
+                </button>
+              </div>
+            )}
+          </div>
 
-           {/* Results Section */}
-           <div className="flex flex-col gap-6">
-              {verificationStatus === "idle" ? (
-                <div className="flex flex-col items-center justify-center h-full border border-dashed border-zinc-800 rounded-[40px] p-12 text-center space-y-4">
-                   <div className="p-6 bg-zinc-900 rounded-full text-zinc-700 animate-pulse">
-                     <Camera size={48} />
-                   </div>
-                   <p className="text-zinc-600 font-medium italic">Waiting for scan...</p>
+          {/* Results Section */}
+          <div className="flex flex-col gap-6">
+            {verificationStatus === "idle" ? (
+              <div className="flex h-full flex-col items-center justify-center space-y-4 rounded-[40px] border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-800">
+                <div className="animate-pulse rounded-full bg-zinc-100 p-6 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-700">
+                  <Camera size={48} />
                 </div>
-              ) : (
-                <div className={`flex flex-col rounded-[40px] border p-8 space-y-8 h-full transition-colors duration-500 ${
-                  verificationStatus === "valid" ? "bg-emerald-500/5 border-emerald-500/20" :
-                  verificationStatus === "invalid" ? "bg-rose-500/5 border-rose-500/20" :
-                  "bg-zinc-900/50 border-white/10"
+                <p className="font-medium italic text-zinc-500">Waiting for scan...</p>
+              </div>
+            ) : (
+              <div className={`flex flex-col rounded-[40px] border p-8 space-y-8 h-full transition-colors duration-500 ${verificationStatus === "valid" ? "bg-emerald-50 border-emerald-500/20 dark:bg-emerald-500/5" :
+                  verificationStatus === "invalid" ? "bg-rose-50 border-rose-500/20 dark:bg-rose-500/5" :
+                    "bg-white border-zinc-200 dark:bg-zinc-900/50 dark:border-white/10"
                 }`}>
-                   
-                   <div className="flex items-center gap-4">
-                      <div className={`p-4 rounded-3xl ${
-                         verificationStatus === "valid" ? "bg-emerald-500/20 text-emerald-400" :
-                         verificationStatus === "invalid" ? "bg-rose-500/20 text-rose-400" :
-                         "bg-white/10 text-white"
+
+                <div className="flex items-center gap-4">
+                  <div className={`p-4 rounded-3xl ${verificationStatus === "valid" ? "bg-emerald-500/20 text-emerald-400" :
+                      verificationStatus === "invalid" ? "bg-rose-500/20 text-rose-400" :
+                        "bg-zinc-100 text-zinc-900 dark:bg-white/10 dark:text-white"
+                    }`}>
+                    {verificationStatus === "verifying" ? <Loader2 className="animate-spin" size={32} /> :
+                      verificationStatus === "valid" ? <ShieldCheck size={32} /> : <ShieldAlert size={32} />}
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase font-bold tracking-[0.2em] text-zinc-500">Verification Status</p>
+                    <h2 className={`text-2xl font-bold ${verificationStatus === "valid" ? "text-emerald-400" :
+                        verificationStatus === "invalid" ? "text-rose-400" :
+                          "text-zinc-950 dark:text-white"
                       }`}>
-                         {verificationStatus === "verifying" ? <Loader2 className="animate-spin" size={32} /> :
-                          verificationStatus === "valid" ? <ShieldCheck size={32} /> : <ShieldAlert size={32} />}
-                      </div>
-                      <div>
-                         <p className="text-xs uppercase font-bold tracking-[0.2em] text-zinc-500">Verification Status</p>
-                         <h2 className={`text-2xl font-bold ${
-                            verificationStatus === "valid" ? "text-emerald-400" :
-                            verificationStatus === "invalid" ? "text-rose-400" :
-                            "text-white"
-                         }`}>
-                            {verificationStatus === "verifying" ? "Analyzing..." :
-                             verificationStatus === "valid" ? "Access Granted" : "Access Denied"}
-                         </h2>
-                      </div>
-                   </div>
-
-                   {errorMsg && (
-                     <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-sm font-medium">
-                        {errorMsg}
-                     </div>
-                   )}
-
-                   <div className="space-y-4 pt-4 border-t border-white/5">
-                      <div className="flex items-center gap-4">
-                         <div className="p-2 bg-white/5 rounded-xl text-zinc-500"><User size={20} /></div>
-                         <div className="flex flex-col">
-                            <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">TICKET OWNER</span>
-                            <span className="text-zinc-200 font-mono text-xs break-all">{scanResult?.o}</span>
-                         </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                         <div className="p-2 bg-white/5 rounded-xl text-zinc-500"><Ticket size={20} /></div>
-                         <div className="flex flex-col">
-                            <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">EVENT / TOKEN</span>
-                            <span className="text-zinc-200 font-medium">Event #{scanResult?.e} • Token #{scanResult?.t}</span>
-                         </div>
-                      </div>
-                   </div>
-
-                   <div className="grid grid-cols-2 gap-4 pt-4">
-                      <div className={`p-4 rounded-3xl border ${onChainValid === true ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-zinc-800/50 border-white/5 text-zinc-600"}`}>
-                         <p className="text-[10px] uppercase font-bold mb-1">On-Chain</p>
-                         <p className="font-bold">{onChainValid === true ? "Confirmed" : onChainValid === false ? "Failed" : "Checking..."}</p>
-                      </div>
-                      <div className={`p-4 rounded-3xl border ${scanResult?.sig ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-amber-500/10 border-amber-500/20 text-amber-500"}`}>
-                         <p className="text-[10px] uppercase font-bold mb-1">Signature</p>
-                         <p className="font-bold">{scanResult?.sig ? "Verified" : "Missing"}</p>
-                      </div>
-                   </div>
+                      {verificationStatus === "verifying" ? "Analyzing..." :
+                        verificationStatus === "valid" ? "Access Granted" : "Access Denied"}
+                    </h2>
+                  </div>
                 </div>
-              )}
-           </div>
+
+                {errorMsg && (
+                  <div className="rounded-2xl border border-rose-500/20 bg-rose-50 p-4 text-sm font-medium text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
+                    {errorMsg}
+                  </div>
+                )}
+
+                <div className="space-y-4 border-t border-zinc-200 pt-4 dark:border-white/5">
+                  <div className="flex items-center gap-4">
+                    <div className="rounded-xl bg-zinc-100 p-2 text-zinc-500 dark:bg-white/5"><User size={20} /></div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">TICKET OWNER</span>
+                      <span className="font-mono text-xs break-all text-zinc-700 dark:text-zinc-200">{scanResult?.o}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="rounded-xl bg-zinc-100 p-2 text-zinc-500 dark:bg-white/5"><Ticket size={20} /></div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">EVENT / TOKEN</span>
+                      <span className="font-medium text-zinc-700 dark:text-zinc-200">Event #{scanResult?.e} • Token #{scanResult?.t}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 pt-4">
+                  <div className={`rounded-3xl border p-4 ${onChainValid === true ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-zinc-100 border-zinc-200 text-zinc-600 dark:bg-zinc-800/50 dark:border-white/5"}`}>
+                    <p className="text-[10px] uppercase font-bold mb-1">On-Chain</p>
+                    <p className="font-bold">{onChainValid === true ? "Confirmed" : onChainValid === false ? "Failed" : "Checking..."}</p>
+                  </div>
+                  <div className={`p-4 rounded-3xl border ${scanResult?.sig ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-amber-500/10 border-amber-500/20 text-amber-500"}`}>
+                    <p className="text-[10px] uppercase font-bold mb-1">Signature</p>
+                    <p className="font-bold">{scanResult?.sig ? "Verified" : "Missing"}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </main>
     </div>

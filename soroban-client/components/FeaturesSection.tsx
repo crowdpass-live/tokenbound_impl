@@ -49,24 +49,24 @@ export default function FeaturesSection() {
   ] as const;
 
   return (
-    <section className="bg-[#18181B] py-24">
+    <section className="bg-background py-24">
       <div className="container mx-auto px-4">
-        <h2 className="text-center text-4xl md:text-5xl font-bold text-white mb-20">
+        <h2 className="mb-20 text-center text-4xl font-bold text-zinc-950 dark:text-white md:text-5xl">
           {t("title")}
         </h2>
-        <div className="flex flex-wrap justify-center gap-8 max-w-7xl mx-auto">
+        <div className="mx-auto flex max-w-7xl flex-wrap justify-center gap-8">
           {features.map((feature) => (
             <div
               key={feature.key}
-              className="relative bg-[#525252] w-full md:w-[350px] p-8 pt-16 rounded-2xl flex flex-col items-center mt-8 shadow-lg"
+              className="relative mt-8 flex w-full flex-col items-center rounded-2xl border border-zinc-200 bg-white p-8 pt-16 shadow-lg shadow-zinc-900/5 dark:border-white/10 dark:bg-[#525252] dark:shadow-black/20 md:w-[350px]"
             >
-              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 w-20 h-20 bg-[#18181B] rounded-full flex items-center justify-center border-[6px] border-[#18181B]">
+              <div className="absolute -top-10 left-1/2 flex h-20 w-20 -translate-x-1/2 items-center justify-center rounded-full border-[6px] border-background bg-background">
                 <div className="text-[#FF5722]">{feature.icon}</div>
               </div>
-              <h3 className="text-xl font-bold text-white text-center mb-4 mt-2">
+              <h3 className="mb-4 mt-2 text-center text-xl font-bold text-zinc-950 dark:text-white">
                 {t(`${feature.key}.title`)}
               </h3>
-              <p className="text-gray-300 text-center text-sm leading-relaxed">
+              <p className="text-center text-sm leading-relaxed text-zinc-600 dark:text-gray-300">
                 {t(`${feature.key}.description`)}
               </p>
             </div>

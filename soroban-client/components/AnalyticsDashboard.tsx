@@ -21,19 +21,19 @@ export default function AnalyticsDashboard() {
     snapshot.pageViewSeries.length > 0
       ? snapshot.pageViewSeries
       : [
-          { name: "home", views: 12 },
-          { name: "events", views: 8 },
-          { name: "analytics", views: 4 },
-        ];
+        { name: "home", views: 12 },
+        { name: "events", views: 8 },
+        { name: "analytics", views: 4 },
+      ];
 
   const eventSeries =
     snapshot.eventSeries.length > 0
       ? snapshot.eventSeries
       : [
-          { name: "Lagos Builders", sold: 14 },
-          { name: "Soroban Summit", sold: 9 },
-          { name: "Campus Launch", sold: 6 },
-        ];
+        { name: "Lagos Builders", sold: 14 },
+        { name: "Soroban Summit", sold: 9 },
+        { name: "Campus Launch", sold: 6 },
+      ];
 
   const platformBreakdown = [
     { name: "Wallet Connects", value: snapshot.walletConnections },
@@ -74,25 +74,25 @@ export default function AnalyticsDashboard() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-lg shadow-zinc-900/5 dark:border-white/10 dark:bg-white/5 dark:shadow-none">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">
+              <p className="text-sm uppercase tracking-[0.3em] text-orange-700 dark:text-orange-200/70">
                 Usage Trends
               </p>
-              <h2 className="text-2xl font-semibold text-white">Page traffic</h2>
+              <h2 className="text-2xl font-semibold text-zinc-950 dark:text-white">Page traffic</h2>
             </div>
-            <p className="text-sm text-zinc-400">Local analytics snapshot</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">Local analytics snapshot</p>
           </div>
 
           <div className="space-y-4">
             {pageViewSeries.map((item, index) => (
               <div key={item.name} className="space-y-2">
-                <div className="flex items-center justify-between text-sm text-zinc-300">
+                <div className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
                   <span>{item.name}</span>
                   <span>{item.views} views</span>
                 </div>
-                <div className="h-3 overflow-hidden rounded-full bg-white/10">
+                <div className="h-3 overflow-hidden rounded-full bg-zinc-200 dark:bg-white/10">
                   <div
                     className="h-full rounded-full"
                     style={{
@@ -106,12 +106,12 @@ export default function AnalyticsDashboard() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-lg shadow-zinc-900/5 dark:border-white/10 dark:bg-white/5 dark:shadow-none">
           <div className="mb-4">
-            <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">
+            <p className="text-sm uppercase tracking-[0.3em] text-orange-700 dark:text-orange-200/70">
               Platform Mix
             </p>
-            <h2 className="text-2xl font-semibold text-white">What users do most</h2>
+            <h2 className="text-2xl font-semibold text-zinc-950 dark:text-white">What users do most</h2>
           </div>
 
           <div className="space-y-4">
@@ -122,8 +122,8 @@ export default function AnalyticsDashboard() {
                   : (item.value / totalPlatformActions) * 100;
 
               return (
-                <div key={item.name} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                  <div className="flex items-center justify-between text-sm text-zinc-300">
+                <div key={item.name} className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-black/20">
+                  <div className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
                     <span className="flex items-center gap-3">
                       <span
                         className="h-3 w-3 rounded-full"
@@ -133,7 +133,7 @@ export default function AnalyticsDashboard() {
                     </span>
                     <span>{item.value}</span>
                   </div>
-                  <div className="mt-3 h-3 overflow-hidden rounded-full bg-white/10">
+                  <div className="mt-3 h-3 overflow-hidden rounded-full bg-zinc-200 dark:bg-white/10">
                     <div
                       className="h-full rounded-full"
                       style={{
@@ -150,31 +150,31 @@ export default function AnalyticsDashboard() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-lg shadow-zinc-900/5 dark:border-white/10 dark:bg-white/5 dark:shadow-none">
           <div className="mb-5">
-            <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">
+            <p className="text-sm uppercase tracking-[0.3em] text-orange-700 dark:text-orange-200/70">
               Organizer Dashboard
             </p>
-            <h2 className="text-2xl font-semibold text-white">Event performance</h2>
+            <h2 className="text-2xl font-semibold text-zinc-950 dark:text-white">Event performance</h2>
           </div>
 
           <div className="space-y-4">
             {EVENT_HEALTH.map((event) => (
               <div
                 key={event.name}
-                className="rounded-2xl border border-white/10 bg-black/20 p-4"
+                className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-black/20"
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-white">{event.name}</h3>
-                  <span className="rounded-full bg-orange-500/15 px-3 py-1 text-sm text-orange-200">
+                  <h3 className="text-lg font-medium text-zinc-950 dark:text-white">{event.name}</h3>
+                  <span className="rounded-full bg-orange-500/15 px-3 py-1 text-sm text-orange-700 dark:text-orange-200">
                     {event.conversion}% conversion
                   </span>
                 </div>
-                <div className="flex items-center justify-between text-sm text-zinc-300">
+                <div className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
                   <span>Revenue</span>
                   <span>{event.revenue} XLM</span>
                 </div>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-white/10">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-orange-500 to-amber-300"
                     style={{ width: `${Math.min(event.conversion * 4, 100)}%` }}
@@ -185,22 +185,22 @@ export default function AnalyticsDashboard() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+        <div className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-lg shadow-zinc-900/5 dark:border-white/10 dark:bg-white/5 dark:shadow-none">
           <div className="mb-4">
-            <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">
+            <p className="text-sm uppercase tracking-[0.3em] text-orange-700 dark:text-orange-200/70">
               Tickets by Event
             </p>
-            <h2 className="text-2xl font-semibold text-white">Sales distribution</h2>
+            <h2 className="text-2xl font-semibold text-zinc-950 dark:text-white">Sales distribution</h2>
           </div>
 
           <div className="space-y-4">
             {eventSeries.map((item, index) => (
               <div key={item.name} className="space-y-2">
-                <div className="flex items-center justify-between text-sm text-zinc-300">
+                <div className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300">
                   <span>{item.name}</span>
                   <span>{item.sold} sold</span>
                 </div>
-                <div className="h-3 overflow-hidden rounded-full bg-white/10">
+                <div className="h-3 overflow-hidden rounded-full bg-zinc-200 dark:bg-white/10">
                   <div
                     className="h-full rounded-full"
                     style={{
@@ -228,10 +228,10 @@ function MetricCard({
   detail: string;
 }) {
   return (
-    <article className="rounded-3xl border border-white/10 bg-white/5 p-5">
-      <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">{label}</p>
-      <p className="mt-3 text-3xl font-semibold text-white">{value}</p>
-      <p className="mt-2 text-sm leading-6 text-zinc-400">{detail}</p>
+    <article className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-lg shadow-zinc-900/5 dark:border-white/10 dark:bg-white/5 dark:shadow-none">
+      <p className="text-sm uppercase tracking-[0.3em] text-orange-700 dark:text-orange-200/70">{label}</p>
+      <p className="mt-3 text-3xl font-semibold text-zinc-950 dark:text-white">{value}</p>
+      <p className="mt-2 text-sm leading-6 text-zinc-500 dark:text-zinc-400">{detail}</p>
     </article>
   );
 }

@@ -66,24 +66,24 @@ function AttendeesModal({
   }, [eventId, readerAccount]);
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#27272A] rounded-xl w-full max-w-md p-6 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="w-full max-w-md space-y-4 rounded-xl border border-zinc-200 bg-white p-6 text-zinc-900 dark:border-white/10 dark:bg-[#27272A] dark:text-white">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-bold text-white">Attendees</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <h2 className="text-lg font-bold text-zinc-950 dark:text-white">Attendees</h2>
+          <button onClick={onClose} className="text-zinc-500 transition hover:text-zinc-950 dark:text-gray-400 dark:hover:text-white">
             ✕
           </button>
         </div>
         {loading ? (
-          <p className="text-gray-400 text-sm">Loading…</p>
+          <p className="text-sm text-zinc-500 dark:text-gray-400">Loading…</p>
         ) : attendees.length === 0 ? (
-          <p className="text-gray-400 text-sm">No attendees yet.</p>
+          <p className="text-sm text-zinc-500 dark:text-gray-400">No attendees yet.</p>
         ) : (
           <ul className="space-y-2 max-h-72 overflow-y-auto">
             {attendees.map((addr) => (
               <li
                 key={addr}
-                className="font-mono text-xs text-gray-300 bg-white/5 px-3 py-2 rounded-lg break-all"
+                className="break-all rounded-lg bg-zinc-100 px-3 py-2 font-mono text-xs text-zinc-700 dark:bg-white/5 dark:text-gray-300"
               >
                 {addr}
               </li>
@@ -147,32 +147,32 @@ function UpdateEventModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-[#27272A] rounded-xl w-full max-w-md p-6 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="w-full max-w-md space-y-4 rounded-xl border border-zinc-200 bg-white p-6 text-zinc-900 dark:border-white/10 dark:bg-[#27272A] dark:text-white">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-bold text-white">Update Event</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+          <h2 className="text-lg font-bold text-zinc-950 dark:text-white">Update Event</h2>
+          <button onClick={onClose} className="text-zinc-500 transition hover:text-zinc-950 dark:text-gray-400 dark:hover:text-white">
             ✕
           </button>
         </div>
         {error && (
-          <p className="text-red-400 text-sm bg-red-500/10 px-3 py-2 rounded-lg">
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-400">
             {error}
           </p>
         )}
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="mb-1 block text-sm text-zinc-500 dark:text-gray-400">
               Event Name
             </label>
             <input
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF5722]"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[#FF5722] focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="mb-1 block text-sm text-zinc-500 dark:text-gray-400">
               Ticket Price (XLM)
             </label>
             <input
@@ -181,11 +181,11 @@ function UpdateEventModal({
               min="0"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF5722]"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[#FF5722] focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">
+            <label className="mb-1 block text-sm text-zinc-500 dark:text-gray-400">
               Total Tickets
             </label>
             <input
@@ -193,7 +193,7 @@ function UpdateEventModal({
               min="1"
               value={totalTickets}
               onChange={(e) => setTotalTickets(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-[#FF5722]"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-[#FF5722] focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
             />
           </div>
           <button
@@ -227,36 +227,36 @@ function EventCard({
   const revenue = event.tickets_sold * event.ticket_price;
 
   return (
-    <div className="bg-[#27272A] rounded-xl p-5 space-y-4 border border-white/5">
+    <div className="space-y-4 rounded-xl border border-zinc-200 bg-white p-5 text-zinc-900 shadow-lg shadow-zinc-900/5 dark:border-white/5 dark:bg-[#27272A] dark:text-white dark:shadow-none">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h3 className="text-white font-semibold text-base">{event.theme}</h3>
-          <p className="text-gray-400 text-xs mt-0.5">{event.event_type}</p>
+          <h3 className="text-base font-semibold text-zinc-950 dark:text-white">{event.theme}</h3>
+          <p className="mt-0.5 text-xs text-zinc-500 dark:text-gray-400">{event.event_type}</p>
         </div>
         <EventStatusBadge event={event} />
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white/5 rounded-lg p-3 text-center">
-          <p className="text-white font-bold text-lg">
+        <div className="rounded-lg bg-zinc-100 p-3 text-center dark:bg-white/5">
+          <p className="text-lg font-bold text-zinc-950 dark:text-white">
             {event.tickets_sold.toString()}
           </p>
-          <p className="text-gray-400 text-xs">Sold</p>
+          <p className="text-xs text-zinc-500 dark:text-gray-400">Sold</p>
         </div>
-        <div className="bg-white/5 rounded-lg p-3 text-center">
-          <p className="text-white font-bold text-lg">
+        <div className="rounded-lg bg-zinc-100 p-3 text-center dark:bg-white/5">
+          <p className="text-lg font-bold text-zinc-950 dark:text-white">
             {event.total_tickets.toString()}
           </p>
-          <p className="text-gray-400 text-xs">Total</p>
+          <p className="text-xs text-zinc-500 dark:text-gray-400">Total</p>
         </div>
-        <div className="bg-white/5 rounded-lg p-3 text-center">
-          <p className="text-white font-bold text-lg">{formatXLM(revenue)}</p>
-          <p className="text-gray-400 text-xs">Revenue</p>
+        <div className="rounded-lg bg-zinc-100 p-3 text-center dark:bg-white/5">
+          <p className="text-lg font-bold text-zinc-950 dark:text-white">{formatXLM(revenue)}</p>
+          <p className="text-xs text-zinc-500 dark:text-gray-400">Revenue</p>
         </div>
       </div>
 
-      <div className="text-xs text-gray-400 space-y-1">
+      <div className="space-y-1 text-xs text-zinc-500 dark:text-gray-400">
         <p>Start: {formatDate(event.start_date)}</p>
         <p>End: {formatDate(event.end_date)}</p>
         <p>Price: {formatXLM(event.ticket_price)}</p>
@@ -266,7 +266,7 @@ function EventCard({
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => onViewAttendees(event.id)}
-          className="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition"
+          className="rounded-lg bg-zinc-100 px-3 py-1.5 text-xs text-zinc-700 transition hover:bg-zinc-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
         >
           Attendees
         </button>
@@ -274,7 +274,7 @@ function EventCard({
           <>
             <button
               onClick={() => onUpdate(event)}
-              className="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition"
+              className="rounded-lg bg-zinc-100 px-3 py-1.5 text-xs text-zinc-700 transition hover:bg-zinc-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
             >
               Edit
             </button>
@@ -356,10 +356,10 @@ export default function DashboardPage() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-[#18181B] flex items-center justify-center text-white">
+      <div className="flex min-h-screen items-center justify-center bg-background text-foreground">
         <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold">Organizer Dashboard</h1>
-          <p className="text-gray-400">Connect your wallet to manage your events.</p>
+          <h1 className="text-2xl font-bold text-zinc-950 dark:text-white">Organizer Dashboard</h1>
+          <p className="text-zinc-500 dark:text-gray-400">Connect your wallet to manage your events.</p>
           <button
             onClick={() => {
               if (!isInstalled) {
@@ -378,7 +378,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#18181B] text-white">
+    <div className="min-h-screen bg-background text-foreground">
       {modal.type === "attendees" && address && (
         <AttendeesModal
           eventId={modal.eventId}
@@ -394,12 +394,12 @@ export default function DashboardPage() {
         />
       )}
 
-      <div className="max-w-5xl mx-auto px-4 py-10 space-y-8">
+      <div className="mx-auto max-w-5xl space-y-8 px-4 py-10">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">Organizer Dashboard</h1>
-            <p className="text-gray-400 text-sm mt-1 font-mono">
+            <h1 className="text-2xl font-bold text-zinc-950 dark:text-white">Organizer Dashboard</h1>
+            <p className="mt-1 text-sm font-mono text-zinc-500 dark:text-gray-400">
               {address?.substring(0, 6)}…{address?.slice(-4)}
             </p>
           </div>
@@ -438,10 +438,10 @@ export default function DashboardPage() {
             ].map(({ label, value }) => (
               <div
                 key={label}
-                className="bg-[#27272A] rounded-xl p-4 text-center border border-white/5"
+                className="rounded-xl border border-zinc-200 bg-white p-4 text-center shadow-lg shadow-zinc-900/5 dark:border-white/5 dark:bg-[#27272A] dark:shadow-none"
               >
-                <p className="text-white font-bold text-xl">{value}</p>
-                <p className="text-gray-400 text-xs mt-1">{label}</p>
+                <p className="text-xl font-bold text-zinc-950 dark:text-white">{value}</p>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-gray-400">{label}</p>
               </div>
             ))}
           </div>
@@ -450,11 +450,10 @@ export default function DashboardPage() {
         {/* Feedback */}
         {actionMsg && (
           <div
-            className={`px-4 py-3 rounded-lg text-sm ${
-              actionMsg.startsWith("Error")
-                ? "bg-red-500/10 text-red-300"
-                : "bg-green-500/10 text-green-300"
-            }`}
+            className={`px-4 py-3 rounded-lg text-sm ${actionMsg.startsWith("Error")
+                ? "bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-300"
+                : "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-300"
+              }`}
           >
             {actionMsg}
             <button
@@ -468,12 +467,12 @@ export default function DashboardPage() {
 
         {/* Events list */}
         {loading ? (
-          <p className="text-gray-400 text-center py-12">Loading events…</p>
+          <p className="py-12 text-center text-zinc-500 dark:text-gray-400">Loading events…</p>
         ) : error ? (
           <p className="text-red-400 text-center py-12">{error}</p>
         ) : myEvents.length === 0 ? (
           <div className="text-center py-16 space-y-3">
-            <p className="text-gray-400">You haven&apos;t created any events yet.</p>
+            <p className="text-zinc-500 dark:text-gray-400">You haven&apos;t created any events yet.</p>
             <Link
               href="/create-event"
               className="inline-block bg-[#FF5722] hover:bg-[#F4511E] text-white px-5 py-2 rounded-lg font-bold text-sm transition"

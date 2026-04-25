@@ -46,26 +46,26 @@ export default function ListingCard({
   };
 
   return (
-    <article className="flex h-full flex-col rounded-[28px] border border-white/10 bg-white/5 p-6 shadow-xl shadow-black/20 transition hover:border-white/20">
+    <article className="flex h-full flex-col rounded-[28px] border border-zinc-200 bg-white p-6 shadow-xl shadow-zinc-900/5 transition hover:border-zinc-300 dark:border-white/10 dark:bg-white/5 dark:shadow-black/20 dark:hover:border-white/20">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">
+          <p className="text-sm uppercase tracking-[0.3em] text-orange-700 dark:text-orange-200/70">
             Ticket #{listing.tokenId}
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-white">
+          <h2 className="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
             {listing.eventTitle || "Event Ticket"}
           </h2>
         </div>
-        <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-sm text-emerald-200">
+        <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-sm text-emerald-700 dark:text-emerald-200">
           {listing.price} XLM
         </span>
       </div>
 
       {listing.eventDate && (
-        <p className="mt-2 text-sm text-zinc-400">{listing.eventDate}</p>
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{listing.eventDate}</p>
       )}
 
-      <dl className="mt-6 space-y-3 text-sm text-zinc-300">
+      <dl className="mt-6 space-y-3 text-sm text-zinc-600 dark:text-zinc-300">
         <div className="flex items-center justify-between">
           <dt>Seller</dt>
           <dd className="font-mono">{formatAddress(listing.seller)}</dd>
@@ -82,13 +82,13 @@ export default function ListingCard({
         </div>
       </dl>
 
-      <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
+      <div className="mt-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-black/20">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-zinc-300">Price</span>
-          <span className="text-xl font-bold text-white">{listing.price} XLM</span>
+          <span className="text-zinc-600 dark:text-zinc-300">Price</span>
+          <span className="text-xl font-bold text-zinc-950 dark:text-white">{listing.price} XLM</span>
         </div>
         {listing.price > 0 && (
-          <p className="mt-2 text-xs uppercase tracking-[0.24em] text-orange-200/80">
+          <p className="mt-2 text-xs uppercase tracking-[0.24em] text-orange-700 dark:text-orange-200/80">
             Price cap enforced
           </p>
         )}
@@ -107,13 +107,13 @@ export default function ListingCard({
             </button>
           ) : (
             <div className="mt-6 space-y-3">
-              <p className="text-center text-sm text-zinc-400">
+              <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
                 Are you sure you want to cancel this listing?
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowCancelConfirm(false)}
-                  className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-zinc-300 transition hover:bg-white/10"
+                  className="flex-1 rounded-2xl border border-zinc-200 bg-white px-5 py-3 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 dark:border-white/10 dark:bg-white/5 dark:text-zinc-300 dark:hover:bg-white/10"
                 >
                   Keep
                 </button>

@@ -206,9 +206,9 @@ export default function EventCatalog() {
   return (
     <div className="space-y-8">
       {!configured && (
-        <div className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+        <div className="rounded-2xl border border-amber-400/40 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-100">
           Set{" "}
-          <code className="rounded bg-black/30 px-1.5 py-0.5 text-xs">
+          <code className="rounded bg-zinc-900/10 px-1.5 py-0.5 text-xs dark:bg-black/30">
             NEXT_PUBLIC_EVENT_MANAGER_CONTRACT
           </code>{" "}
           to your deployed EventManager contract id to enable purchases.
@@ -216,9 +216,9 @@ export default function EventCatalog() {
       )}
 
       {simulationHint && (
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
           Listing uses{" "}
-          <code className="rounded bg-white/10 px-1 text-xs">
+          <code className="rounded bg-zinc-900/10 px-1 text-xs dark:bg-white/10">
             NEXT_PUBLIC_SOROBAN_SIM_SOURCE
           </code>{" "}
           for read simulation. Connect a wallet to use your address instead.
@@ -227,7 +227,7 @@ export default function EventCatalog() {
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="w-full max-w-md">
-          <label htmlFor="event-search" className="text-sm font-medium text-zinc-300">
+          <label htmlFor="event-search" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             Search
           </label>
           <input
@@ -236,7 +236,7 @@ export default function EventCatalog() {
             value={query}
             onChange={(ev) => setQuery(ev.target.value)}
             placeholder="Name, type, or event id…"
-            className="mt-2 w-full rounded-2xl border border-white/10 bg-zinc-950 px-4 py-3 text-white placeholder:text-zinc-500"
+            className="mt-2 w-full rounded-2xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder:text-zinc-400 focus:border-[#FF5722] focus:outline-none dark:border-white/10 dark:bg-zinc-950 dark:text-white dark:placeholder:text-zinc-500"
           />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -251,11 +251,10 @@ export default function EventCatalog() {
               key={key}
               type="button"
               onClick={() => setStatusFilter(key)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                statusFilter === key
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${statusFilter === key
                   ? "bg-[#FF5722] text-white"
-                  : "border border-white/15 bg-white/5 text-zinc-300 hover:bg-white/10"
-              }`}
+                  : "border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:text-zinc-300 dark:hover:bg-white/10"
+                }`}
             >
               {label}
             </button>
@@ -264,13 +263,13 @@ export default function EventCatalog() {
       </div>
 
       {loading ? (
-        <p className="py-16 text-center text-zinc-400">Loading events…</p>
+        <p className="py-16 text-center text-zinc-500 dark:text-zinc-400">Loading events…</p>
       ) : loadError ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-4 text-red-200">
+        <div className="rounded-2xl border border-red-500/30 bg-red-50 px-4 py-4 text-red-700 dark:bg-red-500/10 dark:text-red-200">
           {loadError}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-12 text-center text-zinc-400">
+        <div className="rounded-2xl border border-zinc-200 bg-white/90 px-6 py-12 text-center text-zinc-500 shadow-lg shadow-zinc-900/5 dark:border-white/10 dark:bg-white/5 dark:text-zinc-400 dark:shadow-none">
           {events.length === 0
             ? "No events returned. Create one from the dashboard or check your contract and simulation account."
             : "No events match your search or filters."}
@@ -288,37 +287,37 @@ export default function EventCatalog() {
                     setSelected(event);
                     setFeedback(null);
                   }}
-                  className="flex h-full w-full flex-col rounded-[28px] border border-white/10 bg-white/5 p-6 text-left shadow-xl shadow-black/20 transition hover:border-sky-400/30 hover:bg-white/[0.07]"
+                  className="flex h-full w-full flex-col rounded-[28px] border border-zinc-200 bg-white p-6 text-left shadow-xl shadow-zinc-900/5 transition hover:border-sky-400/40 hover:bg-zinc-50 dark:border-white/10 dark:bg-white/5 dark:shadow-black/20 dark:hover:border-sky-400/30 dark:hover:bg-white/[0.07]"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.28em] text-orange-200/70">
+                      <p className="text-xs uppercase tracking-[0.28em] text-orange-700 dark:text-orange-200/70">
                         Event #{event.id}
                       </p>
-                      <h2 className="mt-2 text-xl font-semibold text-white">
+                      <h2 className="mt-2 text-xl font-semibold text-zinc-950 dark:text-white">
                         {event.theme}
                       </h2>
                     </div>
                     {event.is_canceled ? (
-                      <span className="shrink-0 rounded-full bg-red-500/15 px-3 py-1 text-xs text-red-200">
+                      <span className="shrink-0 rounded-full bg-red-500/15 px-3 py-1 text-xs text-red-700 dark:text-red-200">
                         Canceled
                       </span>
                     ) : soldOut ? (
-                      <span className="shrink-0 rounded-full bg-zinc-500/20 px-3 py-1 text-xs text-zinc-300">
+                      <span className="shrink-0 rounded-full bg-zinc-500/15 px-3 py-1 text-xs text-zinc-600 dark:text-zinc-300">
                         Sold out
                       </span>
                     ) : (
-                      <span className="shrink-0 rounded-full bg-emerald-500/10 px-3 py-1 text-sm text-emerald-200">
+                      <span className="shrink-0 rounded-full bg-emerald-500/10 px-3 py-1 text-sm text-emerald-700 dark:text-emerald-200">
                         {rem.toString()} left
                       </span>
                     )}
                   </div>
                   {event.event_type ? (
-                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-zinc-400">
+                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
                       {event.event_type}
                     </p>
                   ) : null}
-                  <dl className="mt-4 space-y-2 text-sm text-zinc-300">
+                  <dl className="mt-4 space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
                     <div className="flex justify-between gap-2">
                       <dt>Starts</dt>
                       <dd>{formatDateTime(event.start_date)}</dd>
@@ -340,22 +339,21 @@ export default function EventCatalog() {
 
       {feedback && !selected && (
         <div
-          className={`rounded-2xl border px-4 py-4 text-sm ${
-            feedback.type === "success"
-              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-100"
-              : "border-red-500/30 bg-red-500/10 text-red-100"
-          }`}
+          className={`rounded-2xl border px-4 py-4 text-sm ${feedback.type === "success"
+              ? "border-emerald-500/30 bg-emerald-50 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-100"
+              : "border-red-500/30 bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-100"
+            }`}
         >
           <p>{feedback.message}</p>
           {feedback.tx && (
-            <div className="mt-3 space-y-1 font-mono text-xs text-zinc-300">
+            <div className="mt-3 space-y-1 font-mono text-xs text-zinc-600 dark:text-zinc-300">
               <p>
                 Hash:{" "}
                 <a
                   href={getTxExplorerUrl(feedback.tx.hash)}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-sky-300 underline hover:text-sky-200"
+                  className="text-sky-600 underline hover:text-sky-500 dark:text-sky-300 dark:hover:text-sky-200"
                 >
                   {feedback.tx.hash}
                 </a>
@@ -373,15 +371,15 @@ export default function EventCatalog() {
           aria-modal="true"
           aria-labelledby="event-detail-title"
         >
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[28px] border border-white/10 bg-[#1f1f23] p-6 shadow-2xl">
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[28px] border border-zinc-200 bg-white p-6 text-zinc-900 shadow-2xl shadow-zinc-900/10 dark:border-white/10 dark:bg-[#1f1f23] dark:text-white dark:shadow-black/30">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.28em] text-orange-200/70">
+                <p className="text-xs uppercase tracking-[0.28em] text-orange-700 dark:text-orange-200/70">
                   Event #{selected.id}
                 </p>
                 <h2
                   id="event-detail-title"
-                  className="mt-2 text-2xl font-semibold text-white"
+                  className="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white"
                 >
                   {selected.theme}
                 </h2>
@@ -392,7 +390,7 @@ export default function EventCatalog() {
                   setSelected(null);
                   setFeedback(null);
                 }}
-                className="rounded-xl p-2 text-zinc-400 hover:bg-white/10 hover:text-white"
+                className="rounded-xl p-2 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
                 aria-label="Close"
               >
                 <X size={22} />
@@ -400,45 +398,45 @@ export default function EventCatalog() {
             </div>
 
             {selected.event_type ? (
-              <p className="mt-4 text-sm leading-relaxed text-zinc-400">
+              <p className="mt-4 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
                 {selected.event_type}
               </p>
             ) : null}
 
-            <dl className="mt-6 space-y-3 text-sm text-zinc-300">
+            <dl className="mt-6 space-y-3 text-sm text-zinc-600 dark:text-zinc-300">
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Start</dt>
+                <dt className="text-zinc-500 dark:text-zinc-500">Start</dt>
                 <dd>{formatDateTime(selected.start_date)}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">End</dt>
+                <dt className="text-zinc-500 dark:text-zinc-500">End</dt>
                 <dd>{formatDateTime(selected.end_date)}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Ticket price</dt>
+                <dt className="text-zinc-500 dark:text-zinc-500">Ticket price</dt>
                 <dd>
                   {formatXlmFromStroops(selected.ticket_price)}{" "}
                   {isLikelyNativeAsset(selected.payment_token) ? "XLM" : "token base units"}
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Tickets remaining</dt>
+                <dt className="text-zinc-500 dark:text-zinc-500">Tickets remaining</dt>
                 <dd>{remainingTickets(selected).toString()}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Organizer</dt>
-                <dd className="max-w-[60%] truncate font-mono text-xs text-zinc-400">
+                <dt className="text-zinc-500 dark:text-zinc-500">Organizer</dt>
+                <dd className="max-w-[60%] truncate font-mono text-xs text-zinc-500 dark:text-zinc-400">
                   {selected.organizer}
                 </dd>
               </div>
             </dl>
 
             {selected.is_canceled ? (
-              <p className="mt-6 rounded-2xl bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              <p className="mt-6 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-200">
                 This event was canceled. Purchases are disabled.
               </p>
             ) : remainingTickets(selected) <= BigInt(0) ? (
-              <p className="mt-6 rounded-2xl bg-zinc-500/10 px-4 py-3 text-sm text-zinc-300">
+              <p className="mt-6 rounded-2xl bg-zinc-100 px-4 py-3 text-sm text-zinc-600 dark:bg-zinc-500/10 dark:text-zinc-300">
                 Sold out.
               </p>
             ) : (
@@ -446,14 +444,14 @@ export default function EventCatalog() {
                 <div>
                   <label
                     htmlFor="purchase-qty"
-                    className="text-sm font-medium text-zinc-300"
+                    className="text-sm font-medium text-zinc-700 dark:text-zinc-300"
                   >
                     Quantity
                   </label>
                   <div className="mt-2 flex items-center gap-3">
                     <button
                       type="button"
-                      className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-white/5 text-xl text-white hover:bg-white/10"
+                      className="flex h-11 w-11 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-xl text-zinc-900 hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                       onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                       aria-label="Decrease quantity"
                     >
@@ -476,11 +474,11 @@ export default function EventCatalog() {
                           )
                         )
                       }
-                      className="h-11 w-24 rounded-2xl border border-white/10 bg-zinc-950 text-center text-white"
+                      className="h-11 w-24 rounded-2xl border border-zinc-200 bg-white text-center text-zinc-900 focus:border-[#FF5722] focus:outline-none dark:border-white/10 dark:bg-zinc-950 dark:text-white"
                     />
                     <button
                       type="button"
-                      className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-white/5 text-xl text-white hover:bg-white/10"
+                      className="flex h-11 w-11 items-center justify-center rounded-2xl border border-zinc-200 bg-white text-xl text-zinc-900 hover:bg-zinc-100 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
                       onClick={() =>
                         setQuantity((q) =>
                           Math.min(
@@ -498,11 +496,10 @@ export default function EventCatalog() {
 
                 {feedback && (
                   <div
-                    className={`rounded-2xl px-4 py-3 text-sm ${
-                      feedback.type === "success"
-                        ? "bg-emerald-500/15 text-emerald-100"
-                        : "bg-red-500/15 text-red-100"
-                    }`}
+                    className={`rounded-2xl px-4 py-3 text-sm ${feedback.type === "success"
+                        ? "bg-emerald-50 text-emerald-800 dark:bg-emerald-500/15 dark:text-emerald-100"
+                        : "bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-100"
+                      }`}
                   >
                     <p>{feedback.message}</p>
                     {feedback.tx && (
@@ -512,7 +509,7 @@ export default function EventCatalog() {
                             href={getTxExplorerUrl(feedback.tx.hash)}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-sky-300 underline"
+                            className="text-sky-600 underline dark:text-sky-300"
                           >
                             View transaction
                           </a>

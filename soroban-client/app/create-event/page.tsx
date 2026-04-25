@@ -133,25 +133,25 @@ export default function CreateEventPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#18181B] text-white selection:bg-[#FF5722] selection:text-white">
+    <div className="min-h-screen bg-background text-foreground selection:bg-[#FF5722] selection:text-white">
       <AnalyticsPageView page="create-event" />
       <Header />
 
       <main className="mx-auto max-w-3xl px-4 pb-20 pt-36 sm:px-6">
-        <div className="rounded-[32px] border border-white/10 bg-white/5 p-8 shadow-xl shadow-black/20">
-          <h1 className="mb-2 text-3xl font-bold">Create Event</h1>
-          <p className="mb-6 text-zinc-300">
+        <div className="rounded-[32px] border border-zinc-200 bg-white p-8 text-zinc-900 shadow-xl shadow-zinc-900/5 dark:border-white/10 dark:bg-white/5 dark:text-white dark:shadow-black/20">
+          <h1 className="mb-2 text-3xl font-bold text-zinc-950 dark:text-white">Create Event</h1>
+          <p className="mb-6 text-zinc-600 dark:text-zinc-300">
             Launch a new CrowdPass experience with on-chain pricing, inventory,
             and organizer ownership.
           </p>
 
           {successMsg && (
-            <div className="mb-4 rounded-2xl bg-green-500/15 p-3 text-green-200">
+            <div className="mb-4 rounded-2xl bg-green-50 p-3 text-green-700 dark:bg-green-500/15 dark:text-green-200">
               {successMsg}
             </div>
           )}
           {errorMsg && (
-            <div className="mb-4 rounded-2xl bg-red-500/15 p-3 text-red-200">
+            <div className="mb-4 rounded-2xl bg-red-50 p-3 text-red-700 dark:bg-red-500/15 dark:text-red-200">
               {errorMsg}
             </div>
           )}
@@ -159,14 +159,14 @@ export default function CreateEventPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-gray-300">
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-gray-300">
                   Event Name
                 </label>
                 <input
                   type="text"
                   placeholder="e.g., Stellar DevCon 2026"
                   {...register("theme")}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-gray-500 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                  className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder-zinc-400 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50 dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder-gray-500"
                 />
                 {errors.theme && (
                   <p className="mt-1.5 text-sm text-red-400">
@@ -176,25 +176,25 @@ export default function CreateEventPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-2 block text-sm font-medium text-gray-300">
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-gray-300">
                   Description
                 </label>
                 <textarea
                   {...register("description")}
                   placeholder="Tell your audience about the event..."
                   rows={4}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-gray-500 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                  className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder-zinc-400 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50 dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder-gray-500"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-300">
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-gray-300">
                   Start Date &amp; Time
                 </label>
                 <input
                   type="datetime-local"
                   {...register("startDate")}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white transition [color-scheme:dark] focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                  className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 transition [color-scheme:light] focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50 dark:border-white/10 dark:bg-black/20 dark:text-white dark:[color-scheme:dark]"
                 />
                 {errors.startDate && (
                   <p className="mt-1.5 text-sm text-red-400">
@@ -204,13 +204,13 @@ export default function CreateEventPage() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-300">
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-gray-300">
                   End Date &amp; Time
                 </label>
                 <input
                   type="datetime-local"
                   {...register("endDate")}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white transition [color-scheme:dark] focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                  className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 transition [color-scheme:light] focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50 dark:border-white/10 dark:bg-black/20 dark:text-white dark:[color-scheme:dark]"
                 />
                 {errors.endDate && (
                   <p className="mt-1.5 text-sm text-red-400">
@@ -220,11 +220,11 @@ export default function CreateEventPage() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-300">
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-gray-300">
                   Ticket Price (XLM)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-medium text-gray-400">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 font-medium text-zinc-500 dark:text-gray-400">
                     XLM
                   </span>
                   <input
@@ -232,7 +232,7 @@ export default function CreateEventPage() {
                     step="0.0000001"
                     placeholder="0.00"
                     {...register("price")}
-                    className="w-full rounded-xl border border-white/10 bg-black/20 py-3 pl-12 pr-4 text-white placeholder-gray-500 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                    className="w-full rounded-xl border border-zinc-300 bg-white py-3 pl-12 pr-4 text-zinc-900 placeholder-zinc-400 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50 dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder-gray-500"
                   />
                 </div>
                 {errors.price && (
@@ -243,14 +243,14 @@ export default function CreateEventPage() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-300">
+                <label className="mb-2 block text-sm font-medium text-zinc-700 dark:text-gray-300">
                   Total Tickets
                 </label>
                 <input
                   type="number"
                   placeholder="e.g., 500"
                   {...register("tickets")}
-                  className="w-full rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder-gray-500 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50"
+                  className="w-full rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 placeholder-zinc-400 transition focus:border-[#FF5722] focus:outline-none focus:ring-2 focus:ring-[#FF5722]/50 dark:border-white/10 dark:bg-black/20 dark:text-white dark:placeholder-gray-500"
                 />
                 {errors.tickets && (
                   <p className="mt-1.5 text-sm text-red-400">

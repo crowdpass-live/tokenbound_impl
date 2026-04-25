@@ -22,11 +22,11 @@ export default function PartnersSection() {
   ];
 
   return (
-    <section className="bg-[#18181B] pb-24 border-t border-gray-800">
+    <section className="border-t border-zinc-200 bg-background pb-24 dark:border-gray-800">
       <div className="pt-16 pb-12 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">{t("title")}</h2>
+        <h2 className="mb-8 text-4xl font-bold text-zinc-950 dark:text-white md:text-5xl">{t("title")}</h2>
       </div>
-      <div className="w-full bg-[#0d0d10] py-12 overflow-hidden relative flex">
+      <div className="relative flex w-full overflow-hidden bg-zinc-950 py-12 dark:bg-[#0d0d10]">
         <style jsx>{`
           @keyframes scroll-marquee {
             0% { transform: translateX(0); }
@@ -36,9 +36,9 @@ export default function PartnersSection() {
             animation: scroll-marquee 20s linear infinite;
           }
         `}</style>
-        <div className="flex animate-marquee whitespace-nowrap gap-16 md:gap-32 items-center px-4 min-w-full">
+        <div className="flex min-w-full animate-marquee items-center gap-16 whitespace-nowrap px-4 md:gap-32">
           {partners.map((partner, index) => (
-            <div key={index} className="flex-shrink-0 flex items-center justify-center">
+            <div key={index} className="flex flex-shrink-0 items-center justify-center">
               {partner.type === "argent" && (
                 <Image src="/argent.svg" alt="Argent" width={160} height={50} className="h-10 w-auto" />
               )}

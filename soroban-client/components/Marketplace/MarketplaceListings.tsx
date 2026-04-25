@@ -19,10 +19,10 @@ export const MarketplaceListings = () => {
   const fetchListings = async () => {
     try {
       setLoading(true);
-      const url = filter === 'all' 
+      const url = filter === 'all'
         ? '/api/marketplace/listings'
         : `/api/marketplace/listings?seller=${address}`;
-      
+
       const response = await fetch(url);
       const data = await response.json();
       setListings(data);
@@ -36,45 +36,43 @@ export const MarketplaceListings = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="text-white text-lg">Loading listings...</div>
+        <div className="text-lg text-zinc-700 dark:text-white">Loading listings...</div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h1 className="text-3xl font-bold text-white">Ticket Marketplace</h1>
-          <p className="text-gray-400 mt-2">Buy and sell tickets peer-to-peer</p>
+          <h1 className="text-3xl font-bold text-zinc-950 dark:text-white">Ticket Marketplace</h1>
+          <p className="mt-2 text-zinc-500 dark:text-gray-400">Buy and sell tickets peer-to-peer</p>
         </div>
-        
+
         <div className="flex gap-3">
-          <div className="flex bg-gray-800 rounded-lg p-1">
+          <div className="flex rounded-lg border border-zinc-200 bg-white p-1 dark:border-white/10 dark:bg-zinc-800">
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-md transition ${
-                filter === 'all' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-400 hover:text-white'
-              }`}
+              className={`px-4 py-2 rounded-md transition ${filter === 'all'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-zinc-500 hover:text-zinc-950 dark:text-gray-400 dark:hover:text-white'
+                }`}
             >
               All Listings
             </button>
             {isConnected && (
               <button
                 onClick={() => setFilter('my')}
-                className={`px-4 py-2 rounded-md transition ${
-                  filter === 'my' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'text-gray-400 hover:text-white'
-                }`}
+                className={`px-4 py-2 rounded-md transition ${filter === 'my'
+                    ? 'bg-blue-600 text-white'
+                    : 'text-zinc-500 hover:text-zinc-950 dark:text-gray-400 dark:hover:text-white'
+                  }`}
               >
                 My Listings
               </button>
             )}
           </div>
-          
+
           {isConnected && (
             <button
               onClick={() => setShowCreateForm(!showCreateForm)}
@@ -96,8 +94,8 @@ export const MarketplaceListings = () => {
       )}
 
       {listings.length === 0 ? (
-        <div className="text-center text-gray-400 py-12">
-          <div className="text-6xl mb-4">🎫</div>
+        <div className="py-12 text-center text-zinc-500 dark:text-gray-400">
+          <div className="mb-4 text-6xl">🎫</div>
           <p className="text-lg">No tickets available for resale at the moment.</p>
           {isConnected && (
             <div className="mt-4">

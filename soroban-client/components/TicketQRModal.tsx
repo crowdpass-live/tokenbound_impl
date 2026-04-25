@@ -51,18 +51,18 @@ export default function TicketQRModal({ event, address, onClose }: TicketQRModal
 
   return (
     <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-      <div className="relative w-full max-w-sm rounded-[32px] bg-[#27272A] p-8 shadow-2xl border border-white/10">
+      <div className="relative w-full max-w-sm rounded-[32px] border border-zinc-200 bg-white p-8 text-zinc-900 shadow-2xl shadow-zinc-900/10 dark:border-white/10 dark:bg-[#27272A] dark:text-white dark:shadow-black/30">
         <button
           onClick={onClose}
-          className="absolute right-6 top-6 text-gray-400 hover:text-white transition"
+          className="absolute right-6 top-6 text-zinc-500 transition hover:text-zinc-950 dark:text-gray-400 dark:hover:text-white"
         >
           <X size={24} />
         </button>
 
         <div className="flex flex-col items-center text-center space-y-6">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-white tracking-tight">{event.theme}</h2>
-            <p className="text-gray-400 text-sm">Scan to verify your ticket at entry</p>
+            <h2 className="text-2xl font-bold tracking-tight text-zinc-950 dark:text-white">{event.theme}</h2>
+            <p className="text-sm text-zinc-500 dark:text-gray-400">Scan to verify your ticket at entry</p>
           </div>
 
           <div className="rounded-2xl bg-white p-6 shadow-inner ring-4 ring-white/5 relative">
@@ -96,32 +96,32 @@ export default function TicketQRModal({ event, address, onClose }: TicketQRModal
 
           {signature ? (
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
-               <ShieldCheck size={14} /> Cryptographically Signed
+              <ShieldCheck size={14} /> Cryptographically Signed
             </div>
           ) : (
             <div className="flex items-center gap-2 text-amber-400 text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 px-3 py-1.5 rounded-full border border-amber-500/20">
-               <ShieldAlert size={14} /> Unverified QR Code
+              <ShieldAlert size={14} /> Unverified QR Code
             </div>
           )}
 
           <div className="w-full space-y-3 pt-4">
-             <div className="flex justify-between text-xs font-mono text-gray-500 border-b border-white/5 pb-2">
-                <span>Token ID</span>
-                <span className="text-gray-300">#{tokenId?.toString() || "..."}</span>
-             </div>
-             <div className="flex justify-between text-xs font-mono text-gray-500 border-b border-white/5 pb-2">
-                <span>Event ID</span>
-                <span className="text-gray-300">{event.id}</span>
-             </div>
-             <div className="flex justify-between text-xs font-mono text-gray-500">
-                <span>Owner</span>
-                <span className="text-gray-300 truncate ml-4" title={address}>
-                  {address.substring(0, 8)}...{address.slice(-8)}
-                </span>
-             </div>
+            <div className="flex justify-between border-b border-zinc-200 pb-2 text-xs font-mono text-zinc-500 dark:border-white/5 dark:text-gray-500">
+              <span>Token ID</span>
+              <span className="text-zinc-700 dark:text-gray-300">#{tokenId?.toString() || "..."}</span>
+            </div>
+            <div className="flex justify-between border-b border-zinc-200 pb-2 text-xs font-mono text-zinc-500 dark:border-white/5 dark:text-gray-500">
+              <span>Event ID</span>
+              <span className="text-zinc-700 dark:text-gray-300">{event.id}</span>
+            </div>
+            <div className="flex justify-between text-xs font-mono text-zinc-500 dark:text-gray-500">
+              <span>Owner</span>
+              <span className="ml-4 truncate text-zinc-700 dark:text-gray-300" title={address}>
+                {address.substring(0, 8)}...{address.slice(-8)}
+              </span>
+            </div>
           </div>
-          
-          <p className="text-[10px] text-gray-500 uppercase tracking-widest pt-2">
+
+          <p className="pt-2 text-[10px] uppercase tracking-widest text-zinc-500 dark:text-gray-500">
             Valid Ticket Signature Included
           </p>
         </div>

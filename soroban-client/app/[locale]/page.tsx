@@ -8,7 +8,7 @@ import AnalyticsPageView from "../components/AnalyticsPageView";
 
 export default function Home() {
   return (
-    <div className="bg-[#18181B] min-h-screen text-white font-sans selection:bg-[#FF5722] selection:text-white flex flex-col">
+    <div className="flex min-h-screen flex-col bg-background font-sans text-foreground selection:bg-[#FF5722] selection:text-white">
       <AnalyticsPageView page="home" />
       <Header />
       <main className="grow flex flex-col">

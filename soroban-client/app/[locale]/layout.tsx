@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import Footer from "@/components/Footer";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { WalletProvider } from "@/contexts/WalletContext";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
@@ -48,6 +49,19 @@ export const metadata: Metadata = {
 
 const RTL_LOCALES = ["ar"];
 
+const THEME_INIT_SCRIPT = `
+(() => {
+  const storageKey = "crowdpass-theme";
+  const storedTheme = window.localStorage.getItem(storageKey);
+  const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  const theme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : systemTheme;
+  const root = document.documentElement;
+
+  root.classList.toggle("dark", theme === "dark");
+  root.style.colorScheme = theme;
+})();
+`;
+
 export default async function LocaleLayout({
   children,
   params,
@@ -65,14 +79,19 @@ export default async function LocaleLayout({
   const dir = RTL_LOCALES.includes(locale) ? "rtl" : "ltr";
 
   return (
-    <html lang={locale} dir={dir}>
+    <html lang={locale} dir={dir} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <NextIntlClientProvider messages={messages}>
-          <WalletProvider>
-            {children}
-            <Footer />
-          </WalletProvider>
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <NextIntlClientProvider messages={messages}>
+            <WalletProvider>
+              {children}
+              <Footer />
+            </WalletProvider>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

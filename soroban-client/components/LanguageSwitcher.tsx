@@ -29,10 +29,10 @@ export default function LanguageSwitcher() {
       value={locale}
       onChange={handleChange}
       aria-label={t("label")}
-      className="bg-transparent border border-gray-400 text-white rounded-lg px-2 py-1 text-sm cursor-pointer focus:outline-none hover:bg-white/10 transition"
+      className="cursor-pointer rounded-lg border border-zinc-300 bg-white/80 px-2 py-1 text-sm text-zinc-700 transition hover:bg-white focus:outline-none dark:border-gray-400 dark:bg-transparent dark:text-white dark:hover:bg-white/10"
     >
       {routing.locales.map((loc) => (
-        <option key={loc} value={loc} className="bg-[#525252] text-white">
+        <option key={loc} value={loc} className="bg-white text-zinc-900 dark:bg-[#525252] dark:text-white">
           {LOCALE_LABELS[loc]}
         </option>
       ))}

@@ -49,13 +49,13 @@ export default function HowItWorksSection() {
   ] as const;
 
   return (
-    <section className="bg-[#18181B] py-24 overflow-hidden">
+    <section className="overflow-hidden bg-background py-24">
       <div className="container mx-auto px-4">
-        <h2 className="text-center text-4xl md:text-5xl font-bold text-white mb-20">
+        <h2 className="mb-20 text-center text-4xl font-bold text-zinc-950 dark:text-white md:text-5xl">
           {t("title")}
         </h2>
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24 relative">
-          <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px] flex-shrink-0">
+        <div className="relative flex flex-col items-center justify-center gap-16 lg:flex-row lg:gap-24">
+          <div className="relative h-[300px] w-[300px] flex-shrink-0 md:h-[400px] md:w-[400px]">
             <div className="absolute -inset-8 md:-inset-12 border-[2px] border-dashed border-[#FF5722] rounded-full opacity-70 animate-spin-slow" />
             <div className="relative w-full h-full rounded-full border-[8px] border-[#FF5722] overflow-hidden shadow-2xl">
               <Image src="/how_it_works_hero.png" alt="How it works" fill className="object-cover" />
@@ -66,23 +66,30 @@ export default function HowItWorksSection() {
             {steps.map((step) => (
               <div
                 key={step.id}
-                className={`flex items-start p-6 rounded-xl transition-all duration-300 ${
-                  step.active ? "bg-[#525252] border-l-4 border-[#FF5722] shadow-lg" : "bg-[#525252]/60 hover:bg-[#525252]"
-                }`}
+                className={`flex items-start p-6 rounded-xl transition-all duration-300 ${step.active
+                    ? "border-l-4 border-[#FF5722] bg-white shadow-lg shadow-zinc-900/5 dark:bg-[#525252] dark:shadow-black/20"
+                    : "bg-zinc-100/90 hover:bg-zinc-200 dark:bg-[#525252]/60 dark:hover:bg-[#525252]"
+                  }`}
               >
                 <div
-                  className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mr-5 ${
-                    step.active ? "bg-[#FF5722] text-white" : "bg-[#18181B] text-[#FF5722]"
-                  }`}
+                  className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center mr-5 ${step.active
+                      ? "bg-[#FF5722] text-white"
+                      : "bg-white text-[#FF5722] dark:bg-[#18181B] dark:text-[#FF5722]"
+                    }`}
                 >
                   {step.icon}
                 </div>
                 <div className="flex-1">
-                  <h3 className={`text-lg font-bold mb-2 ${step.active ? "text-white" : "text-gray-200"}`}>
+                  <h3
+                    className={`mb-2 text-lg font-bold ${step.active
+                        ? "text-zinc-950 dark:text-white"
+                        : "text-zinc-700 dark:text-gray-200"
+                      }`}
+                  >
                     {t(`${step.key}.title`)}
                   </h3>
                   {step.active && (
-                    <p className="text-gray-300 text-sm leading-relaxed">
+                    <p className="text-sm leading-relaxed text-zinc-600 dark:text-gray-300">
                       {t(`${step.key}.description`)}
                     </p>
                   )}

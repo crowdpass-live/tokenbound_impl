@@ -5,8 +5,10 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 
+import ThemeToggle from "@/components/ThemeToggle";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useWallet } from "@/contexts/WalletContext";
-import type { WalletProviderId } from '@/contexts/walletAdapters';
+import type { WalletProviderId } from "@/contexts/walletAdapters";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -18,6 +20,7 @@ const NAV_LINKS = [
 ];
 
 export default function Header() {
+  const { resolvedTheme } = useTheme();
   const {
     address,
     providerId,
@@ -83,10 +86,12 @@ export default function Header() {
     closeMenu();
   }, [pathname]);
 
+  const logoColor = resolvedTheme === "dark" ? "white" : "currentColor";
+
   return (
     <header className="absolute left-0 right-0 top-0 z-100 flex justify-center px-4 pt-8">
-      <div className="flex w-full max-w-6xl items-center justify-between rounded-2xl bg-[#525252] px-6 py-4 shadow-lg backdrop-blur-sm">
-        <Link href="/" className="flex items-center gap-2 text-white">
+      <div className="flex w-full max-w-6xl items-center justify-between rounded-2xl border border-zinc-200/80 bg-white/85 px-6 py-4 text-zinc-900 shadow-lg shadow-zinc-900/5 backdrop-blur-sm dark:border-white/10 dark:bg-[#525252]/85 dark:text-white dark:shadow-black/20">
+        <Link href="/" className="flex items-center gap-2 text-current">
           <div className="flex items-center gap-2 text-2xl font-bold">
             <svg
               width="32"
@@ -95,20 +100,20 @@ export default function Header() {
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path d="M4 10H14V14H8V22H14V26H4V10Z" fill="white" />
-              <path d="M18 10H28V14H22V26H18V10Z" fill="white" />
+              <path d="M4 10H14V14H8V22H14V26H4V10Z" fill={logoColor} />
+              <path d="M18 10H28V14H22V26H18V10Z" fill={logoColor} />
             </svg>
             CrowdPass
           </div>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-gray-200 hover:text-white font-medium transition"
+              className="font-medium text-zinc-600 transition hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white"
             >
               {link.label}
             </Link>
@@ -116,7 +121,7 @@ export default function Header() {
           {isConnected && (
             <Link
               href="/dashboard"
-              className="text-gray-200 hover:text-white font-medium transition"
+              className="font-medium text-zinc-600 transition hover:text-zinc-950 dark:text-zinc-200 dark:hover:text-white"
             >
               Dashboard
             </Link>
@@ -124,14 +129,16 @@ export default function Header() {
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
+          <ThemeToggle />
+
           {isConnected ? (
             <div className="flex items-center gap-4">
-              <span className="rounded-md bg-white/10 px-3 py-1 font-mono text-sm text-gray-300">
+              <span className="rounded-md bg-zinc-950/5 px-3 py-1 font-mono text-sm text-zinc-600 dark:bg-white/10 dark:text-zinc-300">
                 {formatAddress(address!)}
               </span>
               <button
                 onClick={disconnect}
-                className="rounded-lg border border-gray-400 px-6 py-2 font-medium text-white transition hover:bg-white/10"
+                className="rounded-lg border border-zinc-300 px-6 py-2 font-medium text-zinc-700 transition hover:bg-zinc-900/5 dark:border-gray-400 dark:text-white dark:hover:bg-white/10"
               >
                 Disconnect
               </button>
@@ -139,7 +146,7 @@ export default function Header() {
           ) : (
             <button
               onClick={handleConnect}
-              className="rounded-lg border border-gray-400 px-6 py-2 font-medium text-white transition hover:bg-white/10"
+              className="rounded-lg border border-zinc-300 px-6 py-2 font-medium text-zinc-700 transition hover:bg-zinc-900/5 dark:border-gray-400 dark:text-white dark:hover:bg-white/10"
             >
               {isInstalled ? `Connect ${providerName}` : "Select Wallet"}
             </button>
@@ -155,19 +162,22 @@ export default function Header() {
 
         <button
           onClick={() => setIsMenuOpen((current) => !current)}
-          className="flex items-center justify-center rounded-lg p-2 transition hover:bg-white/10 md:hidden"
+          className="flex items-center justify-center rounded-lg p-2 transition hover:bg-zinc-900/5 dark:hover:bg-white/10 md:hidden"
           aria-label="Toggle navigation menu"
           aria-expanded={isMenuOpen}
           aria-controls="mobile-menu"
         >
-          {isMenuOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
+          {isMenuOpen ? (
+            <X size={24} className="text-current" />
+          ) : (
+            <Menu size={24} className="text-current" />
+          )}
         </button>
       </div>
 
       <div
-        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden ${
-          isMenuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-        }`}
+        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden ${isMenuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          }`}
         onClick={closeMenu}
         role="presentation"
       />
@@ -176,25 +186,27 @@ export default function Header() {
         id="mobile-menu"
         role="dialog"
         aria-label="Mobile navigation menu"
-        className={`fixed left-0 right-0 top-0 z-50 w-full max-w-full origin-top bg-[#525252] shadow-lg transition-all duration-300 md:hidden ${
-          isMenuOpen
+        className={`fixed left-0 right-0 top-0 z-50 w-full max-w-full origin-top border-b border-zinc-200/80 bg-white text-zinc-900 shadow-lg transition-all duration-300 dark:border-white/10 dark:bg-[#525252] dark:text-white md:hidden ${isMenuOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-full opacity-0"
-        }`}
+          }`}
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
         <div className="flex items-center justify-between px-4 py-4">
-          <div className="text-xl font-bold text-white">Menu</div>
-          <button
-            onClick={closeMenu}
-            className="rounded-lg p-2 transition hover:bg-white/10"
-            aria-label="Close menu"
-          >
-            <X size={24} className="text-white" />
-          </button>
+          <div className="text-xl font-bold text-current">Menu</div>
+          <div className="flex items-center gap-2">
+            <ThemeToggle className="px-3" />
+            <button
+              onClick={closeMenu}
+              className="rounded-lg p-2 transition hover:bg-zinc-900/5 dark:hover:bg-white/10"
+              aria-label="Close menu"
+            >
+              <X size={24} className="text-current" />
+            </button>
+          </div>
         </div>
 
-        <div className="border-t border-gray-600" />
+        <div className="border-t border-zinc-200 dark:border-gray-600" />
 
         <div className="space-y-4 px-4 py-6">
           <div className="space-y-3">
@@ -202,11 +214,10 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`block rounded-2xl px-4 py-3 text-lg font-medium transition ${
-                  pathname === link.href
-                    ? "bg-white/10 text-white"
-                    : "text-gray-200 hover:bg-white/5 hover:text-white"
-                }`}
+                className={`block rounded-2xl px-4 py-3 text-lg font-medium transition ${pathname === link.href
+                    ? "bg-zinc-900/5 text-zinc-950 dark:bg-white/10 dark:text-white"
+                    : "text-zinc-600 hover:bg-zinc-900/5 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-white/5 dark:hover:text-white"
+                  }`}
                 onClick={() => handleMenuItemClick()}
               >
                 {link.label}
@@ -214,17 +225,17 @@ export default function Header() {
             ))}
           </div>
 
-          <div className="border-t border-gray-600 py-4" />
+          <div className="border-t border-zinc-200 py-4 dark:border-gray-600" />
 
           <div className="space-y-3">
             {isConnected ? (
               <>
-                <div className="rounded-2xl bg-white/10 px-4 py-3 font-mono text-sm text-gray-300">
+                <div className="rounded-2xl bg-zinc-950/5 px-4 py-3 font-mono text-sm text-zinc-600 dark:bg-white/10 dark:text-zinc-300">
                   {formatAddress(address!)}
                 </div>
                 <button
                   onClick={() => handleMenuItemClick(disconnect)}
-                  className="w-full rounded-2xl border border-gray-400 px-4 py-4 font-medium text-white transition hover:bg-white/10"
+                  className="w-full rounded-2xl border border-zinc-300 px-4 py-4 font-medium text-zinc-700 transition hover:bg-zinc-900/5 dark:border-gray-400 dark:text-white dark:hover:bg-white/10"
                 >
                   Disconnect
                 </button>
@@ -232,7 +243,7 @@ export default function Header() {
             ) : (
               <button
                 onClick={() => handleMenuItemClick(handleConnect)}
-                className="w-full rounded-2xl border border-gray-400 px-4 py-4 font-medium text-white transition hover:bg-white/10"
+                className="w-full rounded-2xl border border-zinc-300 px-4 py-4 font-medium text-zinc-700 transition hover:bg-zinc-900/5 dark:border-gray-400 dark:text-white dark:hover:bg-white/10"
               >
                 {isInstalled ? `Connect ${providerName}` : "Select Wallet"}
               </button>
@@ -252,10 +263,10 @@ export default function Header() {
       {/* Wallet Selection Modal */}
       {isWalletModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-[#252525] p-4 text-white shadow-xl">
+          <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-xl dark:border-white/10 dark:bg-[#252525] dark:text-white">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-lg font-bold">Choose Wallet Provider</h3>
-              <button onClick={closeWalletModal} className="text-white hover:text-gray-300">
+              <button onClick={closeWalletModal} className="text-current transition hover:text-zinc-500 dark:hover:text-gray-300">
                 <X size={20} />
               </button>
             </div>
@@ -268,14 +279,15 @@ export default function Header() {
                     if (provider.installed) handleProviderSelect(provider.id);
                     else window.open(provider.installUrl, "_blank");
                   }}
-                  className={`w-full rounded-lg border p-3 text-left transition ${
-                    provider.id === providerId ? "border-blue-400" : "border-gray-600"
-                  } ${provider.installed ? "hover:border-blue-300" : "cursor-pointer opacity-70"}`}
+                  className={`w-full rounded-lg border p-3 text-left transition ${provider.id === providerId
+                      ? "border-blue-400 dark:border-blue-400"
+                      : "border-zinc-200 dark:border-gray-600"
+                    } ${provider.installed ? "hover:border-blue-300" : "cursor-pointer opacity-70"}`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-semibold">{provider.name}</div>
-                      <div className="text-xs text-gray-300">{provider.description}</div>
+                      <div className="text-xs text-zinc-500 dark:text-gray-300">{provider.description}</div>
                     </div>
                     <div className="text-xs">{provider.installed ? "Available" : "Install"}</div>
                   </div>
@@ -283,7 +295,7 @@ export default function Header() {
               ))}
             </div>
 
-            <div className="mt-4 text-sm text-gray-300">
+            <div className="mt-4 text-sm text-zinc-500 dark:text-gray-300">
               Not installed? Click to open the official install page then refresh.
             </div>
           </div>
