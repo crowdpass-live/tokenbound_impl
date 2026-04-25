@@ -1,5 +1,3 @@
-#![cfg(test)]
-
 use super::*;
 use soroban_sdk::{testutils::Address as _, testutils::Ledger, Address, BytesN, Env};
 
@@ -83,7 +81,7 @@ fn test_create_event() {
         event_type: String::from_str(&env, "Conference"),
         start_date,
         end_date: start_date + 86_400,
-        ticket_price: 1_000_0000000,
+        ticket_price: 10_000_000_000,
         total_tickets: 500,
         payment_token: mock_addr,
         tiers: Vec::new(&env),
@@ -112,7 +110,7 @@ fn test_create_event_past_start_date_fails() {
         event_type: String::from_str(&env, "Conference"),
         start_date: 500,
         end_date: 1_500,
-        ticket_price: 1_000_0000000,
+        ticket_price: 10_000_000_000,
         total_tickets: 100,
         payment_token: mock_addr,
         tiers: Vec::new(&env),

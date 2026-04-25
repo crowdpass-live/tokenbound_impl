@@ -149,9 +149,10 @@ impl MarketplaceContract {
         env.storage()
             .persistent()
             .set(&DataKey::Listing(listing_id), &listing);
-        env.storage()
-            .persistent()
-            .set(&DataKey::TotalListings, &(listing_id.checked_add(1).unwrap()));
+        env.storage().persistent().set(
+            &DataKey::TotalListings,
+            &(listing_id.checked_add(1).unwrap()),
+        );
         Self::extend_persistent_ttl(&env, &DataKey::Listing(listing_id));
         Self::extend_persistent_ttl(&env, &DataKey::TotalListings);
 

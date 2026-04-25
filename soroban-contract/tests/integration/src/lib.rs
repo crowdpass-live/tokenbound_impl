@@ -10,6 +10,7 @@
 //! 4. TBA execution: Factory -> Event -> Purchase -> Create TBA -> Execute through TBA
 
 #![cfg(test)]
+#![allow(clippy::too_many_arguments)]
 extern crate alloc;
 extern crate std;
 
@@ -384,9 +385,10 @@ fn test_factory_tracks_deployed_contracts() {
     // Each create_event deploys a new NFT contract via factory
     let id1 = create_event(&s, &organizer);
     // Rate limit: second create for the same organizer needs a later ledger time
-    s.env
-        .ledger()
-        .set_timestamp(s.env.ledger().timestamp() + 200);
+    soroban_sdk::testutils::Ledger::set_timestamp(
+        &s.env.ledger(),
+        s.env.ledger().timestamp() + 200,
+    );
     let id2 = create_event(&s, &organizer);
 
     let event1 = s.event_client.get_event(&id1);

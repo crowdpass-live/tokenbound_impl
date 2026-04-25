@@ -1,4 +1,5 @@
 #![no_std]
+#![allow(clippy::too_many_arguments)]
 
 use core::convert::TryFrom;
 
@@ -138,6 +139,7 @@ pub struct BuyerPurchase {
 #[contract]
 pub struct EventManager;
 
+#[allow(clippy::too_many_arguments)]
 #[contractimpl]
 impl EventManager {
     const MAX_STRING_BYTES: u32 = 200;
@@ -277,6 +279,7 @@ impl EventManager {
         Ok(event_id)
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn create_event(
         env: Env,
         organizer: Address,
@@ -1207,6 +1210,6 @@ impl EventManager {
 }
 
 #[cfg(test)]
-mod test;
-#[cfg(test)]
 mod fuzz;
+#[cfg(test)]
+mod test;
