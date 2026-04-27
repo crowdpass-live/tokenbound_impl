@@ -36,8 +36,9 @@ fn setup(env: &Env) -> (EventManagerClient<'_>, Address) {
     let client = EventManagerClient::new(env, &contract_id);
     let mock_addr = env.register(MockContract, ());
     env.mock_all_auths();
-    // We try to initialize, if it fails it's already initialized (though in tests it should be fresh)
-    let _ = client.try_initialize(&env.current_contract_address(), &mock_addr);
+    // Fresh contract per fuzz case: initialize with a real admin Address.
+    let admin = Address::generate(env);
+    client.initialize(&admin, &mock_addr);
     (client, mock_addr)
 }
 
