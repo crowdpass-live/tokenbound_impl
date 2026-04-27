@@ -19,7 +19,11 @@ pub enum Error {
     NotInitialized = 5,
     MetadataNotFound = 6,
     OnlyOrganizerCanUpdate = 7,
+    InvalidStringInput = 8,
 }
+
+const MAX_METADATA_FIELD_BYTES: u32 = 200;
+const MAX_URI_BYTES: u32 = 1024;
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -170,6 +174,21 @@ impl TicketNft {
             return Err(Error::InvalidTokenId);
         }
 
+        // Bound every supplied field before doing any work so a malformed call
+        // cannot consume storage/CPU writing oversized strings.
+        if let Some(ref n) = name {
+            Self::validate_bounded_string(n, MAX_METADATA_FIELD_BYTES)?;
+        }
+        if let Some(ref d) = description {
+            Self::validate_bounded_string(d, MAX_METADATA_FIELD_BYTES)?;
+        }
+        if let Some(ref i) = image {
+            Self::validate_bounded_string(i, MAX_URI_BYTES)?;
+        }
+        if let Some(ref t) = tier {
+            Self::validate_bounded_string(t, MAX_METADATA_FIELD_BYTES)?;
+        }
+
         let mut metadata: TicketMetadata = env
             .storage()
             .persistent()
@@ -207,6 +226,8 @@ impl TicketNft {
             return Err(Error::InvalidTokenId);
         }
 
+        Self::validate_bounded_string(&new_uri, MAX_URI_BYTES)?;
+
         let metadata: TicketMetadata = env
             .storage()
             .persistent()
@@ -230,8 +251,14 @@ impl TicketNft {
         Ok(())
     }
 
-    pub fn register_event(env: Env, event_id: u32, event_name: String, organizer: Address) {
+    pub fn register_event(
+        env: Env,
+        event_id: u32,
+        event_name: String,
+        organizer: Address,
+    ) -> Result<(), Error> {
         organizer.require_auth();
+        Self::validate_bounded_string(&event_name, MAX_METADATA_FIELD_BYTES)?;
         let info = EventInfo {
             event_name,
             organizer,
@@ -240,6 +267,7 @@ impl TicketNft {
             .persistent()
             .set(&DataKey::EventInfo(event_id), &info);
         Self::extend_persistent_ttl(&env, &DataKey::EventInfo(event_id));
+        Ok(())
     }
 
     pub fn owner_of(env: Env, token_id: u128) -> Result<Address, Error> {
@@ -353,6 +381,13 @@ impl TicketNft {
 
     pub fn version(env: Env) -> u32 {
         upg::get_version(&env)
+    }
+
+    fn validate_bounded_string(s: &String, max_bytes: u32) -> Result<(), Error> {
+        if s.is_empty() || s.len() > max_bytes {
+            return Err(Error::InvalidStringInput);
+        }
+        Ok(())
     }
 
     fn require_metadata_admin(env: &Env, event_id: u32) -> Result<(), Error> {

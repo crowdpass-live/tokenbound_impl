@@ -1,7 +1,8 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, token, Address, BytesN, Env, Vec,
+    contract, contracterror, contractimpl, contracttype, panic_with_error, token, Address, BytesN,
+    Env, Vec,
 };
 
 use upgradeable as upg;
@@ -19,7 +20,13 @@ pub enum MarketplaceError {
     PriceMustBePositive = 7,
     InsufficientBalance = 8,
     Unauthorized = 9,
+    InvalidTokenId = 10,
+    InvalidPriceCap = 11,
+    InvalidPaginationRange = 12,
 }
+
+/// Hard cap on `limit` for paginated read endpoints to prevent DoS via huge result sets.
+const MAX_PAGINATION_LIMIT: u32 = 200;
 
 #[derive(Clone)]
 #[contracttype]
@@ -75,6 +82,13 @@ impl MarketplaceContract {
     ) {
         admin.require_auth();
 
+        if max_price_multiplier <= 0
+            || min_price_multiplier <= 0
+            || min_price_multiplier > max_price_multiplier
+        {
+            panic_with_error!(&env, MarketplaceError::InvalidPriceCap);
+        }
+
         upg::set_admin(&env, &admin);
         upg::init_version(&env);
 
@@ -108,27 +122,33 @@ impl MarketplaceContract {
         ticket_contract: Address,
         token_id: i128,
         price: i128,
-    ) -> u32 {
+    ) -> Result<u32, MarketplaceError> {
         upg::require_not_paused(&env);
         seller.require_auth();
 
-        // Verify seller owns the ticket by checking balance
+        // Strict input validation: price and token_id must be non-negative, and the
+        // listed token id must be addressable. We also validate ownership via balance
+        // before recording any state.
+        if price <= 0 {
+            return Err(MarketplaceError::PriceMustBePositive);
+        }
+        if token_id < 0 {
+            return Err(MarketplaceError::InvalidTokenId);
+        }
+
         let token_client = token::Client::new(&env, &ticket_contract);
         let balance = token_client.balance(&seller);
         if balance <= 0 {
-            panic!("Seller does not own any tickets from this contract");
+            return Err(MarketplaceError::InsufficientBalance);
         }
 
-        // Check price cap
-        let price_cap: PriceCap = env
+        // Read the (currently informational) price cap; presence is required as a
+        // sanity check that the contract was initialized.
+        let _price_cap: PriceCap = env
             .storage()
             .persistent()
             .get(&DataKey::PriceCap)
-            .expect("Price cap not set");
-
-        if price_cap.active && price <= 0 {
-            panic!("Price must be positive");
-        }
+            .ok_or(MarketplaceError::PaymentTokenNotConfigured)?;
 
         let total_listings: u32 = env
             .storage()
@@ -149,9 +169,10 @@ impl MarketplaceContract {
         env.storage()
             .persistent()
             .set(&DataKey::Listing(listing_id), &listing);
-        env.storage()
-            .persistent()
-            .set(&DataKey::TotalListings, &(listing_id.checked_add(1).unwrap()));
+        env.storage().persistent().set(
+            &DataKey::TotalListings,
+            &(listing_id.checked_add(1).unwrap()),
+        );
         Self::extend_persistent_ttl(&env, &DataKey::Listing(listing_id));
         Self::extend_persistent_ttl(&env, &DataKey::TotalListings);
 
@@ -160,7 +181,7 @@ impl MarketplaceContract {
             (listing_id, seller, ticket_contract, token_id, price),
         );
 
-        listing_id
+        Ok(listing_id)
     }
 
     pub fn purchase_ticket(
@@ -186,6 +207,13 @@ impl MarketplaceContract {
 
         if listing.seller == buyer {
             return Err(MarketplaceError::CannotPurchaseOwnListing);
+        }
+
+        // Defense-in-depth: even if storage was poisoned by an older / buggy listing
+        // (pre-validation), refuse to forward a non-positive price into the token
+        // transfer below.
+        if listing.price <= 0 {
+            return Err(MarketplaceError::PriceMustBePositive);
         }
 
         // Use the payment token (in this case, using the admin address as a placeholder for XLM)
@@ -293,15 +321,24 @@ impl MarketplaceContract {
             .get(&DataKey::Listing(listing_id))
     }
 
-    pub fn get_active_listings(env: Env, start: u32, limit: u32) -> Vec<Listing> {
+    pub fn get_active_listings(
+        env: Env,
+        start: u32,
+        limit: u32,
+    ) -> Result<Vec<Listing>, MarketplaceError> {
+        if limit == 0 || limit > MAX_PAGINATION_LIMIT {
+            return Err(MarketplaceError::InvalidPaginationRange);
+        }
+
         let total_listings: u32 = env
             .storage()
             .persistent()
             .get(&DataKey::TotalListings)
-            .unwrap();
+            .unwrap_or(0);
         let mut active_listings = Vec::new(&env);
 
-        let end = (start + limit).min(total_listings);
+        // Saturating arithmetic guards against u32 overflow when start + limit wraps.
+        let end = start.saturating_add(limit).min(total_listings);
         for i in start..end {
             if let Some(listing) = env
                 .storage()
@@ -314,7 +351,7 @@ impl MarketplaceContract {
             }
         }
 
-        active_listings
+        Ok(active_listings)
     }
 
     pub fn get_seller_listings(env: Env, seller: Address, active_only: bool) -> Vec<Listing> {
@@ -375,6 +412,13 @@ impl MarketplaceContract {
 
         if admin != stored_admin {
             return Err(MarketplaceError::Unauthorized);
+        }
+
+        // Only enforce coherent multipliers when the cap is being activated; an
+        // explicitly disabled cap can hold any sentinel values.
+        if active && (max_multiplier <= 0 || min_multiplier <= 0 || min_multiplier > max_multiplier)
+        {
+            return Err(MarketplaceError::InvalidPriceCap);
         }
 
         let price_cap = PriceCap {

@@ -14,8 +14,8 @@ extern crate alloc;
 extern crate std;
 
 use soroban_sdk::{
-    contract, contractimpl, testutils::Address as _, vec, Address, BytesN, Env, IntoVal, String,
-    Symbol, TryIntoVal, Val, Vec,
+    contract, contractimpl, testutils::Address as _, testutils::Ledger as _, vec, Address, BytesN,
+    Env, IntoVal, String, Symbol, TryIntoVal, Val, Vec,
 };
 
 // ── WASM imports ──

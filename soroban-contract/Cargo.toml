@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+  "contracts/pausable",
   "contracts/upgradeable",
   "contracts/tba_account",
   "contracts/tba_registry",
@@ -8,6 +9,7 @@ members = [
   "contracts/ticket_factory",
   "contracts/event_manager",
   "contracts/marketplace",
+  "contracts/user_profile",
   "tests/integration",
 ]
 exclude = ["contracts/hello-world"]

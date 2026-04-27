@@ -841,6 +841,9 @@ impl EventManager {
     }
 
     fn validate_ticket_price(price: i128) -> Result<(), Error> {
+        if price < 0 {
+            return Err(Error::NegativeTicketPrice);
+        }
         if price > Self::MAX_TICKET_PRICE {
             return Err(Error::TicketPriceOutOfRange);
         }
@@ -896,45 +899,57 @@ impl EventManager {
         Ok(())
     }
 
-    fn validate_bounded_string(s: &String, max_bytes: u32) -> Result<(), Error> {
-        if s.len() > max_bytes {
-            return Err(Error::InvalidTierConfig); // Or some appropriate error
-        }
-        Ok(())
-    }
-
-    fn validate_ticket_price(price: i128) -> Result<(), Error> {
-        if price < 0 {
-            return Err(Error::NegativeTicketPrice);
-        }
-        Ok(())
-    }
-
-    fn enforce_organizer_limits_and_rate(_env: &Env, _organizer: &Address) -> Result<(), Error> {
-        // Placeholder for real logic
-        Ok(())
-    }
-
-    fn validate_event_span(start: u64, end: u64) -> Result<(), Error> {
-        if end <= start {
-            return Err(Error::InvalidEndDate);
-        }
-        Ok(())
-    }
-
-    fn validate_start_not_too_far(_start: u64, _current: u64) -> Result<(), Error> {
-        Ok(())
-    }
-
     fn commit_organizer_create(env: &Env, organizer: &Address) {
-        let ts_key = DataKey::EventCounter; // Dummy key for timestamp if not defined
+        let count_key = DataKey::OrganizerOpenEventCount(organizer.clone());
+        let open_count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0);
+        env.storage()
+            .persistent()
+            .set(&count_key, &open_count.saturating_add(1));
+        Self::extend_persistent_ttl(env, &count_key);
+
+        let ts_key = DataKey::OrganizerLastCreateTs(organizer.clone());
         env.storage()
             .instance()
             .set(&ts_key, &env.ledger().timestamp());
         upg::extend_instance_ttl(env);
     }
 
-    fn decrement_organizer_open_events(_env: &Env, _organizer: &Address) {
+    fn decrement_organizer_open_events(env: &Env, organizer: &Address) {
+        let count_key = DataKey::OrganizerOpenEventCount(organizer.clone());
+        let open_count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0);
+        env.storage()
+            .persistent()
+            .set(&count_key, &open_count.saturating_sub(1));
+        Self::extend_persistent_ttl(env, &count_key);
+    }
+
+    fn try_promote_from_waitlist(env: &Env, event_id: u32) {
+        let waitlist_key = DataKey::Waitlist(event_id);
+        let waitlist: Vec<Address> = env
+            .storage()
+            .persistent()
+            .get(&waitlist_key)
+            .unwrap_or_else(|| Vec::new(env));
+
+        if waitlist.is_empty() {
+            return;
+        }
+
+        let promoted = waitlist.get(0).unwrap();
+
+        let mut remaining = Vec::new(env);
+        for (i, addr) in waitlist.iter().enumerate() {
+            if i > 0 {
+                remaining.push_back(addr);
+            }
+        }
+        env.storage().persistent().set(&waitlist_key, &remaining);
+        Self::extend_persistent_ttl(env, &waitlist_key);
+
+        env.events().publish(
+            (Symbol::new(env, "waitlist_promoted"),),
+            (event_id, promoted),
+        );
     }
 
     fn get_and_increment_counter(env: &Env) -> Result<u32, Error> {
@@ -1044,6 +1059,6 @@ impl EventManager {
 }
 
 #[cfg(test)]
-mod test;
-#[cfg(test)]
 mod fuzz;
+#[cfg(test)]
+mod test;
