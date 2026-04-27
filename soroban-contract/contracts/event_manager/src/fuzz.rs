@@ -1,5 +1,3 @@
-#![cfg(test)]
-
 //! Fuzz tests for the EventManager contract.
 //!
 //! Fuzzing is critical for smart contracts because they often handle high-value assets
@@ -9,8 +7,8 @@
 //! panics that could lead to a Denial of Service (DoS).
 
 use super::*;
-use soroban_sdk::{testutils::Address as _, Address, Env, String, Vec};
 use proptest::prelude::*;
+use soroban_sdk::{testutils::Address as _, testutils::Ledger, Address, Env, String, Vec};
 
 // Mock implementation for cross-contract calls
 #[contract]
@@ -26,6 +24,10 @@ impl MockContract {
         1
     }
 
+    pub fn is_valid(_env: Env, token_id: u128) -> bool {
+        token_id == 1
+    }
+
     pub fn transfer(_env: Env, _from: Address, _to: Address, _amount: i128) {}
 }
 
@@ -34,14 +36,15 @@ fn setup(env: &Env) -> (EventManagerClient<'_>, Address) {
     let client = EventManagerClient::new(env, &contract_id);
     let mock_addr = env.register(MockContract, ());
     env.mock_all_auths();
-    // We try to initialize, if it fails it's already initialized (though in tests it should be fresh)
-    let _ = client.try_initialize(&env.current_contract_address(), &mock_addr);
+    // Fresh contract per fuzz case: initialize with a real admin Address.
+    let admin = Address::generate(env);
+    client.initialize(&admin, &mock_addr);
     (client, mock_addr)
 }
 
 proptest! {
     #![proptest_config(ProptestConfig::with_cases(50))]
-    
+
     /// Fuzz test for event creation.
     /// Validates that various inputs for event creation do not cause panics
     /// and that basic constraints hold.
@@ -57,10 +60,10 @@ proptest! {
         let env = Env::default();
         let (client, mock_addr) = setup(&env);
         let organizer = Address::generate(&env);
-        
+
         // Mock current ledger time to be 1000000
         env.ledger().set_timestamp(1000000);
-        
+
         let params = CreateEventParams {
             organizer: organizer.clone(),
             theme: String::from_str(&env, &theme),
@@ -75,8 +78,8 @@ proptest! {
 
         // Try to create event. We expect it to either succeed or return an Error.
         // It MUST NOT panic.
-        let result = client.try_create_event(&params);
-        
+        let result = client.try_create_event_with_tiers(&params);
+
         if let Ok(Ok(event_id)) = result {
             let event = client.get_event(&event_id);
             assert_eq!(event.organizer, organizer);
@@ -99,9 +102,9 @@ proptest! {
         let (client, mock_addr) = setup(&env);
         let organizer = Address::generate(&env);
         let buyer = Address::generate(&env);
-        
+
         env.ledger().set_timestamp(1000000);
-        
+
         // Setup a valid event first
         let params = CreateEventParams {
             organizer: organizer.clone(),
@@ -114,21 +117,21 @@ proptest! {
             payment_token: mock_addr.clone(),
             tiers: Vec::new(&env),
         };
-        
-        if let Ok(Ok(event_id)) = client.try_create_event(&params) {
+
+        if let Ok(Ok(event_id)) = client.try_create_event_with_tiers(&params) {
             // Test purchase
             let purchase_res = client.try_purchase_tickets(&buyer, &event_id, &tier_index, &quantity);
-            
+
             if purchase_res.is_ok() {
                 let event = client.get_event(&event_id);
                 // Total supply consistency
                 assert!(event.tickets_sold <= event.total_tickets);
             }
-            
+
             // Test cancel and refund
             client.cancel_event(&event_id);
             let _ = client.try_claim_refund(&buyer, &event_id);
-            
+
             // Test withdraw (should fail for canceled event)
             env.ledger().set_timestamp(4000000);
             let withdraw_res = client.try_withdraw_funds(&event_id);

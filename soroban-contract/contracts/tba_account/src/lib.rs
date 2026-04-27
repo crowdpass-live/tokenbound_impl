@@ -53,6 +53,7 @@ fn set_token_id(env: &Env, token_id: &u128) {
     env.storage().instance().set(&DataKey::TokenId, token_id);
 }
 
+#[allow(dead_code)]
 fn get_implementation_hash(env: &Env) -> Result<BytesN<32>, Error> {
     env.storage()
         .instance()
@@ -66,6 +67,7 @@ fn set_implementation_hash(env: &Env, implementation_hash: &BytesN<32>) {
         .set(&DataKey::ImplementationHash, implementation_hash);
 }
 
+#[allow(dead_code)]
 fn get_salt(env: &Env) -> Result<BytesN<32>, Error> {
     env.storage()
         .instance()

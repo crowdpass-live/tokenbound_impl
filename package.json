@@ -11,7 +11,10 @@
     "format:check": "npm run format:check:js && npm run format:check:rust",
     "format:check:js": "prettier --check .",
     "format:check:rust": "cargo fmt --manifest-path soroban-contract/Cargo.toml --all --check",
-    "test": "npm run test --prefix soroban-client && cargo test --manifest-path soroban-contract/Cargo.toml --all-targets --all-features"
+    "test": "npm run test --prefix soroban-client && npm run test:rust-contracts",
+    "test:rust-contracts": "npm run test:rust-contracts:build && cargo test --manifest-path soroban-contract/Cargo.toml --workspace --exclude integration_tests --lib",
+    "test:rust-contracts:build": "cargo build --release --manifest-path soroban-contract/Cargo.toml --target wasm32-unknown-unknown",
+    "test:rust:full": "npm run test:rust-contracts:build && cargo test --manifest-path soroban-contract/Cargo.toml --workspace --all-targets --all-features"
   },
   "devDependencies": {
     "husky": "^9.1.7",

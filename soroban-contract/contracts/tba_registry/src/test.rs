@@ -1,4 +1,3 @@
-#![cfg(test)]
 extern crate alloc;
 extern crate std;
 

@@ -1,4 +1,5 @@
 #![cfg(test)]
+#![allow(clippy::too_many_arguments)]
 
 use soroban_sdk::{
     contract, contractimpl, testutils::Address as _, vec, Address, BytesN, Env, IntoVal, Symbol,
