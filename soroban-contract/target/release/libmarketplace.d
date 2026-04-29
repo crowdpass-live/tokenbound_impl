@@ -1,1 +1,0 @@
-/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/libmarketplace.so: /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/marketplace/src/lib.rs

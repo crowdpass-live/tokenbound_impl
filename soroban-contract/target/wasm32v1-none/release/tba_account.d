@@ -1,1 +1,0 @@
-/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/wasm32v1-none/release/tba_account.wasm: /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/tba_account/src/lib.rs

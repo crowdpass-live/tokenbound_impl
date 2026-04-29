@@ -1,1 +1,0 @@
-/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/release/libevent_manager.so: /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/event_manager/src/lib.rs

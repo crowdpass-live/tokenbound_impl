@@ -10,3 +10,26 @@ node_modules/
 # Rust build artifacts
 soroban-contract/target/
 soroban-contract/targets/
+target/
+
+# Frontend/Node build artifacts
+dist/
+build/
+.next/
+.docusaurus/
+.cache/
+out/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Large binaries
+*.wasm
+*.so
+*.o
+*.a
+*.exe
+*.dll
+*.dylib

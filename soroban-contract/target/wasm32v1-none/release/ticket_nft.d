@@ -1,1 +1,0 @@
-/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/wasm32v1-none/release/ticket_nft.wasm: /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/ticket_nft/src/lib.rs

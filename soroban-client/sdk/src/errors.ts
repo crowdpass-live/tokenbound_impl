@@ -54,10 +54,19 @@ export function decodeContractError(
     code,
     name: known?.name ?? "UnknownContractError",
     message: known
-      ? `${contract} contract error ${code}: ${toSentenceCase(known.name)}`
-      : `${contract} contract error ${code}`,
+      ? `${contract} contract error: ${known.name} (code ${code}). ${known.description ?? toSentenceCase(known.name)}`
+      : `${contract} contract error: Unknown error (code ${code}). Please check the contract source code for more details.`,
   };
 }
+
+export const COMMON_ERRORS: Record<number, { name: string; description: string }> = {
+  1: { name: "Unauthorized", description: "The caller is not authorized to perform this action." },
+  2: { name: "NotFound", description: "The requested resource was not found." },
+  3: { name: "AlreadyExists", description: "The resource already exists." },
+  4: { name: "InvalidArguments", description: "The provided arguments are invalid." },
+  5: { name: "InsufficientBalance", description: "The account has insufficient balance." },
+  100: { name: "InternalError", description: "An internal error occurred in the contract." },
+};
 
 export function mapSdkError(
   contract: ContractName,

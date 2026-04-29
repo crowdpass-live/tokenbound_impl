@@ -1,1 +1,0 @@
-/home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/target/wasm32v1-none/release/event_manager.wasm: /home/dell/Programs/OpenSource/Stellar/tokenbound_impl/soroban-contract/contracts/event_manager/src/lib.rs
