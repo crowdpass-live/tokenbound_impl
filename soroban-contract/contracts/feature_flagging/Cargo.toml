@@ -1,0 +1,22 @@
+[package]
+name = "feature_flagging"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+soroban-sdk = { version = ">=21", features = ["testutils"] }
+upgradeable = { path = "../upgradeable" }
+
+[[lib]]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[profile.release]
+lto = true
+opt-level = "z"
+strip = true
+
+[profile.release-with-logs]
+inherits = "release"
+debug = true

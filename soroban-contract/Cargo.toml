@@ -23,6 +23,8 @@ members = [
   "contracts/reentrancy_guard",
   "contracts/multi_admin",
   "contracts/permit_wallet",
+  "contracts/erc721_traits",
+  "contracts/feature_flagging",
   "tests/integration",
 ]
 exclude = ["contracts/hello-world"]

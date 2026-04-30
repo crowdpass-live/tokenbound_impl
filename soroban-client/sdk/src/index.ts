@@ -14,6 +14,7 @@ export * from "./contracts";
 export * from "./core";
 export * from "./decoders";
 export * from "./errors";
+export * from "./eventParser";
 export * from "./generated/contracts";
 export * from "./schemaCache";
 export * from "./types";
