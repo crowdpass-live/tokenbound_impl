@@ -1,40 +1,9 @@
 {
-  "name": "tokenbound-impl",
-  "private": true,
-  "bin": {
-    "tokenbound": "scripts/tokenbound-cli.mjs"
-  },
-  "scripts": {
-    "prepare": "husky",
-    "precommit": "lint-staged && npm run precommit:rust",
-    "precommit:rust": "node scripts/run-rust-precommit.mjs",
-    "lint": "npm run lint:js && npm run lint:rust",
-    "lint:js": "npm run lint --prefix client && npm run lint --prefix tokenbound-client && npm run lint --prefix soroban-client",
-    "lint:rust": "cargo clippy --manifest-path soroban-contract/Cargo.toml --all-targets --all-features -- -D warnings",
-    "format:check": "npm run format:check:js && npm run format:check:rust",
-    "format:check:js": "prettier --check .",
-    "format:check:rust": "cargo fmt --manifest-path soroban-contract/Cargo.toml --all --check",
-    "test": "npm run test --prefix soroban-client && cargo test --manifest-path soroban-contract/Cargo.toml --all-targets --all-features",
-    "tokenbound": "node scripts/tokenbound-cli.mjs"
-  },
-  "dependencies": {
-    "commander": "^14.0.1"
-  },
   "devDependencies": {
-    "husky": "^9.1.7",
-    "lint-staged": "^15.5.0",
-    "prettier": "^3.5.3"
-  },
-  "lint-staged": {
-    "**/*.{js,jsx,ts,tsx,mjs,cjs,md,mdx,json,yml,yaml,css,scss,html}": "prettier --check",
-    "client/**/*.{js,jsx}": [
-      "node scripts/run-eslint-on-staged.mjs"
-    ],
-    "tokenbound-client/**/*.{js,jsx,ts,tsx,mjs,cjs}": [
-      "node scripts/run-eslint-on-staged.mjs"
-    ],
-    "soroban-client/**/*.{js,jsx,ts,tsx,mjs,cjs}": [
-      "node scripts/run-eslint-on-staged.mjs"
-    ]
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@vitest/coverage-v8": "^4.1.2",
+    "jsdom": "^29.0.1",
+    "vitest": "^4.1.2"
   }
 }

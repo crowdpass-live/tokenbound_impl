@@ -1,0 +1,427 @@
+7:44:43 AM [vite] warning: `optimizeDeps.esbuildOptions` option was specified by "vite:react-swc" plugin. This option is deprecated, please use `optimizeDeps.rolldownOptions` instead.
+`esbuild` option is set to false, but `oxc` option was not set to false. `esbuild: false` does not have effect any more. If you want to disable the default transformation, which is now handled by Oxc, please set `oxc: false` instead.
+
+[1m[46m RUN [49m[22m [36mv4.1.2 [39m[90m/home/idealz/Drips-Projects/tokenbound_impl/client[39m
+      [2mCoverage enabled with [22m[33mv8[39m
+
+ [31m❯[39m src/__tests__/FeaturesSection.test.jsx [2m([22m[2m3 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 174[2mms[22m[39m
+     [32m✓[39m renders section title correctly[32m 115[2mms[22m[39m
+[31m     [31m×[31m renders all feature cards defined in data[39m[32m 29[2mms[22m[39m
+     [32m✓[39m contains feature descriptions[32m 20[2mms[22m[39m
+[90mstdout[2m | src/__tests__/CreateEvent.test.jsx[2m > [22m[2mCreateEvent Component[2m > [22m[2mrenders the creation form correctly
+[22m[39mTEST DEBUG - Context: {
+  eventContract: {
+    create_event: [Function: Mock] {
+      _isMockFunction: [33mtrue[39m,
+      getMockImplementation: [36m[Function (anonymous)][39m,
+      mock: [36m[Object][39m,
+      mockImplementation: [36m[Function: mockImplementation][39m,
+      mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+      withImplementation: [36m[Function: withImplementation][39m,
+      mockReturnThis: [36m[Function: mockReturnThis][39m,
+      mockReturnValue: [36m[Function: mockReturnValue][39m,
+      mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+      mockThrow: [36m[Function: mockThrow][39m,
+      mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+      mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+      mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+      mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+      mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+      mockClear: [36m[Function: mockClear][39m,
+      mockReset: [36m[Function: mockReset][39m,
+      mockRestore: [36m[Function: mockRestore][39m,
+      mockName: [36m[Function: mockName][39m,
+      getMockName: [36m[Function: getMockName][39m,
+      [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+    }
+  }
+}
+
+[90mstdout[2m | src/__tests__/CreateEvent.test.jsx[2m > [22m[2mCreateEvent Component[2m > [22m[2msubmits form correctly
+[22m[39mTEST DEBUG - Context: {
+  eventContract: {
+    create_event: [Function: Mock] {
+      _isMockFunction: [33mtrue[39m,
+      getMockImplementation: [36m[Function (anonymous)][39m,
+      mock: [36m[Object][39m,
+      mockImplementation: [36m[Function: mockImplementation][39m,
+      mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+      withImplementation: [36m[Function: withImplementation][39m,
+      mockReturnThis: [36m[Function: mockReturnThis][39m,
+      mockReturnValue: [36m[Function: mockReturnValue][39m,
+      mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+      mockThrow: [36m[Function: mockThrow][39m,
+      mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+      mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+      mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+      mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+      mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+      mockClear: [36m[Function: mockClear][39m,
+      mockReset: [36m[Function: mockReset][39m,
+      mockRestore: [36m[Function: mockRestore][39m,
+      mockName: [36m[Function: mockName][39m,
+      getMockName: [36m[Function: getMockName][39m,
+      [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+    }
+  }
+}
+TEST DEBUG - Context: {
+  eventContract: {
+    create_event: [Function: Mock] {
+      _isMockFunction: [33mtrue[39m,
+      getMockImplementation: [36m[Function (anonymous)][39m,
+      mock: [36m[Object][39m,
+      mockImplementation: [36m[Function: mockImplementation][39m,
+      mockImplementationOnce: [36m[Function: mockImplementationOnce][39m,
+      withImplementation: [36m[Function: withImplementation][39m,
+      mockReturnThis: [36m[Function: mockReturnThis][39m,
+      mockReturnValue: [36m[Function: mockReturnValue][39m,
+      mockReturnValueOnce: [36m[Function: mockReturnValueOnce][39m,
+      mockThrow: [36m[Function: mockThrow][39m,
+      mockThrowOnce: [36m[Function: mockThrowOnce][39m,
+      mockResolvedValue: [36m[Function: mockResolvedValue][39m,
+      mockResolvedValueOnce: [36m[Function: mockResolvedValueOnce][39m,
+      mockRejectedValue: [36m[Function: mockRejectedValue][39m,
+      mockRejectedValueOnce: [36m[Function: mockRejectedValueOnce][39m,
+      mockClear: [36m[Function: mockClear][39m,
+      mockReset: [36m[Function: mockReset][39m,
+      mockRestore: [36m[Function: mockRestore][39m,
+      mockName: [36m[Function: mockName][39m,
+      getMockName: [36m[Function: getMockName][39m,
+      [[32mSymbol(nodejs.dispose)[39m]: [36m[Function (anonymous)][39m
+    }
+  }
+}
+
+ [31m❯[39m src/__tests__/CreateEvent.test.jsx [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 477[2mms[22m[39m
+     [32m✓[39m renders the creation form correctly[32m 267[2mms[22m[39m
+[31m     [31m×[31m submits form correctly[39m[32m 197[2mms[22m[39m
+ [32m✓[39m src/__tests__/Footer.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[33m 936[2mms[22m[39m
+     [33m[2m✓[22m[39m renders logo and newsletter section [33m 824[2mms[22m[39m
+ [32m✓[39m src/__tests__/Header.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 1931[2mms[22m[39m
+     [33m[2m✓[22m[39m renders correctly with logo and links [33m 1771[2mms[22m[39m
+ [32m✓[39m src/__tests__/PartnersSection.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 2122[2mms[22m[39m
+     [33m[2m✓[22m[39m renders section title correctly [33m 426[2mms[22m[39m
+     [33m[2m✓[22m[39m renders navigation buttons [33m 1579[2mms[22m[39m
+ [32m✓[39m src/__tests__/HowItWorksSection.test.jsx [2m([22m[2m2 tests[22m[2m)[22m[33m 3596[2mms[22m[39m
+     [33m[2m✓[22m[39m renders section title correctly [33m 2540[2mms[22m[39m
+     [33m[2m✓[22m[39m displays titles when rendered [33m 1040[2mms[22m[39m
+ [32m✓[39m src/__tests__/AboutSection.test.jsx [2m([22m[2m3 tests[22m[2m)[22m[33m 734[2mms[22m[39m
+     [33m[2m✓[22m[39m renders with images and correctly titled card [33m 494[2mms[22m[39m
+ [32m✓[39m src/__tests__/WalletContext.test.jsx [2m([22m[2m1 test[22m[2m)[22m[32m 276[2mms[22m[39m
+[90mstdout[2m | src/__tests__/Soroban.test.js[2m > [22m[2mSoroban Library Mock[2m > [22m[2mprovides a functional sorobanContract mock for creating events
+[22m[39mCreating event on Soroban with params: {
+  theme: [32m'Test Event'[39m,
+  type: [32m'meetup'[39m,
+  startTime: [33m123456[39m,
+  endTime: [33m234567[39m,
+  ticketPrice: [33m10[39m,
+  total_ticket: [33m100[39m
+}
+
+[90mstdout[2m | src/__tests__/Soroban.test.js[2m > [22m[2mSoroban Library Mock[2m > [22m[2mprovides a functional sorobanContract mock for canceling events
+[22m[39mCanceling event on Soroban: event_id_123
+
+ [32m✓[39m src/__tests__/Soroban.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/CreateEvent.test.jsx[2m > [22mCreateEvent Component[2m > [22msubmits form correctly
+[31m[1mTestingLibraryElementError[22m[39m: Found a label with the text of: /Expected Attendee/i, however no form control was found associated to that label. Make sure you're using the "for" attribute or "aria-labelledby" attribute correctly.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mdata-testid[39m=[32m"layout-mock"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"w-full mt-10 flex justify-center items-center"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-lg border bg-card text-card-foreground w-full max-w-2xl shadow-2xl"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex flex-col space-y-1.5 p-6"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"text-2xl font-semibold leading-none tracking-tight text-deep-blue"[39m
+            [36m>[39m
+              [0mCreate New Event[0m
+            [36m</h3>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-sm text-deep-blue"[39m
+            [36m>[39m
+              [0mFill out the details for your upcoming event.[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-6 pt-0 grid gap-6"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid grid-cols-2 gap-6"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-2 flex flex-col"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"text-deep-blue"[39m
+                  [33mfor[39m=[32m"theme"[39m
+                [36m>[39m
+                  [0mEvent Name[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mid[39m=[32m"theme"[39m
+                  [33mname[39m=[32m"theme"[39m
+                  [33mplaceholder[39m=[32m"Input event name"[39m
+                  [33mtype[39m=[32m"text"[39m
+                  [33mvalue[39m=[32m"My Event"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-2 flex flex-col"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"text-deep-blue"[39m
+                  [33mfor[39m=[32m"organizer"[39m
+                [36m>[39m
+                  [0mExpected Attendee[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mid[39m=[32m"total_ticket"[39m
+                  [33mname[39m=[32m"total_ticket"[39m
+                  [33mplaceholder[39m=[32m"100"[39m
+                  [33mtype[39m=[32m"number"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid grid-cols-2 gap-6"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-2 flex flex-col"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"text-deep-blue"[39m
+                  [33mfor[39m=[32m"event-type"[39m
+                [36m>[39m
+                  [0mEvent Type[0m
+                [36m</label>[39m
+                [36m<select[39m
+                  [33mid[39m=[32m"event-type"[39m
+                  [33mname[39m=[32m"type"[39m
+                [36m>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"conference"[39m
+                  [36m>[39m
+                    [0mConference[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"workshop"[39m
+                  [36m>[39m
+                    [0mWorkshop[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"meetup"[39m
+                  [36m>[39m
+                    [0mMeetup[0m
+                  [36m</option>[39m
+                  [36m<option[39m
+                    [33mvalue[39m=[32m"others"[39m
+                  [36m>[39m
+                    [0mOther[0m
+                  [36m</option>[39m
+                [36m</select>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-2 flex flex-col"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"text-deep-blue"[39m
+                  [33mfor[39m=[32m"ticket-price"[39m
+                [36m>[39m
+                  [0mTicket Price[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mid[39m=[32m"ticket-price"[39m
+                  [33mname[39m=[32m"ticketPrice"[39m
+                  [33mplaceholder[39m=[32m"0.00"[39m
+                  [33mtype[39m=[32m"number"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"grid grid-cols-2 gap-6"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-2 flex flex-col"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"text-deep-blue"[39m
+                  [33mfor[39m=[32m"start-date"[39m
+                [36m>[39m
+                  [0mStart Date[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mname[39m=[32m"startTime"[39m
+                  [33mtype[39m=[32m"date"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"space-y-2 flex flex-col"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"text-deep-blue"[39m
+                  [33mfor[39m=[32m"start-date"[39m
+                [36m>[39m
+                  [0mEnd Date[0m
+                [36m</label>[39m
+                [36m<input[39m
+                  [33mname[39m=[32m"endTime"[39m
+                  [33mtype[39m=[32m"date"[39m
+                  [33mvalue[39m=[32m""[39m
+                [36m/>[39m
+              [36m</div>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"items-center p-6 pt-0 flex justify-end"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-primary/90 h-10 px-4 py-2 text-primary hover:text-deep-blue bg-deep-blue"[39m
+            [36m>[39m
+              [0mCreate Event[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getAllByLabelText node_modules/@testing-library/dom/dist/queries/label-text.js:[2m108:40[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m52:17[22m[39m
+[90m [2m❯[22m getByLabelText node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/__tests__/CreateEvent.test.jsx:[2m69:33[22m[39m
+    [90m 67|[39m
+    [90m 68|[39m         fireEvent.change(screen.getByLabelText(/Event Name/i), { targe…
+    [90m 69|[39m         fireEvent.change(screen.getByLabelText(/Expected Attendee/i), …
+    [90m   |[39m                                 [31m^[39m
+    [90m 70|[39m         fireEvent.change(screen.getByLabelText(/Ticket Price/i), { tar…
+    [90m 71|[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/FeaturesSection.test.jsx[2m > [22mFeaturesSection Component[2m > [22mrenders all feature cards defined in data
+[31m[1mTestingLibraryElementError[22m: Found multiple elements with the text: /Event Management/i
+
+Here are the matching elements:
+
+Ignored nodes: comments, script, style
+[36m<h3>[31m
+  [0mEvent Management[0m
+[36m</h3>[31m
+
+Ignored nodes: comments, script, style
+[36m<p>[31m
+  [0mStreamline your event planning process with our intuitive event management tools. Create, manage, and promote your events with ease.[0m
+[36m</p>[31m
+
+(If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"bg-base-white flex flex-col justify-center items-center"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"flex flex-col justify-center items-center max-w-[1280px]"[31m
+      [36m>[31m
+        [36m<h1[31m
+          [33mclass[31m=[32m"text-deep-blue text-6xl font-bold pt-16 pb-20"[31m
+        [36m>[31m
+          [0mFeatures[0m
+        [36m</h1>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"flex justify-center items-center flex-wrap gap-6"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mdata-testid[31m=[32m"feature-card"[31m
+          [36m>[31m
+            [36m<h3>[31m
+              [0mEvent Management[0m
+            [36m</h3>[31m
+            [36m<p>[31m
+              [0mStreamline your event planning process with our intuitive event management tools. Create, manage, and promote your events with ease.[0m
+            [36m</p>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mdata-testid[31m=[32m"feature-card"[31m
+          [36m>[31m
+            [36m<h3>[31m
+              [0mReal Time Analytics[0m
+            [36m</h3>[31m
+            [36m<p>[31m
+              [0mGet real-time insights into your event's performance with our analytics dashboard. Track attendance, engagement, and revenue in real-time.[0m
+            [36m</p>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mdata-testid[31m=[32m"feature-card"[31m
+          [36m>[31m
+            [36m<h3>[31m
+              [0mPOAP Integration[0m
+            [36m</h3>[31m
+            [36m<p>[31m
+              [0mEnhance your event experience with our POAP (Proof of Attendance Protocol) integration. Reward attendees for their participation and create a unique experience.[0m
+            [36m</p>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mdata-testid[31m=[32m"feature-card"[31m
+          [36m>[31m
+            [36m<h3>[31m
+              [0mSecurity[0m
+            [36m</h3>[31m
+            [36m<p>[31m
+              [0mEnsure the security and integrity of your event data with our robust security measures. Protect your attendees' information and prevent unauthorized access.[0m
+            [36m</p>[31m
+          [36m</div>[31m
+          [36m<div[31m
+            [33mdata-testid[31m=[32m"feature-card"[31m
+          [36m>[31m
+            [36m<h3>[31m
+              [0mDecentralized Identity[0m
+            [36m</h3>[31m
+            [36m<p>[31m
+              [0mEmpower your attendees with decentralized identity management. Allow them to control their own data and identity, while ensuring a seamless event experience.[0m
+            [36m</p>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+    [36m</div>[31m
+  [36m</div>[31m
+[36m</body>[31m[39m
+[90m [2m❯[22m Object.getElementError node_modules/@testing-library/dom/dist/config.js:[2m37:19[22m[39m
+[90m [2m❯[22m getElementError node_modules/@testing-library/dom/dist/query-helpers.js:[2m20:35[22m[39m
+[90m [2m❯[22m getMultipleElementsFoundError node_modules/@testing-library/dom/dist/query-helpers.js:[2m23:10[22m[39m
+[90m [2m❯[22m node_modules/@testing-library/dom/dist/query-helpers.js:[2m55:13[22m[39m
+[90m [2m❯[22m getByText node_modules/@testing-library/dom/dist/query-helpers.js:[2m95:19[22m[39m
+[36m [2m❯[22m src/__tests__/FeaturesSection.test.jsx:[2m28:23[22m[39m
+    [90m 26|[39m     [34mit[39m([32m'renders all feature cards defined in data'[39m[33m,[39m () [33m=>[39m {
+    [90m 27|[39m         [34mrender[39m([33m<[39m[33mFeaturesSection[39m [33m/[39m[33m>[39m)[33m;[39m
+    [90m 28|[39m         expect(screen.getByText(/Event Management/i)).toBeInTheDocumen…
+    [90m   |[39m                       [31m^[39m
+    [90m 29|[39m         expect(screen.getByText(/Real Time Analytics/i)).toBeInTheDocu…
+    [90m 30|[39m         expect(screen.getByText(/POAP Integration/i)).toBeInTheDocumen…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m22 passed[39m[22m[90m (24)[39m
+[2m   Start at [22m 07:44:44
+[2m   Duration [22m 21.40s[2m (transform 1.08s, setup 7.08s, import 3.51s, tests 10.27s, environment 30.10s)[22m
+

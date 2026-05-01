@@ -25,17 +25,17 @@ export function TransferDialog({ tba }) {
     })
 
     const options = {
-            account: account,
-            registryAddress: `0x4101d3fa033024654083dd982273a300cb019b8cb96dd829267a4daf59f7b7e`,
-            implementationAddress: `0x45d67b8590561c9b54e14dd309c9f38c4e2c554dd59414021f9d079811621bd`,
-            jsonRPC: `https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/RCp5m7oq9i9myxsvC8ctUmNq2Wq2Pa_v`
-          }
-        
-          let tokenbound;
-        
-          if (account) {
-            tokenbound = new TokenboundClient(options)
-          }
+        account: account,
+        registryAddress: `0x4101d3fa033024654083dd982273a300cb019b8cb96dd829267a4daf59f7b7e`,
+        implementationAddress: `0x45d67b8590561c9b54e14dd309c9f38c4e2c554dd59414021f9d079811621bd`,
+        jsonRPC: `https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/RCp5m7oq9i9myxsvC8ctUmNq2Wq2Pa_v`
+    }
+
+    let tokenbound;
+
+    if (account) {
+        tokenbound = new TokenboundClient(options)
+    }
 
     const inputChange = (e) => {
         setFormData((prevState) => ({
@@ -72,7 +72,7 @@ export function TransferDialog({ tba }) {
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="flex flex-col  gap-4">
-                        <label htmlFor="name" >
+                        <label htmlFor="receiver" >
                             Receiver address                        </label>
                         <input
                             type="text"
@@ -84,7 +84,7 @@ export function TransferDialog({ tba }) {
                         />
                     </div>
                     <div className="flex flex-col  gap-4">
-                        <label htmlFor="username" >
+                        <label htmlFor="amount" >
                             Amount
                         </label>
                         <input
