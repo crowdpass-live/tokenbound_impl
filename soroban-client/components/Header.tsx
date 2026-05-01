@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 import { useWallet } from "@/contexts/WalletContext";
-import type { WalletProviderId } from '@/contexts/walletAdapters';
+import type { WalletProviderId } from "@/contexts/walletAdapters";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { href: "/my-tickets", label: "My Tickets" },
   { href: "/verifier", label: "Verifier" },
   { href: "/analytics", label: "Analytics" },
+  { href: "/orchestration-example", label: "Orchestration Example" },
 ];
 
 export default function Header() {
@@ -160,13 +161,19 @@ export default function Header() {
           aria-expanded={isMenuOpen}
           aria-controls="mobile-menu"
         >
-          {isMenuOpen ? <X size={24} className="text-white" /> : <Menu size={24} className="text-white" />}
+          {isMenuOpen ? (
+            <X size={24} className="text-white" />
+          ) : (
+            <Menu size={24} className="text-white" />
+          )}
         </button>
       </div>
 
       <div
         className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-300 md:hidden ${
-          isMenuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          isMenuOpen
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
         }`}
         onClick={closeMenu}
         role="presentation"
@@ -255,7 +262,10 @@ export default function Header() {
           <div className="w-full max-w-md rounded-xl bg-[#252525] p-4 text-white shadow-xl">
             <div className="mb-3 flex items-center justify-between">
               <h3 className="text-lg font-bold">Choose Wallet Provider</h3>
-              <button onClick={closeWalletModal} className="text-white hover:text-gray-300">
+              <button
+                onClick={closeWalletModal}
+                className="text-white hover:text-gray-300"
+              >
                 <X size={20} />
               </button>
             </div>
@@ -269,22 +279,29 @@ export default function Header() {
                     else window.open(provider.installUrl, "_blank");
                   }}
                   className={`w-full rounded-lg border p-3 text-left transition ${
-                    provider.id === providerId ? "border-blue-400" : "border-gray-600"
+                    provider.id === providerId
+                      ? "border-blue-400"
+                      : "border-gray-600"
                   } ${provider.installed ? "hover:border-blue-300" : "cursor-pointer opacity-70"}`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-semibold">{provider.name}</div>
-                      <div className="text-xs text-gray-300">{provider.description}</div>
+                      <div className="text-xs text-gray-300">
+                        {provider.description}
+                      </div>
                     </div>
-                    <div className="text-xs">{provider.installed ? "Available" : "Install"}</div>
+                    <div className="text-xs">
+                      {provider.installed ? "Available" : "Install"}
+                    </div>
                   </div>
                 </button>
               ))}
             </div>
 
             <div className="mt-4 text-sm text-gray-300">
-              Not installed? Click to open the official install page then refresh.
+              Not installed? Click to open the official install page then
+              refresh.
             </div>
           </div>
         </div>

@@ -1,0 +1,21 @@
+[package]
+name = "erc721_traits"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+soroban-sdk = { version = ">=21", features = ["testutils"] }
+
+[[lib]]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[profile.release]
+lto = true
+opt-level = "z"
+strip = true
+
+[profile.release-with-logs]
+inherits = "release"
+debug = true

@@ -19,7 +19,7 @@ import type {
 } from "./types";
 
 function toTierConfigValue(
-  tiers: readonly { name: string; price: bigint; totalQuantity: bigint }[]
+  tiers: readonly { name: string; price: bigint; totalQuantity: bigint }[],
 ) {
   return tiers.map((tier) => ({
     name: tier.name,
@@ -55,7 +55,7 @@ function normalizeTier(raw: Record<string, unknown>): TicketTier {
 }
 
 function normalizePurchase(
-  raw: Record<string, unknown> | null | undefined
+  raw: Record<string, unknown> | null | undefined,
 ): BuyerPurchase | null {
   if (!raw) {
     return null;
@@ -75,7 +75,10 @@ abstract class BaseContract {
     | "tbaRegistry"
     | "tbaAccount";
 
-  protected constructor(core: SorobanSdkCore, contractName: BaseContract["contractName"]) {
+  protected constructor(
+    core: SorobanSdkCore,
+    contractName: BaseContract["contractName"],
+  ) {
     this.core = core;
     this.contractName = contractName;
   }
@@ -86,7 +89,7 @@ abstract class BaseContract {
 
   protected artifact(
     method: string,
-    args: readonly ReturnType<typeof nativeToScVal>[]
+    args: readonly ReturnType<typeof nativeToScVal>[],
   ): ContractCallArtifact {
     return {
       contractId: this.contractId,
@@ -98,25 +101,37 @@ abstract class BaseContract {
   protected read<T>(
     method: string,
     args: readonly ReturnType<typeof nativeToScVal>[],
-    options?: InvokeOptions
+    options?: InvokeOptions,
   ) {
-    return this.core.read<T>(this.contractName, this.artifact(method, args), options);
+    return this.core.read<T>(
+      this.contractName,
+      this.artifact(method, args),
+      options,
+    );
   }
 
   protected write(
     method: string,
     args: readonly ReturnType<typeof nativeToScVal>[],
-    options: WriteInvokeOptions
+    options: WriteInvokeOptions,
   ) {
-    return this.core.write(this.contractName, this.artifact(method, args), options);
+    return this.core.write(
+      this.contractName,
+      this.artifact(method, args),
+      options,
+    );
   }
 
   prepare(
     method: string,
     args: readonly ReturnType<typeof nativeToScVal>[],
-    options: WriteInvokeOptions
+    options: WriteInvokeOptions,
   ) {
-    return this.core.prepareWrite(this.contractName, this.artifact(method, args), options);
+    return this.core.prepareWrite(
+      this.contractName,
+      this.artifact(method, args),
+      options,
+    );
   }
 }
 
@@ -126,14 +141,21 @@ export class EventManagerContract extends BaseContract {
   }
 
   initialize(ticketFactory: string, options: WriteInvokeOptions) {
-    return this.write("initialize", [nativeToScVal(ticketFactory, { type: "address" })], options);
+    return this.write(
+      "initialize",
+      [nativeToScVal(ticketFactory, { type: "address" })],
+      options,
+    );
   }
 
   createEvent(input: CreateEventInput, options: WriteInvokeOptions) {
     return this.createEventLegacy(input, options);
   }
 
-  createEventLegacy(input: CreateEventLegacyInput, options: WriteInvokeOptions) {
+  createEventLegacy(
+    input: CreateEventLegacyInput,
+    options: WriteInvokeOptions,
+  ) {
     return this.write(
       "create_event",
       [
@@ -146,7 +168,7 @@ export class EventManagerContract extends BaseContract {
         nativeToScVal(input.totalTickets, { type: "u128" }),
         nativeToScVal(input.paymentToken, { type: "address" }),
       ],
-      options
+      options,
     );
   }
 
@@ -165,20 +187,26 @@ export class EventManagerContract extends BaseContract {
     return this.write("create_event", [nativeToScVal(payload)], options);
   }
 
-  async getEvent(eventId: number, options?: InvokeOptions): Promise<EventRecord> {
+  async getEvent(
+    eventId: number,
+    options?: InvokeOptions,
+  ): Promise<EventRecord> {
     const raw = await this.read<Record<string, unknown>>(
       "get_event",
       [nativeToScVal(eventId, { type: "u32" })],
-      options
+      options,
     );
     return normalizeEvent(raw);
   }
 
-  async getEventTiers(eventId: number, options?: InvokeOptions): Promise<TicketTier[]> {
+  async getEventTiers(
+    eventId: number,
+    options?: InvokeOptions,
+  ): Promise<TicketTier[]> {
     const raw = await this.read<Array<Record<string, unknown>>>(
       "get_event_tiers",
       [nativeToScVal(eventId, { type: "u32" })],
-      options
+      options,
     );
     return raw.map(normalizeTier);
   }
@@ -188,24 +216,36 @@ export class EventManagerContract extends BaseContract {
   }
 
   async getAllEvents(options?: InvokeOptions): Promise<EventRecord[]> {
-    const raw = await this.read<Array<Record<string, unknown>>>("get_all_events", [], options);
+    const raw = await this.read<Array<Record<string, unknown>>>(
+      "get_all_events",
+      [],
+      options,
+    );
     return raw.map(normalizeEvent);
   }
 
-  async getBuyerPurchase(eventId: number, buyer: string, options?: InvokeOptions) {
+  async getBuyerPurchase(
+    eventId: number,
+    buyer: string,
+    options?: InvokeOptions,
+  ) {
     const raw = await this.read<Record<string, unknown> | null>(
       "get_buyer_purchase",
       [
         nativeToScVal(eventId, { type: "u32" }),
         nativeToScVal(buyer, { type: "address" }),
       ],
-      options
+      options,
     );
     return normalizePurchase(raw);
   }
 
   cancelEvent(eventId: number, options: WriteInvokeOptions) {
-    return this.write("cancel_event", [nativeToScVal(eventId, { type: "u32" })], options);
+    return this.write(
+      "cancel_event",
+      [nativeToScVal(eventId, { type: "u32" })],
+      options,
+    );
   }
 
   claimRefund(claimer: string, eventId: number, options: WriteInvokeOptions) {
@@ -215,7 +255,7 @@ export class EventManagerContract extends BaseContract {
         nativeToScVal(claimer, { type: "address" }),
         nativeToScVal(eventId, { type: "u32" }),
       ],
-      options
+      options,
     );
   }
 
@@ -230,18 +270,22 @@ export class EventManagerContract extends BaseContract {
         toOptionScVal(input.startDate, "u64"),
         toOptionScVal(input.endDate, "u64"),
       ],
-      options
+      options,
     );
   }
 
-  updateTicketsSold(eventId: number, amount: bigint, options: WriteInvokeOptions) {
+  updateTicketsSold(
+    eventId: number,
+    amount: bigint,
+    options: WriteInvokeOptions,
+  ) {
     return this.write(
       "update_tickets_sold",
       [
         nativeToScVal(eventId, { type: "u32" }),
         nativeToScVal(amount, { type: "u128" }),
       ],
-      options
+      options,
     );
   }
 
@@ -253,7 +297,7 @@ export class EventManagerContract extends BaseContract {
         nativeToScVal(input.eventId, { type: "u32" }),
         nativeToScVal(input.tierIndex ?? 0, { type: "u32" }),
       ],
-      options
+      options,
     );
   }
 
@@ -265,19 +309,23 @@ export class EventManagerContract extends BaseContract {
         nativeToScVal(input.eventId, { type: "u32" }),
         nativeToScVal(input.quantity, { type: "u128" }),
       ],
-      options
+      options,
     );
   }
 
   withdrawFunds(eventId: number, options: WriteInvokeOptions) {
-    return this.write("withdraw_funds", [nativeToScVal(eventId, { type: "u32" })], options);
+    return this.write(
+      "withdraw_funds",
+      [nativeToScVal(eventId, { type: "u32" })],
+      options,
+    );
   }
 
   getEventBuyers(eventId: number, options?: InvokeOptions) {
     return this.read<string[]>(
       "get_event_buyers",
       [nativeToScVal(eventId, { type: "u32" })],
-      options
+      options,
     );
   }
 }
@@ -287,11 +335,15 @@ export class TicketFactoryContract extends BaseContract {
     super(core, "ticketFactory");
   }
 
-  deployTicket(minter: string, salt: string | Uint8Array, options: WriteInvokeOptions) {
+  deployTicket(
+    minter: string,
+    salt: string | Uint8Array,
+    options: WriteInvokeOptions,
+  ) {
     return this.write(
       "deploy_ticket",
       [nativeToScVal(minter, { type: "address" }), toBytesScVal(salt)],
-      options
+      options,
     );
   }
 
@@ -299,7 +351,7 @@ export class TicketFactoryContract extends BaseContract {
     return this.read<string | null>(
       "get_ticket_contract",
       [nativeToScVal(eventId, { type: "u32" })],
-      options
+      options,
     );
   }
 
@@ -318,18 +370,35 @@ export class TicketNftContract extends BaseContract {
   }
 
   mintTicket(recipient: string, options: WriteInvokeOptions) {
-    return this.write("mint_ticket_nft", [nativeToScVal(recipient, { type: "address" })], options);
+    return this.write(
+      "mint_ticket_nft",
+      [nativeToScVal(recipient, { type: "address" })],
+      options,
+    );
   }
 
   ownerOf(tokenId: bigint, options?: InvokeOptions) {
-    return this.read<string>("owner_of", [nativeToScVal(tokenId, { type: "u128" })], options);
+    return this.read<string>(
+      "owner_of",
+      [nativeToScVal(tokenId, { type: "u128" })],
+      options,
+    );
   }
 
   balanceOf(owner: string, options?: InvokeOptions) {
-    return this.read<bigint>("balance_of", [nativeToScVal(owner, { type: "address" })], options);
+    return this.read<bigint>(
+      "balance_of",
+      [nativeToScVal(owner, { type: "address" })],
+      options,
+    );
   }
 
-  transferFrom(from: string, to: string, tokenId: bigint, options: WriteInvokeOptions) {
+  transferFrom(
+    from: string,
+    to: string,
+    tokenId: bigint,
+    options: WriteInvokeOptions,
+  ) {
     return this.write(
       "transfer_from",
       [
@@ -337,16 +406,24 @@ export class TicketNftContract extends BaseContract {
         nativeToScVal(to, { type: "address" }),
         nativeToScVal(tokenId, { type: "u128" }),
       ],
-      options
+      options,
     );
   }
 
   burn(tokenId: bigint, options: WriteInvokeOptions) {
-    return this.write("burn", [nativeToScVal(tokenId, { type: "u128" })], options);
+    return this.write(
+      "burn",
+      [nativeToScVal(tokenId, { type: "u128" })],
+      options,
+    );
   }
 
   isValid(tokenId: bigint, options?: InvokeOptions) {
-    return this.read<boolean>("is_valid", [nativeToScVal(tokenId, { type: "u128" })], options);
+    return this.read<boolean>(
+      "is_valid",
+      [nativeToScVal(tokenId, { type: "u128" })],
+      options,
+    );
   }
 
   getMinter(options?: InvokeOptions) {
@@ -368,7 +445,7 @@ export class TbaRegistryContract extends BaseContract {
         nativeToScVal(input.tokenId, { type: "u128" }),
         toBytesScVal(input.salt),
       ],
-      options
+      options,
     );
   }
 
@@ -381,18 +458,22 @@ export class TbaRegistryContract extends BaseContract {
         nativeToScVal(input.tokenId, { type: "u128" }),
         toBytesScVal(input.salt),
       ],
-      options
+      options,
     );
   }
 
-  totalDeployedAccounts(tokenContract: string, tokenId: bigint, options?: InvokeOptions) {
+  totalDeployedAccounts(
+    tokenContract: string,
+    tokenId: bigint,
+    options?: InvokeOptions,
+  ) {
     return this.read<number>(
       "total_deployed_accounts",
       [
         nativeToScVal(tokenContract, { type: "address" }),
         nativeToScVal(tokenId, { type: "u128" }),
       ],
-      options
+      options,
     );
   }
 
@@ -405,7 +486,7 @@ export class TbaRegistryContract extends BaseContract {
         nativeToScVal(input.tokenId, { type: "u128" }),
         toBytesScVal(input.salt),
       ],
-      options
+      options,
     );
   }
 }
@@ -424,7 +505,7 @@ export class TbaAccountContract extends BaseContract {
         toBytesScVal(input.implementationHash),
         toBytesScVal(input.salt),
       ],
-      options
+      options,
     );
   }
 
@@ -456,7 +537,7 @@ export class TbaAccountContract extends BaseContract {
         nativeToScVal(input.func, { type: "symbol" }),
         nativeToScVal(input.args ?? [], { type: "vec" }),
       ],
-      options
+      options,
     );
   }
 }

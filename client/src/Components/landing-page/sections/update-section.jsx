@@ -30,7 +30,7 @@ const UpdateSection = () => {
         return (
             <div  key={index}>
                  <div className='flex gap-12 justify-center items-center'>
-                <img src='/assets/scroling-star.png' />
+                <img src='/assets/scroling-star.png' alt="" aria-hidden="true" />
                 <h1 className='text-white font-semibold text-3xl 2xl:text-5xl'>{caption}</h1>
             </div>
             </div>

@@ -81,7 +81,7 @@ export default function CreateEventPage() {
         organizerAddress = localStorage.getItem("wallet_address");
       } else {
         alert(
-          `Please install ${providerName} (or another Stellar wallet) to create an event.`
+          `Please install ${providerName} (or another Stellar wallet) to create an event.`,
         );
         return;
       }
@@ -99,7 +99,7 @@ export default function CreateEventPage() {
       const startUnix = Math.floor(new Date(data.startDate).getTime() / 1000);
       const endUnix = Math.floor(new Date(data.endDate).getTime() / 1000);
       const ticketPrice = BigInt(
-        Math.floor(parseFloat(data.price) * 10_000_000)
+        Math.floor(parseFloat(data.price) * 10_000_000),
       );
       const totalTickets = BigInt(parseInt(data.tickets, 10));
 
@@ -117,7 +117,7 @@ export default function CreateEventPage() {
           totalTickets,
           paymentToken,
         },
-        signTransaction
+        signTransaction,
       );
 
       setSuccessMsg(`Event created (ledger ${res.ledger}, tx ${res.hash})`);

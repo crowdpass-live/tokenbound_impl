@@ -32,18 +32,21 @@ export default function ContractEventFeed() {
   >("");
   const [typeFilter, setTypeFilter] = useState<ContractEventType | "">("");
 
-  const { events, total, loading, error, updatedAt, refetch } = useContractEvents({
-    status: statusFilter || undefined,
-    type: typeFilter || undefined,
-    limit: 50,
-    realtime: true,
-  });
+  const { events, total, loading, error, updatedAt, refetch } =
+    useContractEvents({
+      status: statusFilter || undefined,
+      type: typeFilter || undefined,
+      limit: 50,
+      realtime: true,
+    });
 
   return (
     <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-semibold text-white">Contract Event Feed</h2>
+          <h2 className="text-lg font-semibold text-white">
+            Contract Event Feed
+          </h2>
           <p className="text-xs text-zinc-400">
             {total} events indexed
             {updatedAt > 0 && (
@@ -70,17 +73,17 @@ export default function ContractEventFeed() {
           {/* Type filter */}
           <select
             value={typeFilter}
-            onChange={(e) =>
-              setTypeFilter(e.target.value as typeof typeFilter)
-            }
+            onChange={(e) => setTypeFilter(e.target.value as typeof typeFilter)}
             className="rounded-lg border border-white/10 bg-[#2a2a2a] px-3 py-1.5 text-sm text-white focus:outline-none"
           >
             <option value="">All types</option>
-            {(Object.keys(EVENT_TYPE_LABELS) as ContractEventType[]).map((t) => (
-              <option key={t} value={t}>
-                {EVENT_TYPE_LABELS[t]}
-              </option>
-            ))}
+            {(Object.keys(EVENT_TYPE_LABELS) as ContractEventType[]).map(
+              (t) => (
+                <option key={t} value={t}>
+                  {EVENT_TYPE_LABELS[t]}
+                </option>
+              ),
+            )}
           </select>
 
           <button
@@ -105,8 +108,10 @@ export default function ContractEventFeed() {
       ) : events.length === 0 ? (
         <div className="py-12 text-center text-sm text-zinc-500">
           No events found. Make sure{" "}
-          <code className="text-zinc-300">NEXT_PUBLIC_EVENT_MANAGER_CONTRACT</code> is
-          configured.
+          <code className="text-zinc-300">
+            NEXT_PUBLIC_EVENT_MANAGER_CONTRACT
+          </code>{" "}
+          is configured.
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -134,7 +139,9 @@ export default function ContractEventFeed() {
                   <td className="py-3 pr-4 font-mono text-xs">
                     {ev.eventId ?? "—"}
                   </td>
-                  <td className={`py-3 pr-4 text-xs font-medium ${STATUS_COLORS[ev.status]}`}>
+                  <td
+                    className={`py-3 pr-4 text-xs font-medium ${STATUS_COLORS[ev.status]}`}
+                  >
                     {ev.status}
                   </td>
                   <td className="py-3 pr-4 font-mono text-xs">{ev.ledger}</td>

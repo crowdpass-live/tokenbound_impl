@@ -5,15 +5,15 @@ import { Link } from "react-router-dom"
 
 const Footer = () => {
   return (
-    <div className='bg-white flex flex-col justify-center items-center py-6 my-10'>
+    <footer className='bg-white flex flex-col justify-center items-center py-6 my-10'>
       <div className='flex flex-col max-w-[1280px] xl:w-[1280px] gap-8'>
         <div className='flex gap-6 w-full justify-between items-start'>
           <div className='flex flex-col gap-3 w-[430px]'>
-            <img src='/assets/hostit-logo.png' height={30} width={150} />
+            <img src='/assets/hostit-logo.png' alt="Host IT Logo" height={30} width={150} />
             <p className='text-[#777D7F] pt-3'>Welcome to CrowdPass, your ultimate event management platform. We empower event organizers to create, manage, and promote their events with ease.</p>
             <div className='p-2 border rounded-md border-deep-blue flex gap-3 '>
-              <input type="text" placeholder='Enter email to subsribe to our newsletter' className='border-none' />
-              <Button className="text-primary bg-deep-blue hover:text-deep-blue">
+              <input type="email" aria-label="Email for newsletter" placeholder='Enter email to subsribe to our newsletter' className='border-none' />
+              <Button aria-label="Subscribe" className="text-primary bg-deep-blue hover:text-deep-blue">
                 <BsSendFill />
               </Button>
             </div>
@@ -66,7 +66,7 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </div>
+    </footer>
   )
 }
 

@@ -1,0 +1,39 @@
+[package]
+name = "crowdpass-soroban-client"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+description = "Typed, ergonomic Rust client for interacting with deployed CrowdPass Soroban contracts."
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/crowdpass-live/tokenbound_impl"
+homepage = "https://github.com/crowdpass-live/tokenbound_impl"
+readme = "README.md"
+keywords = ["soroban", "stellar", "crowdpass", "blockchain", "client"]
+categories = ["api-bindings", "asynchronous", "cryptography::cryptocurrencies"]
+
+[lib]
+name = "crowdpass_soroban_client"
+path = "src/lib.rs"
+
+[dependencies]
+async-trait = "0.1"
+thiserror = "1.0"
+tokio = { version = "1", default-features = false, features = ["sync", "time", "rt", "macros"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+hex = "0.4"
+tracing = { version = "0.1", default-features = false, features = ["std"] }
+
+[dev-dependencies]
+tokio = { version = "1", default-features = false, features = ["macros", "rt", "rt-multi-thread", "time", "sync"] }
+
+[features]
+default = []
+# Enable when integrating against a transport that performs real RPC. The
+# library remains transport-agnostic; downstream apps wire in their own
+# Soroban RPC client via the [`Transport`] trait.
+docs = []
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

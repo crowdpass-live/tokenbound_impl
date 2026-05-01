@@ -2,12 +2,14 @@ import PropTypes from 'prop-types'
 
 const EventTabs = ({ activeTab, onTabChange, tabs = ['about', 'schedule', 'venue'] }) => {
   return (
-    <div className="flex gap-2 border-b border-white/10 pb-4">
+    <div className="flex gap-2 border-b border-white/10 pb-4" role="tablist">
       {tabs.map((tab) => (
         <button
           key={tab}
+          role="tab"
+          aria-selected={activeTab === tab}
           onClick={() => onTabChange(tab)}
-          className={`px-6 py-2 rounded-full font-medium transition-all ${
+          className={`px-6 py-2 rounded-full font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange ${
             activeTab === tab 
               ? 'bg-accent-orange text-white' 
               : 'text-gray-400 hover:text-white hover:bg-white/5'

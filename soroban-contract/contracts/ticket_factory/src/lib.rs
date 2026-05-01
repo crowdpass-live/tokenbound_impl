@@ -15,7 +15,8 @@
 #![no_std]
 
 use soroban_sdk::{
-    contract, contracterror, contractimpl, contracttype, Address, BytesN, Env, IntoVal, Val, Vec,
+    contract, contracterror, contractimpl, contracttype, symbol_short, Address, Bytes, BytesN,
+    Env, IntoVal, Symbol, Val, Vec,
 };
 
 use upgradeable as upg;
@@ -26,19 +27,28 @@ use upgradeable as upg;
 pub enum Error {
     NotInitialized = 1,
     Unauthorized = 2,
+    /// `deploy_ticket` was called by an address that is not on the
+    /// configured deployer registry's allowlist.
+    DeployerNotAuthorized = 3,
 }
 
-/// Storage keys for the contract state
+/// Storage keys for the contract state.
+///
+/// Admin lives only in [`upgradeable::UpgradeKey::Admin`] (see `upg::set_admin`);
+/// duplicating it here wasted an instance slot and an extra write on init.
 #[contracttype]
 pub enum DataKey {
-    /// Factory administrator address
-    Admin,
     /// WASM hash of the Ticket NFT contract to deploy
     TicketWasmHash,
     /// Total number of ticket contracts deployed
     TotalTickets,
     /// Mapping from event_id to deployed ticket contract address
     TicketContract(u32),
+    /// Optional `DeployerRegistry` contract address. When set, the factory
+    /// gates `deploy_ticket` on `registry.is_authorized(caller)` in
+    /// addition to the existing admin auth check. When unset, the factory
+    /// behaves identically to before (admin-only, no allowlist gate).
+    DeployerRegistry,
 }
 
 /// Ticket Factory Contract
@@ -58,20 +68,21 @@ impl TicketFactory {
     pub fn __constructor(env: Env, admin: Address, ticket_wasm_hash: BytesN<32>) {
         upg::set_admin(&env, &admin);
         upg::init_version(&env);
-        env.storage().instance().set(&DataKey::Admin, &admin);
         env.storage()
             .instance()
             .set(&DataKey::TicketWasmHash, &ticket_wasm_hash);
         env.storage().instance().set(&DataKey::TotalTickets, &0u32);
 
         // Extend instance TTL
-        env.storage().instance().extend_ttl(
-            30 * 24 * 60 * 60 / 5,  // ~30 days
-            100 * 24 * 60 * 60 / 5, // ~100 days
+        upg::extend_instance_ttl(&env);
+
+        env.events().publish(
+            (Symbol::new(&env, "factory_init"),),
+            admin,
         );
     }
 
-    /// Deploy a new Ticket NFT contract for an event
+    /// Deploy a new Ticket NFT contract for an event.
     ///
     /// # Arguments
     /// * `env` - The contract environment
@@ -79,18 +90,38 @@ impl TicketFactory {
     /// * `salt` - Unique salt for deterministic address generation
     ///
     /// # Returns
-    /// The address of the newly deployed Ticket NFT contract
+    /// The address of the newly deployed Ticket NFT contract.
     ///
     /// # Authorization
-    /// Requires admin authorization
+    /// 1. Requires admin authorization (`admin.require_auth()`).
+    /// 2. **If a `DeployerRegistry` is configured** via [`Self::set_deployer_registry`],
+    ///    the factory additionally invokes
+    ///    `registry.is_authorized(minter)` and rejects the call with
+    ///    [`Error::DeployerNotAuthorized`] if the minter is not on the
+    ///    allowlist (the factory admin is implicitly authorized inside the
+    ///    registry's `is_authorized` check). When no registry is configured
+    ///    the factory falls back to the historical admin-only model.
     pub fn deploy_ticket(env: Env, minter: Address, salt: BytesN<32>) -> Result<Address, Error> {
         // Authorize: only admin can deploy
-        let admin: Address = env
+        let admin: Address = upg::try_get_admin(&env).ok_or(Error::NotInitialized)?;
+        admin.require_auth();
+
+        // Optional RBAC gate: if a DeployerRegistry is configured, ensure
+        // the minter is on its allowlist before invoking the deployer.
+        if let Some(registry) = env
             .storage()
             .instance()
-            .get(&DataKey::Admin)
-            .ok_or(Error::NotInitialized)?;
-        admin.require_auth();
+            .get::<_, Address>(&DataKey::DeployerRegistry)
+        {
+            let authorized: bool = env.invoke_contract(
+                &registry,
+                &Symbol::new(&env, "is_authorized"),
+                soroban_sdk::vec![&env, minter.clone().into_val(&env)],
+            );
+            if !authorized {
+                return Err(Error::DeployerNotAuthorized);
+            }
+        }
 
         // Get the WASM hash for deployment
         let wasm_hash: BytesN<32> = env
@@ -125,11 +156,7 @@ impl TicketFactory {
             .set(&DataKey::TicketContract(ticket_id), &deployed_address);
 
         // Extend persistent TTL
-        env.storage().persistent().extend_ttl(
-            &DataKey::TicketContract(ticket_id),
-            30 * 24 * 60 * 60 / 5,  // threshold
-            100 * 24 * 60 * 60 / 5, // extend_to
-        );
+        upg::extend_persistent_ttl(&env, &DataKey::TicketContract(ticket_id));
 
         // Update total count in instance storage
         env.storage()
@@ -137,9 +164,12 @@ impl TicketFactory {
             .set(&DataKey::TotalTickets, &ticket_id);
 
         // Extend instance TTL on update
-        env.storage()
-            .instance()
-            .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
+        upg::extend_instance_ttl(&env);
+
+        env.events().publish(
+            (Symbol::new(&env, "ticket_deployed"), ticket_id),
+            deployed_address.clone(),
+        );
 
         Ok(deployed_address)
     }
@@ -158,6 +188,22 @@ impl TicketFactory {
             .get(&DataKey::TicketContract(event_id))
     }
 
+    /// Verify an Ed25519 signature for off-chain authorization
+    ///
+    /// Facilitates the verification of off-chain signed data, such as
+    /// oracle price feeds or organizer-signed ticket vouchers.
+    ///
+    /// # Arguments
+    /// * `env` - The contract environment
+    /// * `public_key` - The Ed25519 public key of the signer
+    /// * `payload` - The arbitrary message payload that was signed
+    /// * `signature` - The 64-byte Ed25519 signature
+    ///
+    /// Panics if the signature is invalid.
+    pub fn verify_offchain_signature(env: Env, public_key: BytesN<32>, payload: Bytes, signature: BytesN<64>) {
+        env.crypto().ed25519_verify(&public_key, &payload, &signature);
+    }
+
     /// Get the total number of ticket contracts deployed
     ///
     /// # Arguments
@@ -172,6 +218,55 @@ impl TicketFactory {
             .unwrap_or(0)
     }
 
+    /// Configure (or replace) the `DeployerRegistry` contract that gates
+    /// `deploy_ticket`. Pass `None` to detach the current registry and
+    /// revert to the historical admin-only deployment model.
+    ///
+    /// # Authorization
+    /// Admin-only — `admin.require_auth()` plus an explicit equality
+    /// check against the stored admin.
+    pub fn set_deployer_registry(
+        env: Env,
+        admin: Address,
+        registry: Option<Address>,
+    ) -> Result<(), Error> {
+        admin.require_auth();
+        let stored: Address = env
+            .storage()
+            .instance()
+            .get(&DataKey::Admin)
+            .ok_or(Error::NotInitialized)?;
+        if stored != admin {
+            return Err(Error::Unauthorized);
+        }
+
+        match registry {
+            Some(addr) => {
+                env.storage()
+                    .instance()
+                    .set(&DataKey::DeployerRegistry, &addr);
+                env.events().publish(
+                    (symbol_short!("registry"), symbol_short!("set")),
+                    addr,
+                );
+            }
+            None => {
+                env.storage().instance().remove(&DataKey::DeployerRegistry);
+                env.events().publish(
+                    (symbol_short!("registry"), symbol_short!("cleared")),
+                    (),
+                );
+            }
+        }
+        upg::extend_instance_ttl(&env);
+        Ok(())
+    }
+
+    /// Read the configured `DeployerRegistry` address, if any.
+    pub fn get_deployer_registry(env: Env) -> Option<Address> {
+        env.storage().instance().get(&DataKey::DeployerRegistry)
+    }
+
     /// Get the factory admin address
     ///
     /// # Arguments
@@ -180,16 +275,10 @@ impl TicketFactory {
     /// # Returns
     /// The admin address
     pub fn get_admin(env: Env) -> Result<Address, Error> {
-        let admin: Address = env
-            .storage()
-            .instance()
-            .get(&DataKey::Admin)
-            .ok_or(Error::NotInitialized)?;
+        let admin: Address = upg::try_get_admin(&env).ok_or(Error::NotInitialized)?;
 
         // Extend instance TTL on read
-        env.storage()
-            .instance()
-            .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
+        upg::extend_instance_ttl(&env);
 
         Ok(admin)
     }
@@ -206,6 +295,27 @@ impl TicketFactory {
 
     pub fn commit_upgrade(env: Env) {
         upg::commit_upgrade(&env);
+    }
+
+    /// Immediate (fast-path) upgrade. Admin-only, no timelock — see
+    /// `upgradeable::upgrade` for the full security note. Reserve for
+    /// emergencies; prefer `schedule_upgrade` + `commit_upgrade` for
+    /// routine upgrades.
+    pub fn upgrade(env: Env, new_wasm_hash: BytesN<32>) {
+        upg::upgrade(&env, new_wasm_hash);
+    }
+
+    /// Apply post-upgrade state-shape migrations and bump the version to
+    /// `target_version`. Admin-only; rejects downgrades.
+    pub fn migrate(env: Env, target_version: u32) {
+        upg::require_admin(&env);
+        upg::require_version_increase(&env, target_version);
+
+        match target_version {
+            _ => {}
+        }
+
+        upg::migration_completed(&env, target_version);
     }
 
     pub fn pause(env: Env) {

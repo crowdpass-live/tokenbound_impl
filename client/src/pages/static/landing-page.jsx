@@ -8,9 +8,15 @@ import FaqSection from '../../Components/landing-page/sections/faq-section'
 import UpcomingSection from '../../Components/landing-page/sections/upcoming-section'
 import TestimonialsSection from '../../Components/landing-page/sections/testimonials-section'
 import Footer from "../../Components/landing-page/footer"
+import SEO from '../../Components/shared/seo'
 
 const LandingPage = () => {
   return (
+    <>
+    <SEO 
+      title="Home"
+      description="CrowdPass is the leading event management platform for Web3. Create, manage, and promote your events seamlessly."
+    />
     <div className='overflow-x-hidden'>
         <HeroSection />
         <UpdateSection />
@@ -20,9 +26,10 @@ const LandingPage = () => {
         <FaqSection />
         <UpcomingSection />
         <TestimonialsSection />
-        <img src='/assets/various-events.jpg' className='w-full bg-cover'/>
+        <img src='/assets/various-events.jpg' className='w-full bg-cover' alt="Various community events collage" />
         <Footer />
     </div>
+    </>
   )
 }
 

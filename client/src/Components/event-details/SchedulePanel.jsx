@@ -39,12 +39,14 @@ const SchedulePanel = ({ scheduleItems }) => {
   return (
     <div className="space-y-4">
       {/* Tabs */}
-      <div className="flex gap-2">
+      <div className="flex gap-2" role="tablist">
         {tabs.map((tab) => (
           <button
             key={tab}
+            role="tab"
+            aria-selected={activeTab === tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+            className={`px-5 py-2 rounded-full text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange ${
               activeTab === tab 
                 ? 'bg-accent-orange text-white' 
                 : 'bg-transparent text-gray-400 border border-gray-600 hover:border-gray-400'

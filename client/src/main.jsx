@@ -10,6 +10,7 @@ import ErrorBoundary from './Components/shared/error-boundary.jsx'
 import { initSentry } from './lib/sentry.js'
 import { initPerformanceMonitoring, trackPageLoad } from './lib/performance.js'
 import { createLogger } from './lib/logger.js'
+import { HelmetProvider } from 'react-helmet-async'
 
 const logger = createLogger('main');
 
@@ -22,13 +23,15 @@ logger.info('Application monitoring initialized');
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <BrowserRouter>
-        <StarknetProvider>
-          <App />
-          <Toaster richColors position="top-right" closeButton />
-        </StarknetProvider>
-      </BrowserRouter>
-    </ErrorBoundary>
+    <HelmetProvider>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <StarknetProvider>
+            <App />
+            <Toaster richColors position="top-right" closeButton />
+          </StarknetProvider>
+        </BrowserRouter>
+      </ErrorBoundary>
+    </HelmetProvider>
   </React.StrictMode>,
 )

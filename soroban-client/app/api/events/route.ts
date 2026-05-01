@@ -14,7 +14,11 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { queryEvents, getCacheStats, type ContractEventType } from "@/lib/indexer";
+import {
+  queryEvents,
+  getCacheStats,
+  type ContractEventType,
+} from "@/lib/indexer";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +28,8 @@ export async function GET(req: NextRequest) {
   try {
     const result = await queryEvents({
       organizer: sp.get("organizer") ?? undefined,
-      status: (sp.get("status") as "active" | "canceled" | "completed") ?? undefined,
+      status:
+        (sp.get("status") as "active" | "canceled" | "completed") ?? undefined,
       type: (sp.get("type") as ContractEventType) ?? undefined,
       from: sp.get("from") ? Number(sp.get("from")) : undefined,
       to: sp.get("to") ? Number(sp.get("to")) : undefined,

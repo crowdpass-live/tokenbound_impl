@@ -49,7 +49,8 @@ const TicketSection = ({
             <div className="flex items-center gap-2">
               <button 
                 onClick={onLikeToggle}
-                className={`p-2 rounded-full transition-colors ${
+                aria-label={isLiked ? "Unlike event" : "Like event"}
+                className={`p-2 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange ${
                   isLiked ? 'bg-red-500/20 text-red-500' : 'bg-white/10 text-gray-400 hover:text-white'
                 }`}
               >
@@ -57,7 +58,8 @@ const TicketSection = ({
               </button>
               <button 
                 onClick={onShare}
-                className="p-2 rounded-full bg-white/10 text-gray-400 hover:text-white transition-colors"
+                aria-label="Share Event"
+                className="p-2 rounded-full bg-white/10 text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange"
               >
                 <Share2 className="w-5 h-5" />
               </button>

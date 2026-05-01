@@ -166,7 +166,7 @@ const TicketWallet = () => {
                         <Ticket className="w-16 h-16 text-gray-300 mb-4" />
                         <h3 className="text-xl font-semibold text-gray-700 mb-2">No Tickets Yet</h3>
                         <p className="text-gray-500 text-center max-w-md">
-                            You don't have any NFT tickets yet. Browse events and purchase tickets to see them here.
+                            You don&apos;t have any NFT tickets yet. Browse events and purchase tickets to see them here.
                         </p>
                     </CardContent>
                 </Card>

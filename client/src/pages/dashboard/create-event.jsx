@@ -15,6 +15,9 @@ const CreateEvent = () => {
         return BigInt(value + '0'.repeat(18));
     }
 
+  function padWithZeros(value) {
+    return BigInt(value + '0'.repeat(18));
+  }
 
     const [formData, setFormData] = useState({
         theme: '',
@@ -31,12 +34,15 @@ const CreateEvent = () => {
         }))
     }
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
+  const inputChange = e => {
+    setFormData(prevState => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  };
 
-        const _start_date = new Date(formData.startTime).getTime() / 1000;
-        const _end_date = new Date(formData.endTime).getTime() / 1000;
-        const toast1 = toast.loading('Creating Events')
+  const handleSubmit = async e => {
+    e.preventDefault();
 
 
         try {
@@ -45,11 +51,24 @@ const CreateEvent = () => {
             toast.dismiss(toast1);
             toast.success("Event Created")
 
-        } catch (error) {
-            toast.dismiss(toast1)
-            toast.error(error.message)
-        }
+    try {
+      await eventContract.create_event(
+        formData.theme,
+        formData.type,
+        _start_date,
+        _end_date,
+        cairo.uint256(formData.ticketPrice * 1e18),
+        formData.total_ticket
+      );
+      setTxStatus({ status: 'success', message: 'Event created successfully!' });
+      toast.dismiss(toast1);
+      toast.success('Event Created');
+    } catch (error) {
+      setTxStatus({ status: 'error', message: error.message });
+      toast.dismiss(toast1);
+      toast.error(error.message);
     }
+  };
 
     return (
         <Layout>
@@ -134,8 +153,19 @@ const CreateEvent = () => {
                     </CardFooter>
                 </Card>
             </div>
-        </Layout>
-    )
-}
+          )}
+          <CardFooter className="flex justify-end">
+            <Button
+              onClick={handleSubmit}
+              className="text-primary hover:text-deep-blue bg-deep-blue "
+            >
+              Create Event
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    </Layout>
+  );
+};
 
-export default CreateEvent
+export default CreateEvent;

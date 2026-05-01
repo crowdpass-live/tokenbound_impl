@@ -67,8 +67,8 @@ const Sidebar = () => {
                         </div>
                     </div>
                     <div>
-                        <button onClick={() => disconnect()} className={`normalLink py-3 px-10 mt-2 flex items-center rounded-l-full`}>
-                            <div ><IoLogOutSharp className="w-6 h-6" /></div>
+                        <button aria-label="Log Out" onClick={() => disconnect()} className={`normalLink py-3 px-10 mt-2 flex items-center rounded-l-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-deep-blue`}>
+                            <div aria-hidden="true"><IoLogOutSharp className="w-6 h-6" /></div>
                             <h4 className="ml-4 text-lg font-semibold">Log Out</h4>
                         </button>
                     </div>

@@ -33,24 +33,84 @@ pub enum Error {
     TicketsBelowSold = 18,
     EventNotEnded = 19,
     FundsAlreadyWithdrawn = 20,
-    EventNotSoldOut = 21,
+    InvalidStringInput = 21,
+    TicketPriceOutOfRange = 22,
+    TooManyOrganizerEvents = 23,
+    EventCreationRateLimited = 24,
+    EventScheduleOutOfRange = 25,
+    TooManyTicketTiers = 26,
+    PurchaseQuantityTooLarge = 27,
+    AlreadyArchived = 28,
+    ArchiveNotAllowed = 29,
+    ArithmeticOverflow = 30,
+}
+
+// STORAGE: pack rate-limit metadata (open_count + last_create_ts) into a
+// single per-organizer entry. Before: two persistent keys
+// (`OrganizerOpenEventCount`, `OrganizerLastCreateTs`), each touched on
+// `create_event` and `cancel_event`/`withdraw_funds`. After: one entry.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct OrganizerLimits {
+    pub open_count: u32,
+    pub last_create_ts: u64,
+}
+
+// STORAGE: pack the per-event funds book (collected balance + withdrawn
+// flag) into one entry. Before: two persistent keys (`EventBalance`,
+// `FundsWithdrawn`). After: one entry, and the missing-entry case still
+// represents "no funds collected, not withdrawn" so the read path is
+// backwards-compatible.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct EventLedger {
+    pub balance: i128,
+    pub withdrawn: bool,
+}
+
+/// Packed POAP + TBA integration config (one instance read in `distribute_poaps`).
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PoapIntegration {
+    pub tba_registry: Address,
+    pub tba_implementation_hash: BytesN<32>,
+    pub tba_salt: BytesN<32>,
+    pub poap_nft: Address,
 }
 
 #[contracttype]
 pub enum DataKey {
     Event(u32),
+    ArchivedEvent(u32),
     EventCounter,
     TicketFactory,
+    /// POAP distribution + deterministic TBA resolution (packed).
+    PoapIntegration,
     RefundClaimed(u32, Address),
     EventBuyers(u32),
     EventTiers(u32),
     BuyerPurchase(u32, Address),
+    BuyerTicketTokenId(u32, Address),
+    /// STORAGE: lives in `temporary` storage — only consulted between event
+    /// open and end_date. Once the event closes the waitlist is no longer
+    /// queried, so paying persistent rent is wasted.
     Waitlist(u32),
-    EventBalance(u32),
-    FundsWithdrawn(u32),
+    /// STORAGE: packed funds book (was `EventBalance` + `FundsWithdrawn`).
+    EventLedger(u32),
+    /// STORAGE: packed rate-limit metadata (was `OrganizerOpenEventCount`
+    /// + `OrganizerLastCreateTs`).
+    OrganizerLimits(Address),
+    /// STORAGE: lives in `temporary` storage — written between event end
+    /// and `distribute_poaps`, then never read again (the `PoapDistributed`
+    /// guard short-circuits any further work).
+    Attendance(u32, Address),
+    /// STORAGE: lives in `temporary` storage — same lifecycle as
+    /// `Attendance`. The list is consumed once during `distribute_poaps`.
+    Attendees(u32),
+    PoapDistributed(u32),
+    DefaultPoapMetadata(u32),
 }
 
-/// A single ticket tier (e.g. VIP, General, Early Bird)
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TicketTier {
@@ -60,7 +120,6 @@ pub struct TicketTier {
     pub sold_quantity: u128,
 }
 
-/// Input config for creating a tier
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TierConfig {
@@ -69,7 +128,6 @@ pub struct TierConfig {
     pub total_quantity: u128,
 }
 
-/// Parameters for creating a new event
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct CreateEventParams {
@@ -103,25 +161,103 @@ pub struct Event {
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
+pub struct ArchivedEvent {
+    pub id: u32,
+    pub organizer: Address,
+    pub total_tickets: u128,
+    pub tickets_sold: u128,
+    pub total_collected: i128,
+    pub is_canceled: bool,
+    pub archived_at: u64,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct BuyerPurchase {
     pub quantity: u128,
     pub total_paid: i128,
 }
 
-/// A promotional discount code attached to a specific event.
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct DiscountCode {
-    /// The code string (mirrors the key for convenient querying)
-    pub code: String,
-    /// Percentage discount applied to the ticket price (1–100)
-    pub percentage: u32,
-    /// Maximum number of times this code may be used (0 = unlimited)
-    pub max_uses: u32,
-    /// How many uses are still available
-    pub uses_remaining: u32,
-    /// Unix timestamp after which the code is invalid (0 = no expiration)
-    pub expiration: u64,
+pub struct EventCreatedEvent {
+    pub contract_address: Address,
+    pub event_id: u32,
+    pub organizer: Address,
+    pub ticket_nft_addr: Address,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct WaitlistClearedEvent {
+    pub contract_address: Address,
+    pub event_id: u32,
+    pub waitlist_count: u32,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RefundClaimedEvent {
+    pub contract_address: Address,
+    pub event_id: u32,
+    pub claimer: Address,
+    pub quantity: u128,
+    pub total_paid: i128,
+}
+
+/// Per-attendee POAP metadata sent over the wire to the POAP NFT contract's
+/// `mint_poap` entry point. Field shape must match `poap_nft::PoapMetadata`.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TicketPurchasedEvent {
+    pub contract_address: Address,
+    pub event_id: u32,
+    pub buyer: Address,
+    pub quantity: u128,
+    pub total_price: i128,
+    pub ticket_nft_addr: Address,
+    pub tier_index: u32,
+}
+
+/// Per-attendee POAP metadata sent over the wire to the POAP NFT contract's
+/// `mint_poap` entry point. Field shape must match `poap_nft::PoapMetadata`.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct EventUpdatedEvent {
+    pub contract_address: Address,
+    pub event_id: u32,
+    pub organizer: Address,
+}
+
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct FundsWithdrawnEvent {
+    pub contract_address: Address,
+    pub event_id: u32,
+    pub organizer: Address,
+    pub amount: i128,
+}
+
+/// POAP badge template stored on the event manager and used as the source of
+/// truth when minting per-attendee POAPs in [`EventManager::distribute_poaps`].
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PoapBadgeMetadata {
+    pub name: String,
+    pub description: String,
+    pub image: String,
+}
+
+/// Per-attendee POAP metadata sent over the wire to the POAP NFT contract's
+/// `mint_poap` entry point. Field shape must match `poap_nft::PoapMetadata`.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PoapMintMetadata {
+    pub event_id: u32,
+    pub name: String,
+    pub description: String,
+    pub image: String,
+    pub issued_at: u64,
 }
 
 #[contract]
@@ -129,21 +265,233 @@ pub struct EventManager;
 
 #[contractimpl]
 impl EventManager {
+    const MAX_STRING_BYTES: u32 = 200;
+    const MAX_TICKET_TIERS: u32 = 32;
+    const MAX_TICKETS_PER_EVENT: u128 = 500_000;
+    const MAX_TICKET_PRICE: i128 = 10_000_000_000_000_000;
+    const MAX_ORGANIZER_OPEN_EVENTS: u32 = 50;
+    const EVENT_CREATE_COOLDOWN_SECS: u64 = 120;
+    const MAX_EVENT_DURATION_SECS: u64 = 366 * 86_400;
+    const MAX_EVENT_START_AHEAD_SECS: u64 = 5 * 366 * 86_400;
+    const MAX_PURCHASE_QUANTITY: u128 = 500;
+
     pub fn initialize(env: Env, admin: Address, ticket_factory: Address) -> Result<(), Error> {
         if env.storage().instance().has(&DataKey::TicketFactory) {
             return Err(Error::AlreadyInitialized);
         }
+        admin.require_auth();
         upg::set_admin(&env, &admin);
         upg::init_version(&env);
         env.storage()
             .instance()
             .set(&DataKey::TicketFactory, &ticket_factory);
         env.storage().instance().set(&DataKey::EventCounter, &0u32);
+        upg::extend_instance_ttl(&env);
         Ok(())
     }
 
-    /// Create a new event with tier support
-    pub fn create_event(env: Env, params: CreateEventParams) -> Result<u32, Error> {
+    /// Configure POAP + TBA integration (optional, can be called anytime by admin).
+    ///
+    /// - `tba_registry`: used to resolve the deterministic ticket TBA for a ticket token_id
+    /// - `tba_implementation_hash`: passed through to `tba_registry.get_account(...)`
+    /// - `tba_salt`: passed through to `tba_registry.get_account(...)`
+    /// - `poap_nft`: POAP contract address (minter should be this EventManager)
+    pub fn configure_poap(
+        env: Env,
+        tba_registry: Address,
+        tba_implementation_hash: BytesN<32>,
+        tba_salt: BytesN<32>,
+        poap_nft: Address,
+    ) -> Result<(), Error> {
+        upg::require_admin(&env);
+
+        let cfg = PoapIntegration {
+            tba_registry,
+            tba_implementation_hash,
+            tba_salt,
+            poap_nft,
+        };
+        env.storage()
+            .instance()
+            .set(&DataKey::PoapIntegration, &cfg);
+        upg::extend_instance_ttl(&env);
+        Ok(())
+    }
+
+    /// Set default POAP metadata template for an event.
+    pub fn set_default_poap_metadata(
+        env: Env,
+        event_id: u32,
+        metadata: PoapBadgeMetadata,
+    ) -> Result<(), Error> {
+        upg::require_not_paused(&env);
+        let event: Event = Self::get_event(env.clone(), event_id)?;
+        event.organizer.require_auth();
+
+        env.storage()
+            .persistent()
+            .set(&DataKey::DefaultPoapMetadata(event_id), &metadata);
+        Self::extend_persistent_ttl(&env, &DataKey::DefaultPoapMetadata(event_id));
+        Ok(())
+    }
+
+    /// Mark attendance for a buyer (ticket holder).
+    ///
+    /// - Must be called by the event organizer.
+    /// - Verifies the buyer currently holds the event ticket NFT.
+    pub fn mark_attendance(env: Env, event_id: u32, buyer: Address) -> Result<(), Error> {
+        upg::require_not_paused(&env);
+        let event: Event = Self::get_event(env.clone(), event_id)?;
+        event.organizer.require_auth();
+
+        // Verify buyer currently holds a ticket.
+        let bal: u128 = env.invoke_contract(
+            &event.ticket_nft_addr,
+            &Symbol::new(&env, "balance_of"),
+            soroban_sdk::vec![&env, buyer.clone().into_val(&env)],
+        );
+        if bal == 0 {
+            return Err(Error::NotABuyer);
+        }
+
+        // STORAGE: attendance + attendee list live in `temporary` storage —
+        // they are consumed exactly once during `distribute_poaps` and then
+        // never read again, so persistent rent would be wasted.
+        let attend_key = DataKey::Attendance(event_id, buyer.clone());
+        if env.storage().temporary().has(&attend_key) {
+            return Ok(());
+        }
+
+        env.storage().temporary().set(&attend_key, &true);
+
+        let list_key = DataKey::Attendees(event_id);
+        let mut attendees: Vec<Address> = env
+            .storage()
+            .temporary()
+            .get(&list_key)
+            .unwrap_or_else(|| Vec::new(&env));
+        attendees.push_back(buyer.clone());
+        env.storage().temporary().set(&list_key, &attendees);
+
+        env.events()
+            .publish((Symbol::new(&env, "attendance_marked"),), (event_id, buyer));
+        Ok(())
+    }
+
+    /// Batch distribute POAPs after the event ends.
+    ///
+    /// - Called by the event organizer.
+    /// - Mints POAPs to the ticket TBA (deterministic) for each attendee.
+    pub fn distribute_poaps(env: Env, event_id: u32) -> Result<u32, Error> {
+        upg::require_not_paused(&env);
+        let event: Event = Self::get_event(env.clone(), event_id)?;
+        event.organizer.require_auth();
+
+        if env.ledger().timestamp() <= event.end_date {
+            return Err(Error::EventNotEnded);
+        }
+
+        if env
+            .storage()
+            .persistent()
+            .has(&DataKey::PoapDistributed(event_id))
+        {
+            return Ok(0);
+        }
+
+        let cfg: PoapIntegration = env
+            .storage()
+            .instance()
+            .get(&DataKey::PoapIntegration)
+            .ok_or(Error::FactoryNotInitialized)?;
+
+        // STORAGE: attendees list lives in `temporary` storage (see
+        // `mark_attendance`).
+        let attendees: Vec<Address> = env
+            .storage()
+            .temporary()
+            .get(&DataKey::Attendees(event_id))
+            .unwrap_or_else(|| Vec::new(&env));
+
+        let badge_md: PoapBadgeMetadata = env
+            .storage()
+            .persistent()
+            .get(&DataKey::DefaultPoapMetadata(event_id))
+            .unwrap_or(PoapBadgeMetadata {
+                name: String::from_str(&env, "POAP"),
+                description: String::from_str(&env, "Proof of Attendance"),
+                image: String::from_str(&env, ""),
+            });
+
+        let mut minted: u32 = 0;
+        for attendee in attendees.iter() {
+            let token_id: u128 = env
+                .storage()
+                .persistent()
+                .get(&DataKey::BuyerTicketTokenId(event_id, attendee.clone()))
+                .unwrap_or(0u128);
+            if token_id == 0 {
+                continue;
+            }
+
+            // Resolve deterministic ticket TBA.
+            let tba_addr: Address = env.invoke_contract(
+                &cfg.tba_registry,
+                &Symbol::new(&env, "get_account"),
+                soroban_sdk::vec![
+                    &env,
+                    cfg.tba_implementation_hash.clone().into_val(&env),
+                    event.ticket_nft_addr.clone().into_val(&env),
+                    token_id.into_val(&env),
+                    cfg.tba_salt.clone().into_val(&env),
+                ],
+            );
+
+            // Mint POAP NFT to the ticket TBA.
+            let poap_md = PoapMintMetadata {
+                event_id,
+                name: badge_md.name.clone(),
+                description: badge_md.description.clone(),
+                image: badge_md.image.clone(),
+                issued_at: env.ledger().timestamp(),
+            };
+            env.invoke_contract::<u128>(
+                &cfg.poap_nft,
+                &Symbol::new(&env, "mint_poap"),
+                soroban_sdk::vec![&env, tba_addr.into_val(&env), poap_md.into_val(&env),],
+            );
+            minted = minted.saturating_add(1);
+        }
+
+        env.storage()
+            .persistent()
+            .set(&DataKey::PoapDistributed(event_id), &true);
+        Self::extend_persistent_ttl(&env, &DataKey::PoapDistributed(event_id));
+
+        env.events().publish(
+            (Symbol::new(&env, "poaps_distributed"),),
+            (event_id, minted),
+        );
+
+        Ok(minted)
+    }
+
+    pub fn initialize_legacy(env: Env, ticket_factory: Address) -> Result<(), Error> {
+        if env.storage().instance().has(&DataKey::TicketFactory) {
+            return Err(Error::AlreadyInitialized);
+        }
+        upg::set_admin(&env, &ticket_factory);
+        upg::init_version(&env);
+        env.storage()
+            .instance()
+            .set(&DataKey::TicketFactory, &ticket_factory);
+        env.storage().instance().set(&DataKey::EventCounter, &0u32);
+        upg::extend_instance_ttl(&env);
+        Ok(())
+    }
+
+    pub fn create_event_with_tiers(env: Env, params: CreateEventParams) -> Result<u32, Error> {
+        upg::require_not_paused(&env);
         params.organizer.require_auth();
 
         Self::validate_create_schedule(&env, params.start_date, params.end_date)?;
@@ -151,19 +499,14 @@ impl EventManager {
         Self::validate_bounded_string(&params.event_type, Self::MAX_STRING_BYTES)?;
         Self::validate_ticket_price(params.ticket_price)?;
 
-        if !params.tiers.is_empty() {
-            if params.tiers.len() > Self::MAX_TICKET_TIERS {
-                return Err(Error::TooManyTicketTiers);
-            }
+        if !params.tiers.is_empty() && params.tiers.len() > Self::MAX_TICKET_TIERS {
+            return Err(Error::TooManyTicketTiers);
         }
 
         Self::enforce_organizer_limits_and_rate(&env, &params.organizer)?;
 
         let resolved_tiers = if params.tiers.is_empty() {
-            if params.total_tickets == 0 {
-                return Err(Error::InvalidTicketCount);
-            }
-            if params.total_tickets > Self::MAX_TICKETS_PER_EVENT {
+            if params.total_tickets == 0 || params.total_tickets > Self::MAX_TICKETS_PER_EVENT {
                 return Err(Error::InvalidTicketCount);
             }
             let mut v = Vec::new(&env);
@@ -182,10 +525,7 @@ impl EventManager {
                     return Err(Error::NegativeTicketPrice);
                 }
                 Self::validate_ticket_price(cfg.price)?;
-                if cfg.total_quantity == 0 {
-                    return Err(Error::InvalidTierConfig);
-                }
-                if cfg.total_quantity > Self::MAX_TICKETS_PER_EVENT {
+                if cfg.total_quantity == 0 || cfg.total_quantity > Self::MAX_TICKETS_PER_EVENT {
                     return Err(Error::InvalidTierConfig);
                 }
                 v.push_back(TicketTier {
@@ -202,18 +542,18 @@ impl EventManager {
         if agg_total == 0 || agg_total > Self::MAX_TICKETS_PER_EVENT {
             return Err(Error::InvalidTicketCount);
         }
+
         let agg_price = resolved_tiers
             .first()
             .map(|t| t.price)
             .unwrap_or(params.ticket_price);
 
         let event_id = Self::get_and_increment_counter(&env)?;
-        let ticket_nft_addr =
-            Self::deploy_ticket_nft(&env, event_id, params.theme.clone(), agg_total)?;
+        let ticket_nft_addr = Self::deploy_ticket_nft(&env, event_id)?;
 
         let event = Event {
             id: event_id,
-            theme: params.theme.clone(),
+            theme: params.theme,
             organizer: params.organizer.clone(),
             event_type: params.event_type,
             total_tickets: agg_total,
@@ -235,18 +575,49 @@ impl EventManager {
 
         Self::extend_persistent_ttl(&env, &DataKey::Event(event_id));
         Self::extend_persistent_ttl(&env, &DataKey::EventTiers(event_id));
-        env.storage()
-            .instance()
-            .extend_ttl(Self::ttl_threshold(), Self::ttl_extend_to());
+        upg::extend_instance_ttl(&env);
 
-        env.events().publish(
-            (Symbol::new(&env, "event_created"),),
-            (event_id, params.organizer.clone(), ticket_nft_addr),
-        );
+        let event = EventCreatedEvent {
+            contract_address: env.current_contract_address(),
+            event_id,
+            organizer: params.organizer.clone(),
+            ticket_nft_addr,
+        };
+        env.events()
+            .publish((Symbol::new(&env, "EventCreated"),), event);
 
         Self::commit_organizer_create(&env, &params.organizer);
 
         Ok(event_id)
+    }
+
+    pub fn create_event(
+        env: Env,
+        organizer: Address,
+        theme: String,
+        event_type: String,
+        start_date: u64,
+        end_date: u64,
+        ticket_price: i128,
+        total_tickets: u128,
+        payment_token: Address,
+    ) -> Result<u32, Error> {
+        let params = CreateEventParams {
+            organizer,
+            theme,
+            event_type,
+            start_date,
+            end_date,
+            ticket_price,
+            total_tickets,
+            payment_token,
+            tiers: Vec::new(&env),
+        };
+        Self::create_event_with_tiers(env, params)
+    }
+
+    pub fn create_event_v2(env: Env, params: CreateEventParams) -> Result<u32, Error> {
+        Self::create_event_with_tiers(env, params)
     }
 
     pub fn get_event(env: Env, event_id: u32) -> Result<Event, Error> {
@@ -254,6 +625,12 @@ impl EventManager {
             .persistent()
             .get(&DataKey::Event(event_id))
             .ok_or(Error::EventNotFound)
+    }
+
+    pub fn get_archived_event(env: Env, event_id: u32) -> Option<ArchivedEvent> {
+        env.storage()
+            .persistent()
+            .get(&DataKey::ArchivedEvent(event_id))
     }
 
     pub fn get_event_tiers(env: Env, event_id: u32) -> Result<Vec<TicketTier>, Error> {
@@ -289,6 +666,8 @@ impl EventManager {
     }
 
     pub fn cancel_event(env: Env, event_id: u32) -> Result<(), Error> {
+        upg::require_not_paused(&env);
+
         let mut event: Event = env
             .storage()
             .persistent()
@@ -310,18 +689,23 @@ impl EventManager {
         env.events()
             .publish((Symbol::new(&env, "event_canceled"),), event_id);
 
-        // Notify any waitlisted users that the event will not happen
+        // STORAGE: waitlist lives in `temporary` storage — only relevant
+        // between event open and end_date; once the event resolves the
+        // waitlist isn't consulted again, so persistent rent is wasted.
         let waitlist: Vec<Address> = env
             .storage()
-            .persistent()
+            .temporary()
             .get(&DataKey::Waitlist(event_id))
             .unwrap_or_else(|| Vec::new(&env));
 
         if !waitlist.is_empty() {
-            env.events().publish(
-                (Symbol::new(&env, "waitlist_cleared"),),
-                (event_id, waitlist.len()),
-            );
+            let event = WaitlistClearedEvent {
+                contract_address: env.current_contract_address(),
+                event_id,
+                waitlist_count: waitlist.len() as u32,
+            };
+            env.events()
+                .publish((Symbol::new(&env, "WaitlistCleared"),), event);
         }
 
         Self::decrement_organizer_open_events(&env, &event.organizer);
@@ -330,6 +714,7 @@ impl EventManager {
     }
 
     pub fn claim_refund(env: Env, claimer: Address, event_id: u32) -> Result<(), Error> {
+        upg::require_not_paused(&env);
         claimer.require_auth();
 
         let event: Event = env
@@ -356,7 +741,6 @@ impl EventManager {
             .get(&DataKey::BuyerPurchase(event_id, claimer.clone()))
             .ok_or(Error::NotABuyer)?;
 
-        // Mark refund claimed before transfer (checks-effects-interactions)
         env.storage()
             .persistent()
             .set(&DataKey::RefundClaimed(event_id, claimer.clone()), &true);
@@ -370,22 +754,35 @@ impl EventManager {
                 &purchase.total_paid,
             );
 
-            // Deduct refunded amount from the escrowed balance
-            let balance_key = DataKey::EventBalance(event_id);
-            let current_balance: i128 = env.storage().persistent().get(&balance_key).unwrap_or(0);
-            env.storage().persistent().set(
-                &balance_key,
-                &current_balance.saturating_sub(purchase.total_paid),
-            );
+            // STORAGE: read packed ledger, decrement balance, write back.
+            let ledger_key = DataKey::EventLedger(event_id);
+            let mut ledger: EventLedger = env
+                .storage()
+                .persistent()
+                .get(&ledger_key)
+                .unwrap_or(EventLedger {
+                    balance: 0,
+                    withdrawn: false,
+                });
+            ledger.balance = ledger.balance.saturating_sub(purchase.total_paid);
+            env.storage().persistent().set(&ledger_key, &ledger);
+            Self::extend_persistent_ttl(&env, &ledger_key);
         }
 
-        env.events().publish(
-            (Symbol::new(&env, "refund_claimed"),),
-            (event_id, claimer, purchase.quantity, purchase.total_paid),
-        );
+        let event = RefundClaimedEvent {
+            contract_address: env.current_contract_address(),
+            event_id,
+            claimer: claimer.clone(),
+            quantity: purchase.quantity,
+            total_paid: purchase.total_paid,
+        };
+        env.events()
+            .publish((Symbol::new(&env, "RefundClaimed"),), event);
 
         Ok(())
     }
+
+
 
     pub fn purchase_ticket(
         env: Env,
@@ -429,7 +826,6 @@ impl EventManager {
             .get(&DataKey::EventTiers(event_id))
             .ok_or(Error::EventNotFound)?;
 
-        // Keep tier_index as u32 for Soroban Vec operations
         if tier_index >= tiers.len() {
             return Err(Error::InvalidTierIndex);
         }
@@ -441,42 +837,38 @@ impl EventManager {
         }
 
         let price_per_ticket = tier.price;
-        let total_price = Self::calculate_total_price(price_per_ticket, quantity);
+        let total_price = Self::calculate_total_price(price_per_ticket, quantity)?;
 
-        // Handle payment — hold in escrow at contract address
         if total_price > 0 {
             let token_client = soroban_sdk::token::Client::new(&env, &event.payment_token);
             token_client.transfer(&buyer, &env.current_contract_address(), &total_price);
-
-            let balance_key = DataKey::EventBalance(event_id);
-            let current_balance: i128 = env
-                .storage()
-                .persistent()
-                .get(&balance_key)
-                .unwrap_or(0);
-            env.storage()
-                .persistent()
-                .set(&balance_key, &(current_balance + total_price));
-            Self::extend_persistent_ttl(&env, &balance_key);
         }
 
-        // Mint tickets
         for _ in 0..quantity {
-            env.invoke_contract::<u128>(
+            let minted_token_id: u128 = env.invoke_contract(
                 &event.ticket_nft_addr,
                 &Symbol::new(&env, "mint_ticket_nft"),
                 soroban_sdk::vec![&env, buyer.clone().into_val(&env)],
             );
+            env.storage().persistent().set(
+                &DataKey::BuyerTicketTokenId(event_id, buyer.clone()),
+                &minted_token_id,
+            );
+            Self::extend_persistent_ttl(
+                &env,
+                &DataKey::BuyerTicketTokenId(event_id, buyer.clone()),
+            );
         }
 
-        // Update tier sold count BEFORE external calls (minting)
-        tier.sold_quantity = tier.sold_quantity.checked_add(quantity).ok_or(Error::CounterOverflow)?;
+        tier.sold_quantity += quantity;
         tiers.set(tier_index, tier);
         env.storage()
             .persistent()
             .set(&DataKey::EventTiers(event_id), &tiers);
+        Self::extend_persistent_ttl(&env, &DataKey::EventTiers(event_id));
 
-        // Update aggregate event counters BEFORE external calls
+        Self::record_purchase(&env, event_id, buyer.clone(), quantity, total_price)?;
+
         event.tickets_sold = event
             .tickets_sold
             .checked_add(quantity)
@@ -487,34 +879,21 @@ impl EventManager {
             .set(&DataKey::Event(event_id), &event);
         Self::extend_persistent_ttl(&env, &DataKey::Event(event_id));
 
-        // Mint tickets (External cross-contract call)
-        for _ in 0..quantity {
-            env.invoke_contract::<u128>(
-                &event.ticket_nft_addr,
-                &Symbol::new(&env, "mint_ticket_nft"),
-                soroban_sdk::vec![&env, buyer.clone().into_val(&env)],
-            );
-        }
-
-        // Record purchase details
-        Self::record_purchase(&env, event_id, buyer.clone(), quantity, total_price);
-
-        env.events().publish(
-            (Symbol::new(&env, "ticket_purchased"),),
-            (
-                event_id,
-                buyer,
-                quantity,
-                total_price,
-                event.ticket_nft_addr,
-                tier_index,
-            ),
-        );
+        let event_data = TicketPurchasedEvent {
+            contract_address: env.current_contract_address(),
+            event_id,
+            buyer: buyer.clone(),
+            quantity,
+            total_price,
+            ticket_nft_addr: event.ticket_nft_addr,
+            tier_index,
+        };
+        env.events()
+            .publish((Symbol::new(&env, "TicketPurchased"),), event_data);
 
         Ok(())
     }
 
-    /// Update tickets sold count. Only callable by the ticket NFT contract.
     pub fn update_tickets_sold(env: Env, event_id: u32, amount: u128) -> Result<(), Error> {
         let mut event: Event = env
             .storage()
@@ -550,6 +929,8 @@ impl EventManager {
         start_date: Option<u64>,
         end_date: Option<u64>,
     ) -> Result<(), Error> {
+        upg::require_not_paused(&env);
+
         let mut event: Event = env
             .storage()
             .persistent()
@@ -578,10 +959,7 @@ impl EventManager {
         }
 
         if let Some(t) = total_tickets {
-            if t == 0 {
-                return Err(Error::InvalidTicketCount);
-            }
-            if t > Self::MAX_TICKETS_PER_EVENT {
+            if t == 0 || t > Self::MAX_TICKETS_PER_EVENT {
                 return Err(Error::InvalidTicketCount);
             }
             if t < event.tickets_sold {
@@ -605,14 +983,9 @@ impl EventManager {
 
         let effective_start = start_date.unwrap_or(event.start_date);
         if let Some(e) = end_date {
-            if e <= current_time {
+            if e <= current_time || e <= effective_start {
                 return Err(Error::InvalidEndDate);
             }
-            if e <= effective_start {
-                return Err(Error::InvalidEndDate);
-            }
-            // Max duration / far-future start only apply when the event start is still ahead;
-            // otherwise lengthening `end_date` for an in-progress event would falsely fail.
             if effective_start > current_time {
                 Self::validate_event_span(effective_start, e)?;
                 Self::validate_start_not_too_far(effective_start, current_time)?;
@@ -625,22 +998,20 @@ impl EventManager {
             .set(&DataKey::Event(event_id), &event);
         Self::extend_persistent_ttl(&env, &DataKey::Event(event_id));
 
-        env.events().publish(
-            (Symbol::new(&env, "event_updated"),),
-            (event_id, event.organizer),
-        );
+        let event_data = EventUpdatedEvent {
+            contract_address: env.current_contract_address(),
+            event_id,
+            organizer: event.organizer,
+        };
+        env.events()
+            .publish((Symbol::new(&env, "EventUpdated"),), event_data);
 
         Ok(())
     }
 
-    /// Withdraw accumulated ticket sale funds to the organizer wallet.
-    ///
-    /// Rules:
-    /// - Only callable by the event organizer
-    /// - Only after the event `end_date` has passed
-    /// - Only if the event has not been cancelled (cancelled events use `claim_refund`)
-    /// - Prevents double withdrawal via a persistent flag
     pub fn withdraw_funds(env: Env, event_id: u32) -> Result<(), Error> {
+        upg::require_not_paused(&env);
+
         let event: Event = env
             .storage()
             .persistent()
@@ -657,126 +1028,313 @@ impl EventManager {
             return Err(Error::EventNotEnded);
         }
 
-        if env
-            .storage()
-            .persistent()
-            .has(&DataKey::FundsWithdrawn(event_id))
-        {
+        // STORAGE: read packed ledger once, mutate both fields, write back.
+        // Replaces the prior pair of (FundsWithdrawn, EventBalance) entries.
+        let ledger_key = DataKey::EventLedger(event_id);
+        let mut ledger: EventLedger =
+            env.storage()
+                .persistent()
+                .get(&ledger_key)
+                .unwrap_or(EventLedger {
+                    balance: 0,
+                    withdrawn: false,
+                });
+
+        if ledger.withdrawn {
             return Err(Error::FundsAlreadyWithdrawn);
         }
 
-        // Mark withdrawn before transfer (checks-effects-interactions pattern)
-        env.storage()
-            .persistent()
-            .set(&DataKey::FundsWithdrawn(event_id), &true);
-        Self::extend_persistent_ttl(&env, &DataKey::FundsWithdrawn(event_id));
-
-        let balance: i128 = env
-            .storage()
-            .persistent()
-            .get(&DataKey::EventBalance(event_id))
-            .unwrap_or(0);
-
+        let balance = ledger.balance;
         if balance > 0 {
             let token_client = soroban_sdk::token::Client::new(&env, &event.payment_token);
             token_client.transfer(&env.current_contract_address(), &event.organizer, &balance);
+            ledger.balance = 0;
         }
+        ledger.withdrawn = true;
 
-        env.events().publish(
-            (Symbol::new(&env, "funds_withdrawn"),),
-            (event_id, event.organizer.clone(), balance),
-        );
+        env.storage().persistent().set(&ledger_key, &ledger);
+        Self::extend_persistent_ttl(&env, &ledger_key);
 
-    pub fn join_waitlist(env: Env, buyer: Address, event_id: u32) -> Result<(), Error> {
-        buyer.require_auth();
-        let event: Event = env.storage().persistent().get(&DataKey::Event(event_id)).ok_or(Error::EventNotFound)?;
-        
-        if event.tickets_sold < event.total_tickets {
-             // Event not sold out, shouldn't join waitlist
-             return Err(Error::EventNotSoldOut);
-        }
+        let event_data = FundsWithdrawnEvent {
+            contract_address: env.current_contract_address(),
+            event_id,
+            organizer: event.organizer.clone(),
+            amount: balance,
+        };
+        env.events()
+            .publish((Symbol::new(&env, "FundsWithdrawn"),), event_data);
 
-        let key = DataKey::Waitlist(event_id);
-        let mut waitlist: Vec<Address> = env.storage().persistent().get(&key).unwrap_or(Vec::new(&env));
-        waitlist.push_back(buyer);
-        env.storage().persistent().set(&key, &waitlist);
-        Self::extend_persistent_ttl(&env, &key);
+        Self::decrement_organizer_open_events(&env, &event.organizer);
+        Self::try_promote_from_waitlist(&env, event_id);
+
         Ok(())
     }
 
-    // ========== Upgrade / admin functions ==========
+    pub fn archive_event(env: Env, event_id: u32) -> Result<ArchivedEvent, Error> {
+        upg::require_not_paused(&env);
 
-    /// Schedule a contract upgrade (timelock: ~24 h). Admin only.
+        if env
+            .storage()
+            .persistent()
+            .has(&DataKey::ArchivedEvent(event_id))
+        {
+            return Err(Error::AlreadyArchived);
+        }
+
+        let event: Event = env
+            .storage()
+            .persistent()
+            .get(&DataKey::Event(event_id))
+            .ok_or(Error::EventNotFound)?;
+
+        event.organizer.require_auth();
+
+        if event.is_canceled {
+            return Err(Error::ArchiveNotAllowed);
+        }
+
+        let now = env.ledger().timestamp();
+        if now <= event.end_date {
+            return Err(Error::ArchiveNotAllowed);
+        }
+
+        // STORAGE: read packed ledger once for both checks (withdrawn? &
+        // total_collected for the archive snapshot).
+        let ledger: EventLedger = env
+            .storage()
+            .persistent()
+            .get(&DataKey::EventLedger(event_id))
+            .unwrap_or(EventLedger {
+                balance: 0,
+                withdrawn: false,
+            });
+
+        if !ledger.withdrawn {
+            return Err(Error::ArchiveNotAllowed);
+        }
+
+        let total_collected: i128 = ledger.balance;
+
+        let archived = ArchivedEvent {
+            id: event.id,
+            organizer: event.organizer,
+            total_tickets: event.total_tickets,
+            tickets_sold: event.tickets_sold,
+            total_collected,
+            is_canceled: event.is_canceled,
+            archived_at: now,
+        };
+
+        env.storage()
+            .persistent()
+            .set(&DataKey::ArchivedEvent(event_id), &archived);
+        Self::extend_persistent_ttl(&env, &DataKey::ArchivedEvent(event_id));
+
+        if let Some(buyers) = env
+            .storage()
+            .persistent()
+            .get::<_, Vec<Address>>(&DataKey::EventBuyers(event_id))
+        {
+            for buyer in buyers.iter() {
+                env.storage()
+                    .persistent()
+                    .remove(&DataKey::BuyerPurchase(event_id, buyer.clone()));
+                env.storage()
+                    .persistent()
+                    .remove(&DataKey::RefundClaimed(event_id, buyer));
+            }
+        }
+
+        env.storage()
+            .persistent()
+            .remove(&DataKey::EventBuyers(event_id));
+        env.storage()
+            .persistent()
+            .remove(&DataKey::EventTiers(event_id));
+        // STORAGE: Waitlist lives in `temporary` storage now.
+        env.storage()
+            .temporary()
+            .remove(&DataKey::Waitlist(event_id));
+        // STORAGE: single packed ledger replaces (EventBalance, FundsWithdrawn).
+        env.storage()
+            .persistent()
+            .remove(&DataKey::EventLedger(event_id));
+        env.storage().persistent().remove(&DataKey::Event(event_id));
+
+        env.events()
+            .publish((Symbol::new(&env, "event_archived"),), (event_id, now));
+
+        Ok(archived)
+    }
+
     pub fn schedule_upgrade(env: Env, new_wasm_hash: BytesN<32>) {
         upg::schedule_upgrade(&env, new_wasm_hash);
     }
 
-    /// Cancel a pending upgrade before it is committed. Admin only.
     pub fn cancel_upgrade(env: Env) {
         upg::cancel_upgrade(&env);
     }
 
-    /// Commit a previously scheduled upgrade after the timelock has elapsed. Admin only.
     pub fn commit_upgrade(env: Env) {
         upg::commit_upgrade(&env);
     }
 
-    /// Pause all state-mutating operations. Admin only.
+    /// Immediate (fast-path) upgrade. Admin-only, no timelock — see
+    /// `upgradeable::upgrade` for the full security note. Reserve for
+    /// emergencies; prefer `schedule_upgrade` + `commit_upgrade` for
+    /// routine upgrades.
+    pub fn upgrade(env: Env, new_wasm_hash: BytesN<32>) {
+        upg::upgrade(&env, new_wasm_hash);
+    }
+
+    /// Apply post-upgrade state-shape migrations and bump the version to
+    /// `target_version`. Admin-only; rejects downgrades.
+    pub fn migrate(env: Env, target_version: u32) {
+        upg::require_admin(&env);
+        upg::require_version_increase(&env, target_version);
+
+        match target_version {
+            _ => {}
+        }
+
+        upg::migration_completed(&env, target_version);
+    }
+
     pub fn pause(env: Env) {
         upg::pause(&env);
     }
 
-    /// Resume normal operations. Admin only.
     pub fn unpause(env: Env) {
         upg::unpause(&env);
     }
 
-    /// Transfer admin rights to a new address. Current admin only.
     pub fn transfer_admin(env: Env, new_admin: Address) {
         upg::transfer_admin(&env, new_admin);
     }
 
-    /// Return the current contract version.
     pub fn version(env: Env) -> u32 {
         upg::get_version(&env)
     }
 
-    // ========== Private helpers ==========
+    fn validate_bounded_string(s: &String, max_bytes: u32) -> Result<(), Error> {
+        if s.is_empty() || s.len() > max_bytes {
+            return Err(Error::InvalidStringInput);
+        }
+        Ok(())
+    }
 
-    fn try_promote_from_waitlist(env: &Env, event_id: u32) {
-        // Logically we could promote someone here if a slot opens up
-        // For now, we'll just emit an event as a placeholder
-        env.events().publish((Symbol::new(env, "waitlist_checked"),), event_id);
+    fn validate_ticket_price(price: i128) -> Result<(), Error> {
+        if price > Self::MAX_TICKET_PRICE {
+            return Err(Error::TicketPriceOutOfRange);
+        }
+        Ok(())
+    }
+
+    fn validate_create_schedule(env: &Env, start_date: u64, end_date: u64) -> Result<(), Error> {
+        let now = env.ledger().timestamp();
+        if start_date <= now {
+            return Err(Error::InvalidStartDate);
+        }
+        if end_date <= start_date {
+            return Err(Error::InvalidEndDate);
+        }
+        Self::validate_event_span(start_date, end_date)?;
+        Self::validate_start_not_too_far(start_date, now)?;
+        Ok(())
+    }
+
+    fn validate_event_span(start_date: u64, end_date: u64) -> Result<(), Error> {
+        let span = end_date.saturating_sub(start_date);
+        if span == 0 || span > Self::MAX_EVENT_DURATION_SECS {
+            return Err(Error::EventScheduleOutOfRange);
+        }
+        Ok(())
+    }
+
+    fn validate_start_not_too_far(start_date: u64, now: u64) -> Result<(), Error> {
+        let latest_start = now.saturating_add(Self::MAX_EVENT_START_AHEAD_SECS);
+        if start_date > latest_start {
+            return Err(Error::EventScheduleOutOfRange);
+        }
+        Ok(())
+    }
+
+    fn enforce_organizer_limits_and_rate(env: &Env, organizer: &Address) -> Result<(), Error> {
+        // STORAGE: a single packed read covers both the open-event count and
+        // the create-cooldown timestamp.
+        let limits_key = DataKey::OrganizerLimits(organizer.clone());
+        let limits: OrganizerLimits = env
+            .storage()
+            .persistent()
+            .get(&limits_key)
+            .unwrap_or(OrganizerLimits {
+                open_count: 0,
+                last_create_ts: 0,
+            });
+        if limits.open_count >= Self::MAX_ORGANIZER_OPEN_EVENTS {
+            return Err(Error::TooManyOrganizerEvents);
+        }
+
+        if limits.open_count > 0 {
+            let now = env.ledger().timestamp();
+            let earliest = limits
+                .last_create_ts
+                .saturating_add(Self::EVENT_CREATE_COOLDOWN_SECS);
+            if now < earliest {
+                return Err(Error::EventCreationRateLimited);
+            }
+        }
+        Ok(())
     }
 
     fn commit_organizer_create(env: &Env, organizer: &Address) {
-        let count_key = DataKey::OrganizerOpenEventCount(organizer.clone());
-        let open_count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0);
-        env.storage()
+        // STORAGE: read packed limits once, mutate both fields, write back.
+        let limits_key = DataKey::OrganizerLimits(organizer.clone());
+        let mut limits: OrganizerLimits = env
+            .storage()
             .persistent()
-            .set(&count_key, &(open_count.saturating_add(1)));
-        Self::extend_persistent_ttl(env, &count_key);
-
-        let ts_key = DataKey::OrganizerLastCreateTs(organizer.clone());
-        env.storage()
-            .instance()
-            .set(&ts_key, &env.ledger().timestamp());
-        env.storage()
-            .instance()
-            .extend_ttl(Self::ttl_threshold(), Self::ttl_extend_to());
+            .get(&limits_key)
+            .unwrap_or(OrganizerLimits {
+                open_count: 0,
+                last_create_ts: 0,
+            });
+        limits.open_count = limits.open_count.saturating_add(1);
+        limits.last_create_ts = env.ledger().timestamp();
+        env.storage().persistent().set(&limits_key, &limits);
+        Self::extend_persistent_ttl(env, &limits_key);
     }
 
     fn decrement_organizer_open_events(env: &Env, organizer: &Address) {
-        let count_key = DataKey::OrganizerOpenEventCount(organizer.clone());
-        let open_count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0);
-        env.storage()
+        // STORAGE: same packed entry — keep last_create_ts unchanged so the
+        // rate-limit window from the previous create still applies.
+        let limits_key = DataKey::OrganizerLimits(organizer.clone());
+        let mut limits: OrganizerLimits = env
+            .storage()
             .persistent()
-            .set(&count_key, &open_count.saturating_sub(1));
-        Self::extend_persistent_ttl(env, &count_key);
+            .get(&limits_key)
+            .unwrap_or(OrganizerLimits {
+                open_count: 0,
+                last_create_ts: 0,
+            });
+        limits.open_count = limits.open_count.saturating_sub(1);
+        env.storage().persistent().set(&limits_key, &limits);
+        Self::extend_persistent_ttl(env, &limits_key);
     }
 
-    fn try_promote_from_waitlist(_env: &Env, _event_id: u32) {
-        // Waitlist promotion hooks live alongside `join_waitlist` when enabled.
+    fn try_promote_from_waitlist(env: &Env, event_id: u32) {
+        // STORAGE: waitlist lives in `temporary` — see DataKey definition.
+        // No TTL extension on the read path; the write side (whichever
+        // contract hands signups in here) is responsible for keeping the
+        // entry alive while it matters.
+        let key = DataKey::Waitlist(event_id);
+        if let Some(waitlist) = env.storage().temporary().get::<_, Vec<Address>>(&key) {
+            if !waitlist.is_empty() {
+                env.events().publish(
+                    (Symbol::new(env, "waitlist_promotion_skipped"),),
+                    (event_id, waitlist.len()),
+                );
+            }
+        }
     }
 
     fn get_and_increment_counter(env: &Env) -> Result<u32, Error> {
@@ -785,21 +1343,13 @@ impl EventManager {
             .instance()
             .get(&DataKey::EventCounter)
             .unwrap_or(0);
-
         let next = current.checked_add(1).ok_or(Error::CounterOverflow)?;
         env.storage().instance().set(&DataKey::EventCounter, &next);
-        env.storage()
-            .instance()
-            .extend_ttl(Self::ttl_threshold(), Self::ttl_extend_to());
+        upg::extend_instance_ttl(env);
         Ok(current)
     }
 
-    fn deploy_ticket_nft(
-        env: &Env,
-        event_id: u32,
-        _theme: String,
-        _total_supply: u128,
-    ) -> Result<Address, Error> {
+    fn deploy_ticket_nft(env: &Env, event_id: u32) -> Result<Address, Error> {
         let factory_addr: Address = env
             .storage()
             .instance()
@@ -820,7 +1370,7 @@ impl EventManager {
         Ok(nft_addr)
     }
 
-    fn record_purchase(env: &Env, event_id: u32, buyer: Address, quantity: u128, total_paid: i128) {
+    fn record_purchase(env: &Env, event_id: u32, buyer: Address, quantity: u128, total_paid: i128) -> Result<(), Error> {
         let key = DataKey::BuyerPurchase(event_id, buyer.clone());
         let existing = env.storage().persistent().get::<_, BuyerPurchase>(&key);
 
@@ -828,11 +1378,11 @@ impl EventManager {
             purchase.quantity = purchase
                 .quantity
                 .checked_add(quantity)
-                .unwrap_or_else(|| panic!("Purchase quantity overflow"));
+                .ok_or(Error::ArithmeticOverflow)?;
             purchase.total_paid = purchase
                 .total_paid
                 .checked_add(total_paid)
-                .unwrap_or_else(|| panic!("Purchase total overflow"));
+                .ok_or(Error::ArithmeticOverflow)?;
             env.storage().persistent().set(&key, &purchase);
         } else {
             let purchase = BuyerPurchase {
@@ -852,33 +1402,40 @@ impl EventManager {
             Self::extend_persistent_ttl(env, &buyers_key);
         }
 
-        // Accumulate escrow balance
         if total_paid > 0 {
-            let balance_key = DataKey::EventBalance(event_id);
-            let current: i128 = env.storage().persistent().get(&balance_key).unwrap_or(0);
-            env.storage()
+            // STORAGE: read packed ledger, increment balance, write back.
+            let ledger_key = DataKey::EventLedger(event_id);
+            let mut ledger: EventLedger = env
+                .storage()
                 .persistent()
-                .set(&balance_key, &current.saturating_add(total_paid));
-            Self::extend_persistent_ttl(env, &balance_key);
+                .get(&ledger_key)
+                .unwrap_or(EventLedger {
+                    balance: 0,
+                    withdrawn: false,
+                });
+            ledger.balance = ledger.balance.saturating_add(total_paid);
+            env.storage().persistent().set(&ledger_key, &ledger);
+            Self::extend_persistent_ttl(env, &ledger_key);
         }
 
         Self::extend_persistent_ttl(env, &key);
+        Ok(())
     }
 
-    fn calculate_total_price(ticket_price: i128, quantity: u128) -> i128 {
+    fn calculate_total_price(ticket_price: i128, quantity: u128) -> Result<i128, Error> {
         if ticket_price <= 0 {
-            return 0;
+            return Ok(0);
         }
         let quantity_i128 =
-            i128::try_from(quantity).unwrap_or_else(|_| panic!("Quantity exceeds pricing range"));
+            i128::try_from(quantity).map_err(|_| Error::ArithmeticOverflow)?;
         let subtotal = ticket_price
             .checked_mul(quantity_i128)
-            .unwrap_or_else(|| panic!("Price overflow"));
+            .ok_or(Error::ArithmeticOverflow)?;
 
         let discount_bps = if quantity >= 10 {
-            1_000i128 // 10% discount
+            1_000i128
         } else if quantity >= 5 {
-            500i128 // 5% discount
+            500i128
         } else {
             0i128
         };
@@ -886,26 +1443,15 @@ impl EventManager {
         subtotal
             .checked_mul(10_000i128 - discount_bps)
             .and_then(|value| value.checked_div(10_000))
-            .unwrap_or_else(|| panic!("Discount calculation overflow"))
+            .ok_or(Error::ArithmeticOverflow)
     }
 
     fn extend_persistent_ttl(env: &Env, key: &DataKey) {
-        env.storage()
-            .persistent()
-            .extend_ttl(key, Self::ttl_threshold(), Self::ttl_extend_to());
-    }
-
-    /// No-op stub — waitlist promotion is a future feature.
-    fn try_promote_from_waitlist(_env: &Env, _event_id: u32) {}
-
-    const fn ttl_threshold() -> u32 {
-        30 * 24 * 60 * 60 / 5
-    }
-
-    const fn ttl_extend_to() -> u32 {
-        100 * 24 * 60 * 60 / 5
+        upg::extend_persistent_ttl(env, key);
     }
 }
 
+#[cfg(test)]
+mod fuzz;
 #[cfg(test)]
 mod test;

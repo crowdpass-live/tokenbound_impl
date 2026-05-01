@@ -8,10 +8,10 @@ const EventFooter = ({ logoSrc = "/assets/hostit-logo-light.png" }) => {
           <img src={logoSrc} alt="CrowdPass" className="h-8" />
           <p className="text-gray-500 text-sm">© 2026 CrowdPass. All rights reserved.</p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a href="https://x.com" aria-label="Visit our X (Twitter) profile" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-sm">
               <img src="/assets/x-icon.png" alt="X" className="w-5 h-5 opacity-60 hover:opacity-100" />
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a href="https://instagram.com" aria-label="Visit our Instagram profile" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-sm">
               <img src="/assets/instagram-icon.png" alt="Instagram" className="w-5 h-5 opacity-60 hover:opacity-100" />
             </a>
           </div>

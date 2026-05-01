@@ -3,6 +3,7 @@ import Layout from '../../Components/dashboard/layout'
 import ExploreEventCard from '../../Components/dashboard/explore-event-card'
 import { mockEvents, categories, sortOptions } from '../../lib/mock-events'
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, Calendar, DollarSign } from 'lucide-react'
+import SEO from '../../Components/shared/seo'
 
 const Discover = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -72,6 +73,11 @@ const Discover = () => {
 
   return (
     <Layout>
+      <SEO 
+        title="Discover Events"
+        description="Explore upcoming Web3 events, workshops, and experiences on CrowdPass."
+        url="https://crowdpass.live/discover"
+      />
       <div className="space-y-6">
         {/* Page Header */}
         <div className="space-y-2">
@@ -228,7 +234,7 @@ const Discover = () => {
                   setSelectedCategory(category)
                   setCurrentPage(1)
                 }}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                className={`px-4 py-2 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                   selectedCategory === category
                     ? 'bg-deep-blue text-primary shadow-md'
                     : 'bg-white border border-gray-200 text-gray-600 hover:border-primary hover:text-primary'
@@ -305,11 +311,12 @@ const Discover = () => {
                 <button
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
-                  className={`w-10 h-10 rounded-lg text-sm font-medium transition-all ${
+                  className={`w-10 h-10 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
                     currentPage === i + 1
                       ? 'bg-deep-blue text-primary shadow-md'
                       : 'bg-white border border-gray-200 text-gray-600 hover:border-primary'
                   }`}
+                  aria-current={currentPage === i + 1 ? 'page' : undefined}
                 >
                   {i + 1}
                 </button>

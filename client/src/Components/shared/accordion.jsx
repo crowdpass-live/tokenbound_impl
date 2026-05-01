@@ -30,9 +30,9 @@ const AccordionTrigger = React.forwardRef(({ className, children, icon, ...props
     >
       {children}
       {(props['data-state'] === 'open' && icon !== false) ? (
-        icon || <Minus className="h-4 w-4 shrink-0 transition-transform duration-200" />
+        icon || <Minus aria-hidden="true" className="h-4 w-4 shrink-0 transition-transform duration-200" />
       ) : (
-        icon !== false && (icon || <Plus className="h-4 w-4 shrink-0 transition-transform duration-200" />)
+        icon !== false && (icon || <Plus aria-hidden="true" className="h-4 w-4 shrink-0 transition-transform duration-200" />)
       )}
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>

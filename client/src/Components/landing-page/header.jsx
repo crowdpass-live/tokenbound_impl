@@ -7,8 +7,8 @@ const Header = () => {
   const {connect, connectors, address, account} = useContext(KitContext)
 
   return (
-    <div className='rounded-full bg-white/70 flex justify-between items-center py-5 px-10 w-full'>
-        <img src='/assets/hostit-logo.png' height={30} width={150} />
+    <nav aria-label="Main Navigation" className='rounded-full bg-white/70 flex justify-between items-center py-5 px-10 w-full'>
+        <img src='/assets/hostit-logo.png' alt="Host IT Logo" height={30} width={150} />
         <div>
         <Button variant="link" className="text-black text-lg">Popular Events</Button>
         <Button variant="link" className="text-black text-lg">Analytics</Button>
@@ -24,7 +24,7 @@ const Header = () => {
             
             {/* <Button className="bg-deep-blue text-white px-8">Sign In</Button> */}
         </div>
-    </div>
+    </nav>
   )
 }
 

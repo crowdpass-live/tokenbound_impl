@@ -30,7 +30,7 @@ const HiwAccordion = () => {
                             <AccordionTrigger icon={false}>
                                 <div className='p-4 rounded-full flex gap-4 justify-center items-center'>
                                     <div className='bg-deep-blue p-4 rounded-full'>
-                                        <img src={icon} className='w-8 h-8' />
+                                        <img src={icon} className='w-8 h-8' alt="" aria-hidden="true" />
                                     </div>
                                     <p className='text-xl font-semibold text-deep-blue'>{title}</p>
                                 </div>

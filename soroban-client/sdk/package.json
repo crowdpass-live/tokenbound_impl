@@ -10,6 +10,8 @@
     "README.md"
   ],
   "scripts": {
-    "generate:types": "node ./scripts/generate-contract-types.mjs"
+    "generate:types": "node ./scripts/generate-contract-types.mjs",
+    "generate:types:v2": "node ./scripts/generate-types-v2.mjs",
+    "generate:all": "npm run generate:types && npm run generate:types:v2"
   }
 }

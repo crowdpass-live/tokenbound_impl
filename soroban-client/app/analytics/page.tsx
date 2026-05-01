@@ -18,8 +18,9 @@ export default function AnalyticsPage() {
             Organizer and platform insights in one dashboard
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-300">
-            Track page views, wallet connections, batch ticket purchases, conversion
-            trends, and revenue signals without leaving the CrowdPass interface.
+            Track page views, wallet connections, batch ticket purchases,
+            conversion trends, and revenue signals without leaving the CrowdPass
+            interface.
           </p>
         </section>
 

@@ -68,11 +68,16 @@ fn test_create_event() {
     event_contract_dispatcher
         .create_event(
             'Event 1'.into(),
-            USER1.try_into().unwrap(),
-            'Virtual'.into(),
+            'Conference'.into(),
+            'A test event for integration'.into(),
+            'Online'.into(),
+            'ipfs://image-hash'.into(),
+            array!['tech'.into(), 'networking'.into()],
+            array!['https://crowdpass.live'.into(), 'https://twitter.com/crowdpass'.into()],
             1721764952,
             1721937394,
             1,
+            100_u256,
         );
 
     // Check if the event was created
@@ -105,10 +110,15 @@ fn test_reschedule_future_event_succeeds() {
 
     event_contract_dispatcher
         .create_event(
-            'Future Event',
-            'Virtual',
-            500_u64,    // start_date  (before block timestamp, irrelevant here)
-            5000_u64,   // end_date    (> block timestamp 1000 → event still active)
+            'Future Event'.into(),
+            'Virtual'.into(),
+            'Scheduled event for metadata testing'.into(),
+            'Metaverse Venue'.into(),
+            'ipfs://future-event-image'.into(),
+            array!['future'.into(), 'community'.into()],
+            array!['https://future.example'.into()],
+            500_u64,
+            5000_u64,
             10_u256,
             100_u256,
         );
@@ -139,8 +149,13 @@ fn test_reschedule_ended_event_fails() {
 
     event_contract_dispatcher
         .create_event(
-            'Past Event',
-            'Virtual',
+            'Past Event'.into(),
+            'Virtual'.into(),
+            'A past event used for failure testing'.into(),
+            'Offline Hall'.into(),
+            'ipfs://past-event-image'.into(),
+            array!['retro'.into()],
+            array!['https://past.example'.into()],
             500_u64,
             2000_u64,   // end_date
             10_u256,

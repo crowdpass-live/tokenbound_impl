@@ -6,6 +6,11 @@
  */
 
 import { env } from "@/lib/env";
+import {
+  CHECKPOINT_SCHEMA_VERSION,
+  type CheckpointStore,
+  createDefaultCheckpointStore,
+} from "@/lib/checkpoint";
 
 export type ContractEventType =
   | "EventCreated"
@@ -15,7 +20,7 @@ export type ContractEventType =
   | "EventUpdated";
 
 export interface IndexedEvent {
-  id: string;           // "<ledger>-<txIndex>-<opIndex>-<eventIndex>"
+  id: string; // "<ledger>-<txIndex>-<opIndex>-<eventIndex>"
   type: ContractEventType;
   ledger: number;
   ledgerClosedAt: string; // ISO timestamp
@@ -48,6 +53,73 @@ const cache: Cache = {
 };
 
 const CACHE_TTL_MS = 15_000; // re-poll every 15 s
+
+// ── Checkpoint state ─────────────────────────────────────────────────────────
+
+let checkpointStore: CheckpointStore = createDefaultCheckpointStore();
+let hydrationPromise: Promise<void> | null = null;
+let hydrated = false;
+
+/**
+ * Override the checkpoint store. Intended for tests; production callers should
+ * rely on the default store wired to the configured path.
+ */
+export function setCheckpointStore(store: CheckpointStore): void {
+  checkpointStore = store;
+  hydrationPromise = null;
+  hydrated = false;
+}
+
+async function hydrateFromCheckpoint(): Promise<void> {
+  if (hydrated) return;
+  if (!hydrationPromise) {
+    hydrationPromise = (async () => {
+      try {
+        const saved = await checkpointStore.load();
+        if (saved && cache.events.length === 0 && cache.lastLedger === 0) {
+          cache.events = saved.events;
+          cache.lastLedger = saved.lastLedger;
+          // Treat a fresh hydration as stale so the first call still polls
+          // for events that may have arrived during downtime.
+          cache.updatedAt = 0;
+        }
+      } catch (err) {
+        console.warn("[indexer] failed to load checkpoint:", err);
+      } finally {
+        hydrated = true;
+      }
+    })();
+  }
+  return hydrationPromise;
+}
+
+async function persistCheckpoint(): Promise<void> {
+  try {
+    await checkpointStore.save({
+      version: CHECKPOINT_SCHEMA_VERSION,
+      lastLedger: cache.lastLedger,
+      events: cache.events,
+      updatedAt: cache.updatedAt,
+    });
+  } catch (err) {
+    // Persistence failures must not break the consumer — at worst we replay
+    // events on the next restart.
+    console.warn("[indexer] failed to save checkpoint:", err);
+  }
+}
+
+/**
+ * Reset the in-memory cache and clear the persisted checkpoint. Intended for
+ * tests and admin-triggered re-indexing.
+ */
+export async function resetIndexer(): Promise<void> {
+  cache.events = [];
+  cache.lastLedger = 0;
+  cache.updatedAt = 0;
+  hydrated = false;
+  hydrationPromise = null;
+  await checkpointStore.reset();
+}
 
 // ── Horizon response shapes (minimal) ────────────────────────────────────────
 
@@ -120,7 +192,9 @@ function decodeI128(b64: string): string {
 function decodeEvent(raw: HorizonContractEvent): IndexedEvent | null {
   if (!raw.topic || raw.topic.length === 0) return null;
 
-  const eventType = decodeSymbol(raw.topic[0]?.value ?? "") as ContractEventType;
+  const eventType = decodeSymbol(
+    raw.topic[0]?.value ?? "",
+  ) as ContractEventType;
   const knownTypes: ContractEventType[] = [
     "EventCreated",
     "TicketPurchased",
@@ -171,7 +245,8 @@ function decodeEvent(raw: HorizonContractEvent): IndexedEvent | null {
 
 async function fetchPage(url: string): Promise<HorizonEventsResponse> {
   const res = await fetch(url, { next: { revalidate: 0 } });
-  if (!res.ok) throw new Error(`Horizon error ${res.status}: ${await res.text()}`);
+  if (!res.ok)
+    throw new Error(`Horizon error ${res.status}: ${await res.text()}`);
   return res.json() as Promise<HorizonEventsResponse>;
 }
 
@@ -196,7 +271,8 @@ async function pollHorizon(): Promise<void> {
       const decoded = decodeEvent(raw);
       if (decoded) {
         newEvents.push(decoded);
-        if (decoded.ledger > cache.lastLedger) cache.lastLedger = decoded.ledger;
+        if (decoded.ledger > cache.lastLedger)
+          cache.lastLedger = decoded.ledger;
       }
     }
     url = page._links.next?.href;
@@ -214,7 +290,9 @@ async function pollHorizon(): Promise<void> {
     }
     // Apply cancellation status retroactively
     const canceledIds = new Set(
-      cache.events.filter((e) => e.type === "EventCanceled").map((e) => e.eventId)
+      cache.events
+        .filter((e) => e.type === "EventCanceled")
+        .map((e) => e.eventId),
     );
     for (const ev of cache.events) {
       if (ev.eventId !== undefined && canceledIds.has(ev.eventId)) {
@@ -224,11 +302,18 @@ async function pollHorizon(): Promise<void> {
   }
 
   cache.updatedAt = Date.now();
+
+  // Skip writes when no new events arrived — the persisted cursor is already
+  // current and disk churn on quiet contracts adds no value.
+  if (newEvents.length > 0) {
+    await persistCheckpoint();
+  }
 }
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
 export async function getIndexedEvents(): Promise<IndexedEvent[]> {
+  await hydrateFromCheckpoint();
   if (Date.now() - cache.updatedAt > CACHE_TTL_MS) {
     await pollHorizon();
   }
@@ -238,8 +323,8 @@ export async function getIndexedEvents(): Promise<IndexedEvent[]> {
 export interface EventQueryParams {
   organizer?: string;
   status?: "active" | "canceled" | "completed";
-  from?: number;   // unix timestamp
-  to?: number;     // unix timestamp
+  from?: number; // unix timestamp
+  to?: number; // unix timestamp
   type?: ContractEventType;
   limit?: number;
   offset?: number;
@@ -276,5 +361,35 @@ export function getCacheStats() {
     lastLedger: cache.lastLedger,
     updatedAt: cache.updatedAt,
     ttlMs: CACHE_TTL_MS,
+    hydratedFromCheckpoint: hydrated,
   };
+}
+
+/**
+ * Get the latest cursor for reconnection purposes
+ * Returns a cursor string that can be used to resume from the last known position
+ */
+export function getLatestCursor(): string | null {
+  if (cache.lastLedger === 0) return null;
+  return `${cache.lastLedger}-0-0-0`;
+}
+
+/**
+ * Get events after a specific cursor for replay
+ * @param cursor The cursor to resume from (format: "ledger-0-0-0")
+ * @returns Events that occurred after the cursor
+ */
+export function getEventsAfterCursor(cursor: string): IndexedEvent[] {
+  if (!cursor || cache.lastLedger === 0) {
+    return cache.events;
+  }
+
+  // Parse the cursor to extract the ledger number
+  const cursorLedger = parseInt(cursor.split("-")[0], 10);
+  if (isNaN(cursorLedger)) {
+    return cache.events;
+  }
+
+  // Return events that occurred after the cursor ledger
+  return cache.events.filter((event) => event.ledger > cursorLedger);
 }

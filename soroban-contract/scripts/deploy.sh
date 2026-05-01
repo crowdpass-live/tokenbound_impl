@@ -1,27 +1,21 @@
 #!/usr/bin/env bash
-#
-# CrowdPass Contract Deployment Script
-#
-# Deploys all contracts in dependency order:
-#   1. tba_account    (install WASM only — deployed on-demand by registry)
-#   2. ticket_nft     (install WASM only — deployed on-demand by factory)
-#   3. tba_registry   (deploy + constructor with tba_account wasm hash)
-#   4. ticket_factory (deploy + constructor with admin + ticket_nft wasm hash)
-#   5. event_manager  (deploy + initialize with ticket_factory address)
-#
-# Usage:
-#   ./scripts/deploy.sh --network testnet --source <SECRET_KEY_OR_IDENTITY>
-#   ./scripts/deploy.sh --network mainnet --source deployer
-#
-# Idempotent: skips contracts already recorded in the config file.
 
 set -euo pipefail
 
-# ── Defaults ──────────────────────────────────────────────────────────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "Note: This is the legacy deployment script."
+echo "Consider using the improved deploy-v2.sh script instead."
+echo ""
+echo "Usage: $SCRIPT_DIR/deploy-v2.sh --network testnet --source deployer"
+echo ""
+echo "Continuing with legacy deployment in 3 seconds..."
+sleep 3
+echo ""
+
 NETWORK="testnet"
 SOURCE=""
 WASM_DIR="target/wasm32-unknown-unknown/release"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 CONFIG_DIR="$PROJECT_DIR/deployments"
 

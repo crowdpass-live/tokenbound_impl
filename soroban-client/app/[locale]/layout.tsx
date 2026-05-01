@@ -24,7 +24,15 @@ export const metadata: Metadata = {
   title: "CrowdPass — Secure Event Ticketing on Stellar",
   description:
     "Decentralized event ticketing platform built on Stellar blockchain. Secure, transparent, and fraud-proof event management powered by blockchain technology.",
-  keywords: ["event ticketing", "blockchain", "Stellar", "Soroban", "decentralized", "NFT tickets", "crypto events"],
+  keywords: [
+    "event ticketing",
+    "blockchain",
+    "Stellar",
+    "Soroban",
+    "decentralized",
+    "NFT tickets",
+    "crypto events",
+  ],
   authors: [{ name: "CrowdPass" }],
   openGraph: {
     title: "CrowdPass — Secure Event Ticketing on Stellar",
@@ -32,7 +40,14 @@ export const metadata: Metadata = {
       "Decentralized event ticketing platform built on Stellar blockchain. Secure, transparent, and fraud-proof event management powered by blockchain technology.",
     url: "https://crowdpassevents.com",
     siteName: "CrowdPass",
-    images: [{ url: "/banner.jpg", width: 1200, height: 630, alt: "CrowdPass - Decentralized Event Ticketing on Stellar" }],
+    images: [
+      {
+        url: "/banner.jpg",
+        width: 1200,
+        height: 630,
+        alt: "CrowdPass - Decentralized Event Ticketing on Stellar",
+      },
+    ],
     locale: "en_US",
     type: "website",
   },
@@ -66,7 +81,9 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={dir}>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <NextIntlClientProvider messages={messages}>
           <WalletProvider>
             {children}

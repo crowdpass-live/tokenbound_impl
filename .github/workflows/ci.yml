@@ -2,20 +2,15 @@ name: Soroban CI
 
 on:
   push:
-    branches:
-      - main
-      - develop
     paths:
       - "soroban-client/**"
       - "soroban-contract/**"
       - ".github/workflows/**"
   pull_request:
-    branches:
-      - main
-      - develop
     paths:
       - "soroban-client/**"
       - "soroban-contract/**"
+      - ".github/workflows/**"
 
 jobs:
   client:
@@ -170,7 +165,6 @@ jobs:
       - name: Check contract formatting
         working-directory: soroban-contract
         run: cargo fmt --all -- --check
-        continue-on-error: true
 
       - name: Build contracts
         working-directory: soroban-contract
@@ -179,15 +173,17 @@ jobs:
           cargo build --release --target wasm32-unknown-unknown -p tba_account
           cargo build --release --target wasm32-unknown-unknown
 
+      - name: Run contract tests
+        working-directory: soroban-contract
+        run: cargo test --workspace --all-targets
+
       - name: Optimize contracts
         working-directory: soroban-contract
         run: soroban contract optimize --wasm target/wasm32-unknown-unknown/release/*.wasm
-        continue-on-error: true
 
       - name: Run clippy
         working-directory: soroban-contract
         run: cargo clippy --all-targets -- -D warnings
-        continue-on-error: true
 
       - name: Run contract tests with coverage
         working-directory: soroban-contract

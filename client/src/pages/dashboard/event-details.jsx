@@ -1,36 +1,104 @@
-import React, { useContext, useEffect, useState } from 'react'
-import Layout from '../../Components/dashboard/layout'
+import React, { useContext, useEffect, useState } from 'react';
+import Layout from '../../Components/dashboard/layout';
 import { useContractRead } from '@starknet-react/core';
 import { useParams } from 'react-router-dom';
 import { KitContext } from '../../context/kit-context';
 import { Button } from '../../Components/shared/button';
 import { Card } from '../../Components/shared/card';
-import { CalendarIcon, ClockIcon, HandCoins, MapPinIcon, Tags, Ticket, TicketCheck, TicketMinus, User } from 'lucide-react';
+import {
+  CalendarIcon,
+  ClockIcon,
+  HandCoins,
+  MapPinIcon,
+  Tags,
+  Ticket,
+  TicketCheck,
+  TicketMinus,
+  User,
+} from 'lucide-react';
 import { feltToString } from '../../helpers';
 import { epochToDatetime } from 'datetime-epoch-conversion';
-import { MdLiveTv } from "react-icons/md";
+import { MdLiveTv } from 'react-icons/md';
 import { TokenboundClient } from 'starknet-tokenbound-sdk';
 import { RescheduleDialog } from '../../Components/dashboard/reschedule-dialog';
 import { Dialog } from '../../Components/shared/dialog';
 import TicketDialog from '../../Components/dashboard/ticket-dialog';
 import { cairo } from 'starknet';
-import strkAbi from '../../Abis/strkAbi.json'
+import strkAbi from '../../Abis/strkAbi.json';
 import { toast } from 'sonner';
-
+import SEO from '../../Components/shared/seo';
 
 const EventDetails = () => {
-    const [formData, setFormData] = useState({
-        startTime: '',
-        endTime: '',
-    })
-    const [reclaimed, setReclaimed] = useState(false)
+  const [formData, setFormData] = useState({
+    startTime: '',
+    endTime: '',
+  });
+  const [reclaimed, setReclaimed] = useState(false);
 
-    const [appApproved, setAppApproved] = useState(false)
+  const [appApproved, setAppApproved] = useState(false);
+  const [txStatus, setTxStatus] = useState({ status: 'idle', message: '' });
 
-    const inputChange = (e) => {
-        setFormData((prevState) => ({
-            ...prevState, [e.target.name]: e.target.value
-        }))
+  const inputChange = e => {
+    setFormData(prevState => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const [tba, setTba] = useState('');
+  const { id } = useParams();
+  const {
+    address,
+    account,
+    contract,
+    eventAbi,
+    contractAddr,
+    eventContract,
+    readEventContract,
+    strkContract,
+  } = useContext(KitContext);
+
+  const { data, isError, isLoading, error } = useContractRead({
+    functionName: 'get_event',
+    args: [id],
+    abi: eventAbi,
+    address: contractAddr,
+    watch: true,
+  });
+
+  const {
+    data: userTicket,
+    isError: userTicketIsError,
+    isLoading: userTicketIsLoading,
+    error: userTicketError,
+  } = useContractRead({
+    functionName: 'user_event_ticket',
+    args: [id, address],
+    abi: eventAbi,
+    address: contractAddr,
+    watch: true,
+  });
+
+  console.log(data);
+  console.log(Number(userTicket));
+
+  const startDateResponse = epochToDatetime(String(data?.start_date));
+  const endDateResponse = epochToDatetime(String(data?.end_date));
+
+  const handleApprove = async e => {
+    e.preventDefault();
+    setTxStatus({ status: 'pending', message: 'Approving app...' });
+    const toast1 = toast.loading('Approving App');
+
+    try {
+      await strkContract.approve(contract?.address, cairo.uint256(data?.ticket_price));
+      setTxStatus({ status: 'success', message: 'App approval successful' });
+      toast.dismiss(toast1);
+      toast.success('App approval successful');
+    } catch (error) {
+      setTxStatus({ status: 'error', message: error.message });
+      toast.dismiss(toast1);
+      toast.error(error.message);
     }
 
     const [tba, setTba] = useState('')
@@ -60,6 +128,43 @@ const EventDetails = () => {
     const startDateResponse = epochToDatetime(String(data?.start_date))
     const endDateResponse = epochToDatetime(String(data?.end_date))
 
+    const eventName = data ? feltToString(data.theme) : '';
+    const eventLocation = data ? feltToString(data.event_type) : '';
+
+    const eventSchema = data && !isLoading ? {
+      "@context": "https://schema.org",
+      "@type": "Event",
+      "name": eventName,
+      "startDate": new Date(Number(data?.start_date) * 1000).toISOString(),
+      "endDate": new Date(Number(data?.end_date) * 1000).toISOString(),
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "eventStatus": data?.is_canceled ? "https://schema.org/EventCancelled" : "https://schema.org/EventScheduled",
+      "location": {
+        "@type": "Place",
+        "name": eventLocation,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": eventLocation
+        }
+      },
+      "image": [
+        "https://crowdpass.live/assets/about-image-podcast.jpg"
+      ],
+      "description": `Join us for ${eventName} at ${eventLocation}.`,
+      "offers": {
+        "@type": "Offer",
+        "url": `https://crowdpass.live/events/${id}`,
+        "price": String(data?.ticket_price || 0).slice(0, -18) || "0",
+        "priceCurrency": "STRK",
+        "availability": "https://schema.org/InStock",
+        "validFrom": new Date().toISOString()
+      },
+      "organizer": {
+        "@type": "Organization",
+        "name": `0x${(data?.organizer)?.toString(16)}`,
+        "url": "https://crowdpass.live"
+      }
+    } : null;
 
     const handleApprove = async (e) => {
         e.preventDefault()
@@ -75,88 +180,121 @@ const EventDetails = () => {
             toast.error(error.message)
         }
     }
+  };
 
+  // reschedule event
+  const rescheduleEvent = async e => {
+    e.preventDefault();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault()
-        const toast1 = toast.loading('Purchasing ticket')
+    const _start_date = new Date(formData.startTime).getTime() / 1000;
+    const _end_date = new Date(formData.endTime).getTime() / 1000;
 
-        try {
-
-            // await strkContract.approve(contract?.address, cairo.uint256(2))
-            handleApprove()
-            await eventContract.purchase_ticket(id)
-            toast.dismiss(toast1);
-            toast.success("Ticket purchase successful")
-        } catch (error) {
-            toast.dismiss(toast1);
-            toast.error(error.message)
-        }
+    try {
+      await eventContract.reschedule_event(id, _start_date, _end_date);
+      alert('succesfully added');
+    } catch (error) {
+      alert(error.message);
+      console.log(error);
     }
+  };
 
-    // reschedule event
-    const rescheduleEvent = async (e) => {
-        e.preventDefault()
+  // cancel event
+  const cancelEvent = async e => {
+    e.preventDefault();
+    setTxStatus({ status: 'pending', message: 'Cancelling event...' });
+    const toast1 = toast.loading('Cancelling Events');
 
-        const _start_date = new Date(formData.startTime).getTime() / 1000;
-        const _end_date = new Date(formData.endTime).getTime() / 1000;
-
-        try {
-
-            await eventContract.reschedule_event(id, _start_date, _end_date)
-            alert('succesfully added')
-
-        } catch (error) {
-            alert(error.message)
-            console.log(error)
-        }
+    try {
+      await eventContract.cancel_event(id);
+      setTxStatus({ status: 'success', message: 'Event cancelled successfully' });
+      toast.dismiss(toast1);
+      toast.success('Event Cancelled');
+    } catch (error) {
+      setTxStatus({ status: 'error', message: error.message });
+      toast.dismiss(toast1);
+      toast.error(error.message);
     }
+  };
 
+  const claim_ticket_refund = async e => {
+    e.preventDefault();
+    setTxStatus({ status: 'pending', message: 'Reclaiming ticket fee...' });
+    const toast1 = toast.loading('Reclaiming ticket fee');
 
-    // cancel event
-    const cancelEvent = async (e) => {
-        e.preventDefault()
-        const toast1 = toast.loading('Cancelling Events')
-
-        try {
-
-            await eventContract.cancel_event(id)
-            toast.dismiss(toast1);
-            toast.success("Event Cancelled")
-        } catch (error) {
-            toast.dismiss(toast1);
-            toast.error(error.message)
-        }
+    try {
+      await eventContract.claim_ticket_refund(id);
+      setTxStatus({ status: 'success', message: 'Refund claimed successfully' });
+      toast.dismiss(toast1);
+      toast.success('Refund claimed');
+      setReclaimed(true);
+    } catch (error) {
+      setTxStatus({ status: 'error', message: error.message });
+      toast.dismiss(toast1);
+      toast.error(error.message);
     }
+  };
 
-    const claim_ticket_refund = async (e) => {
-        e.preventDefault()
-        const toast1 = toast.loading('Reclaiming ticket fee')
+  // tokenbound integration
+  const options = {
+    account: account,
+    registryAddress: `0x4101d3fa033024654083dd982273a300cb019b8cb96dd829267a4daf59f7b7e`,
+    implementationAddress: `0x45d67b8590561c9b54e14dd309c9f38c4e2c554dd59414021f9d079811621bd`,
+    jsonRPC: `https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/RCp5m7oq9i9myxsvC8ctUmNq2Wq2Pa_v`,
+  };
 
-        try {
+  let tokenbound;
 
-            await eventContract.claim_ticket_refund(id)
-            toast.dismiss(toast1);
-            toast.success("Refund claimed")
-            setReclaimed(true)
-        } catch (error) {
-            toast.dismiss(toast1);
-            toast.error(error.message)
-        }
+  if (account) {
+    tokenbound = new TokenboundClient(options);
+  }
+
+  console.log(tokenbound);
+
+  // get account status
+  const getStatus = async () => {
+    try {
+      const status = await tokenbound.checkAccountDeployment({
+        tokenContract: `0x${data?.event_ticket_addr.toString(16)}`,
+        tokenId: userTicket,
+        salt: userTicket,
+      });
+
+      if (status) {
+        console.log(status);
+      }
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-    // tokenbound integration
-    const options = {
-        account: account,
-        registryAddress: `0x4101d3fa033024654083dd982273a300cb019b8cb96dd829267a4daf59f7b7e`,
-        implementationAddress: `0x45d67b8590561c9b54e14dd309c9f38c4e2c554dd59414021f9d079811621bd`,
-        jsonRPC: `https://starknet-sepolia.g.alchemy.com/starknet/version/rpc/v0_7/RCp5m7oq9i9myxsvC8ctUmNq2Wq2Pa_v`
+  const deployAccount = async () => {
+    try {
+      await tokenbound.createAccount({
+        tokenContract: `0x${data?.event_ticket_addr.toString(16)}`,
+        tokenId: userTicket,
+        salt: userTicket,
+      });
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-    let tokenbound;
+  useEffect(() => {
+    getStatus();
+  }, []);
 
-    if (account) {
-        tokenbound = new TokenboundClient(options)
+  const getAccount = async () => {
+    try {
+      const account = await tokenbound.getAccount({
+        tokenContract: `0x${data?.event_ticket_addr.toString(16)}`,
+        tokenId: userTicket,
+        salt: userTicket,
+      });
+
+      console.log(`0x${account.toString(16)}`);
+      setTba(`0x${account.toString(16)}`);
+    } catch (error) {
+      console.log(error);
     }
 
     console.log(tokenbound)
@@ -216,6 +354,16 @@ const EventDetails = () => {
 
     return (
         <Layout>
+            {data && !isLoading && (
+              <SEO 
+                title={eventName}
+                description={`Join us for ${eventName} at ${eventLocation}.`}
+                url={`https://crowdpass.live/events/${id}`}
+                image="https://crowdpass.live/assets/about-image-podcast.jpg"
+                type="article"
+                schema={eventSchema}
+              />
+            )}
             <h1 className='text-3xl text-deep-blue font-semibold'>
                 Event Details
             </h1>
@@ -229,6 +377,7 @@ const EventDetails = () => {
                             <img
                                 src="/assets/about-image-podcast.jpg"
                                 className="absolute inset-0 w-full h-[300px] object-cover "
+                                alt="Event banner background"
                             />
                             <div className="absolute inset-0 bg-black/50 z-10" />
                             <div className="relative z-20 h-full flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 text-center text-base-white">
@@ -349,14 +498,31 @@ const EventDetails = () => {
                             </div>
 
                         </div>
+                      )}
                     </div>
-                    <a href={`https://sepolia.voyager.online/contract/0x${data?.event_ticket_addr.toString(16)}`} target="_blank" rel="noopener noreferrer" className='underline text-blue-700 text-center w-full flex items-center justify-end pr-10 my-2'> View tickets NFT address</a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+          <a
+            href={`https://sepolia.voyager.online/contract/0x${data?.event_ticket_addr.toString(16)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline text-blue-700 text-center w-full flex items-center justify-end pr-10 my-2"
+          >
+            {' '}
+            View tickets NFT address
+          </a>
+          {txStatus.status !== 'idle' && (
+            <div className="mx-10 mb-4">
+              <TransactionStatus status={txStatus.status} message={txStatus.message} />
+            </div>
+          )}
+        </Card>
+      )}
+    </Layout>
+  );
+};
 
-                </Card>
-            )}
-
-        </Layout>
-    )
-}
-
-export default EventDetails
+export default EventDetails;

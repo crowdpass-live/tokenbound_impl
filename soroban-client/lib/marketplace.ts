@@ -22,7 +22,9 @@ export interface Sale {
 }
 
 // Mock data for now - replace with actual contract calls
-export async function getActiveListings(seller?: string | null): Promise<Listing[]> {
+export async function getActiveListings(
+  seller?: string | null,
+): Promise<Listing[]> {
   // This will be replaced with actual contract calls
   const mockListings: Listing[] = [
     {
@@ -50,7 +52,7 @@ export async function getActiveListings(seller?: string | null): Promise<Listing
   ];
 
   if (seller) {
-    return mockListings.filter(l => l.seller === seller);
+    return mockListings.filter((l) => l.seller === seller);
   }
   return mockListings;
 }
@@ -59,7 +61,7 @@ export async function createListing(
   seller: string,
   ticketContract: string,
   tokenId: number,
-  price: number
+  price: number,
 ): Promise<number> {
   // This will call the marketplace contract
   console.log("Creating listing:", { seller, ticketContract, tokenId, price });
@@ -69,13 +71,16 @@ export async function createListing(
 export async function purchaseListing(
   listingId: number,
   buyer: string,
-  price: number
+  price: number,
 ): Promise<void> {
   // This will call the marketplace contract
   console.log("Purchasing listing:", { listingId, buyer, price });
 }
 
-export async function cancelListing(listingId: number, seller: string): Promise<void> {
+export async function cancelListing(
+  listingId: number,
+  seller: string,
+): Promise<void> {
   // This will call the marketplace contract
   console.log("Cancelling listing:", { listingId, seller });
 }

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Allow: /discover
+Allow: /event/
+Disallow: /dashboard
+Disallow: /analytics
+Disallow: /settings
+Disallow: /tickets
+Disallow: /create-events
+
+Sitemap: https://crowdpass.live/sitemap.xml

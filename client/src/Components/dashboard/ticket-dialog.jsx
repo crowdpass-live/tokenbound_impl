@@ -40,7 +40,8 @@ const TicketDialog = ({ theme, startDate, endDate, location, id, deployAccount, 
                     <div className="bg-white rounded-lg my-3 m-1 p-3 w-full max-w-md shadow-2xl">
                         <div className="flex flex-col items-center space-y-4">
                             <div className="text-center">
-                                <h2 className="text-2xl font-bold">{theme}</h2>
+                                <DialogTitle className="text-2xl font-bold">{theme}</DialogTitle>
+                                <DialogDescription className="sr-only">Ticket details for {theme}</DialogDescription>
                                 <p className="text-gray-500 ">{`${startDate} - ${endDate}`}</p>
                                 <p className="text-gray-500 ">{location}</p>
                             </div>

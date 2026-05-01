@@ -107,10 +107,10 @@ function UpdateEventModal({
   const { address, signTransaction } = useWallet();
   const [theme, setTheme] = useState(event.theme);
   const [price, setPrice] = useState(
-    (Number(event.ticket_price) / 1e7).toString()
+    (Number(event.ticket_price) / 1e7).toString(),
   );
   const [totalTickets, setTotalTickets] = useState(
-    event.total_tickets.toString()
+    event.total_tickets.toString(),
   );
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -135,7 +135,7 @@ function UpdateEventModal({
               ? BigInt(totalTickets)
               : undefined,
         },
-        signTransaction
+        signTransaction,
       );
       onSuccess();
       onClose();
@@ -309,7 +309,7 @@ export default function DashboardPage() {
   const [actionMsg, setActionMsg] = useState("");
 
   const myEvents = events.filter(
-    (e) => e.organizer.toLowerCase() === address?.toLowerCase()
+    (e) => e.organizer.toLowerCase() === address?.toLowerCase(),
   );
 
   const fetchEvents = useCallback(async () => {
@@ -359,7 +359,9 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-[#18181B] flex items-center justify-center text-white">
         <div className="text-center space-y-4">
           <h1 className="text-2xl font-bold">Organizer Dashboard</h1>
-          <p className="text-gray-400">Connect your wallet to manage your events.</p>
+          <p className="text-gray-400">
+            Connect your wallet to manage your events.
+          </p>
           <button
             onClick={() => {
               if (!isInstalled) {
@@ -431,8 +433,8 @@ export default function DashboardPage() {
                 value: formatXLM(
                   myEvents.reduce(
                     (s, e) => s + e.tickets_sold * e.ticket_price,
-                    BigInt(0)
-                  )
+                    BigInt(0),
+                  ),
                 ),
               },
             ].map(({ label, value }) => (
@@ -473,7 +475,9 @@ export default function DashboardPage() {
           <p className="text-red-400 text-center py-12">{error}</p>
         ) : myEvents.length === 0 ? (
           <div className="text-center py-16 space-y-3">
-            <p className="text-gray-400">You haven&apos;t created any events yet.</p>
+            <p className="text-gray-400">
+              You haven&apos;t created any events yet.
+            </p>
             <Link
               href="/create-event"
               className="inline-block bg-[#FF5722] hover:bg-[#F4511E] text-white px-5 py-2 rounded-lg font-bold text-sm transition"

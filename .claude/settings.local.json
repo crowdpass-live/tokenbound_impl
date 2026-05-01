@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx jest *)",
+      "Bash(node node_modules/jest/bin/jest.js --no-coverage)",
+      "Bash(node node_modules/typescript/bin/tsc --noEmit)"
+    ]
+  }
+}

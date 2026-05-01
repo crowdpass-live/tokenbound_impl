@@ -1,0 +1,11 @@
+[package]
+name = "access_control"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+soroban-sdk = { workspace = true }
+upgradeable = { path = "../upgradeable" }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }

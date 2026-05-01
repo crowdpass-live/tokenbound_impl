@@ -1,13 +1,19 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   detectAvailableWalletProviders,
   connectWallet,
   signTransactionWithProvider,
   WalletProviderId,
   WalletProviderInfo,
-} from './walletAdapters';
+} from "./walletAdapters";
 
 import { trackWalletConnection } from "@/lib/analytics";
 
@@ -21,29 +27,39 @@ interface WalletContextType {
   connect: (providerId?: WalletProviderId) => Promise<void>;
   disconnect: () => void;
   setProviderId: (providerId: WalletProviderId) => void;
-  signTransaction: (txXdr: string, options: { networkPassphrase: string; address: string }) => Promise<string>;
+  signTransaction: (
+    txXdr: string,
+    options: { networkPassphrase: string; address: string },
+  ) => Promise<string>;
 }
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
-const DEFAULT_PROVIDER: WalletProviderId = 'freighter';
+const DEFAULT_PROVIDER: WalletProviderId = "freighter";
 
-export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [address, setAddress] = useState<string | null>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('wallet_address');
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("wallet_address");
     }
     return null;
   });
 
   const [providerId, setProviderId] = useState<WalletProviderId>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('wallet_provider') as WalletProviderId) || DEFAULT_PROVIDER;
+    if (typeof window !== "undefined") {
+      return (
+        (localStorage.getItem("wallet_provider") as WalletProviderId) ||
+        DEFAULT_PROVIDER
+      );
     }
     return DEFAULT_PROVIDER;
   });
 
-  const [availableProviders, setAvailableProviders] = useState<WalletProviderInfo[]>([]);
+  const [availableProviders, setAvailableProviders] = useState<
+    WalletProviderInfo[]
+  >([]);
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
 
   useEffect(() => {
@@ -72,8 +88,8 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       setProviderId(providerToUse);
       setAddress(walletAddress);
       setIsInstalled(true);
-      localStorage.setItem('wallet_address', walletAddress);
-      localStorage.setItem('wallet_provider', providerToUse);
+      localStorage.setItem("wallet_address", walletAddress);
+      localStorage.setItem("wallet_provider", providerToUse);
       trackWalletConnection();
     } catch (error: unknown) {
       setIsInstalled(false);
@@ -89,11 +105,14 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const disconnect = () => {
     setAddress(null);
-    localStorage.removeItem('wallet_address');
-    localStorage.removeItem('wallet_provider');
+    localStorage.removeItem("wallet_address");
+    localStorage.removeItem("wallet_provider");
   };
 
-  const signTransaction = async (txXdr: string, options: { networkPassphrase: string; address: string }) => {
+  const signTransaction = async (
+    txXdr: string,
+    options: { networkPassphrase: string; address: string },
+  ) => {
     if (!isInstalled || !providerId) {
       throw new Error("Wallet provider not connected.");
     }
@@ -118,7 +137,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         disconnect,
         setProviderId: (id: WalletProviderId) => {
           setProviderId(id);
-          localStorage.setItem('wallet_provider', id);
+          localStorage.setItem("wallet_provider", id);
         },
         signTransaction,
       }}
@@ -131,7 +150,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 export const useWallet = () => {
   const context = useContext(WalletContext);
   if (context === undefined) {
-    throw new Error('useWallet must be used within a WalletProvider');
+    throw new Error("useWallet must be used within a WalletProvider");
   }
   return context;
 };

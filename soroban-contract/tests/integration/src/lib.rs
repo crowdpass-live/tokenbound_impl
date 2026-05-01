@@ -13,6 +13,7 @@
 extern crate alloc;
 extern crate std;
 
+use soroban_sdk::testutils::Ledger as _;
 use soroban_sdk::{
     contract, contractimpl, testutils::Address as _, vec, Address, BytesN, Env, IntoVal, String,
     Symbol, TryIntoVal, Val, Vec,
@@ -41,6 +42,12 @@ mod event_manager {
 mod tba_registry {
     soroban_sdk::contractimport!(
         file = "../../target/wasm32-unknown-unknown/release/tba_registry.wasm"
+    );
+}
+
+mod poap_nft {
+    soroban_sdk::contractimport!(
+        file = "../../target/wasm32-unknown-unknown/release/poap_nft.wasm"
     );
 }
 
@@ -81,6 +88,7 @@ struct TestSetup {
     factory_client: ticket_factory::Client<'static>,
     event_client: event_manager::Client<'static>,
     registry_client: tba_registry::Client<'static>,
+    poap_client: poap_nft::Client<'static>,
     tba_wasm_hash: BytesN<32>,
     #[allow(dead_code)]
     admin: Address,
@@ -108,7 +116,15 @@ fn setup() -> TestSetup {
     let registry_id = env.register(tba_registry::WASM, (&admin, &tba_wasm_hash));
     let registry_client = tba_registry::Client::new(&env, &registry_id);
 
-    // 4. Mock payment token
+    // 4. Deploy POAP contract (minter = event_manager)
+    let poap_id = env.register(poap_nft::WASM, (&event_id,));
+    let poap_client = poap_nft::Client::new(&env, &poap_id);
+
+    // 5. Configure event_manager POAP + TBA integration
+    let salt = BytesN::from_array(&env, &[9u8; 32]);
+    event_client.configure_poap(&registry_id, &tba_wasm_hash, &salt, &poap_id);
+
+    // 6. Mock payment token
     let payment_token = env.register(MockToken, ());
 
     TestSetup {
@@ -116,6 +132,7 @@ fn setup() -> TestSetup {
         factory_client,
         event_client,
         registry_client,
+        poap_client,
         tba_wasm_hash,
         admin,
         payment_token,
@@ -165,7 +182,35 @@ fn test_full_happy_path_purchase_and_create_tba() {
     let token_id = 1u128; // first mint
     assert_eq!(nft_client.owner_of(&token_id), buyer);
 
-    // Create TBA for the ticket (simulates POAP / badge account)
+    // Mark attendance (organizer check-in)
+    s.event_client.mark_attendance(&event_id, &buyer);
+
+    // Event ends
+    let event_now = s.event_client.get_event(&event_id);
+    s.env.ledger().set_timestamp(event_now.end_date + 1);
+
+    // Set default POAP metadata and distribute POAPs
+    s.event_client.set_default_poap_metadata(
+        &event_id,
+        &event_manager::PoapBadgeMetadata {
+            name: String::from_str(&s.env, "Integration POAP"),
+            description: String::from_str(&s.env, "Attended Integration Event"),
+            image: String::from_str(&s.env, "ipfs://poap"),
+        },
+    );
+    let minted = s.event_client.distribute_poaps(&event_id);
+    assert_eq!(minted, 1u32);
+
+    // Compute ticket TBA address and verify POAP minted to it
+    let impl_hash = s.tba_wasm_hash.clone();
+    let salt = BytesN::from_array(&s.env, &[9u8; 32]);
+    let tba_addr = s
+        .registry_client
+        .get_account(&impl_hash, &nft_addr, &token_id, &salt);
+    let poap_token_id = 1u128;
+    assert_eq!(s.poap_client.owner_of(&poap_token_id), tba_addr);
+
+    // Create TBA for the ticket (separate scenario still supported)
     let impl_hash = s.tba_wasm_hash.clone();
     let salt = BytesN::from_array(&s.env, &[1u8; 32]);
     let tba_addr = s

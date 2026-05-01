@@ -26,7 +26,7 @@ const UpcomingSection = () => {
         <div className='bg-white flex flex-col justify-center items-center py-6 my-10'>
             <h1 className='text-deep-blue text-6xl font-bold pt-16 pb-20'>Upcoming Events</h1>
             <div className='flex justify-center items-center gap-4'>
-                <img src="/assets/left-arrow.png" />
+                <img src="/assets/left-arrow.png" alt="" aria-hidden="true" />
                 <div className='max-w-[1280px]'>
                     <div className='bg-deep-blue rounded-lg flex gap-12 py-10 px-20 2xl:p-20 '>
                         <img src="/assets/web3lagos-conference.png" alt="web3-lagos" className='h-[350px] w-[420px] 2xl:h-[490px] 2xl:w-[566px]'/>
@@ -79,7 +79,7 @@ const UpcomingSection = () => {
                         </div>
                     </div>
                 </div>
-                <img src="/assets/right-arrow.png" />
+                <img src="/assets/right-arrow.png" alt="" aria-hidden="true" />
             </div>
 
 

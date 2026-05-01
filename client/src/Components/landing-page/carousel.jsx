@@ -160,31 +160,43 @@ const CarouselItem = React.forwardRef(({ className, ...props }, ref) => {
 })
 CarouselItem.displayName = "CarouselItem"
 const CarouselPrevious = React.forwardRef(
-    (props, ref) => {
-      const { scrollPrev, canScrollPrev } = useCarousel();
+  (props, ref) => {
+    const { scrollPrev, canScrollPrev } = useCarousel();
+
+    return (
+      <button 
+        ref={ref}
+        type="button" 
+        onClick={scrollPrev} 
+        disabled={!canScrollPrev} 
+        aria-label="Previous slide"
+        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50"
+      >
+        <img src="/assets/right-arrow.png" alt="" className="rotate-180" />
+      </button>
+    );
+  }
+);
+CarouselPrevious.displayName = "CarouselPrevious";
   
-      return (
-        <img src="/assets/right-arrow.png"  
-          disabled={!canScrollPrev}
-          onClick={scrollPrev}/>
-      );
-    },
-    { displayName: "CarouselPrevious" }
-  );
-  
-  const CarouselNext = React.forwardRef(
-    (props, ref) => {
-      const { scrollNext, canScrollNext } = useCarousel();
-  
-      return (
-     
-            <img src="/assets/right-arrow.png"  
-          disabled={!canScrollNext}
-          onClick={scrollNext}/>
-          
-      );
-    },
-    { displayName: "CarouselNext" }
-  );
+const CarouselNext = React.forwardRef(
+  (props, ref) => {
+    const { scrollNext, canScrollNext } = useCarousel();
+
+    return (
+      <button 
+        ref={ref}
+        type="button" 
+        onClick={scrollNext} 
+        disabled={!canScrollNext} 
+        aria-label="Next slide"
+        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:opacity-50"
+      >
+        <img src="/assets/right-arrow.png" alt="" />
+      </button>
+    );
+  }
+);
+CarouselNext.displayName = "CarouselNext";
   
   export { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext };

@@ -95,13 +95,15 @@ const EventHero = ({
             <div className="flex items-center gap-4 mt-4">
               <button 
                 onClick={onShare}
-                className="p-3 rounded-lg bg-[#2a2a2a] text-gray-400 hover:text-white hover:bg-[#3a3a3a] transition-colors"
+                aria-label="Share Event"
+                className="p-3 rounded-lg bg-[#2a2a2a] text-gray-400 hover:text-white hover:bg-[#3a3a3a] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange"
               >
                 <Share2 className="w-5 h-5" />
               </button>
               <button 
                 onClick={onBookmark}
-                className="p-3 rounded-lg bg-[#2a2a2a] text-gray-400 hover:text-white hover:bg-[#3a3a3a] transition-colors"
+                aria-label="Bookmark Event"
+                className="p-3 rounded-lg bg-[#2a2a2a] text-gray-400 hover:text-white hover:bg-[#3a3a3a] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-orange"
               >
                 <Bookmark className="w-5 h-5" />
               </button>

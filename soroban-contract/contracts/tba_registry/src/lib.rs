@@ -21,9 +21,8 @@ pub enum Error {
 pub enum DataKey {
     /// WASM hash of the TBA Account contract implementation
     ImplementationWasmHash,
-    /// Mapping from (implementation_hash, token_contract, token_id, salt) -> deployed_address
-    /// We use a composite key to store the deployed address
-    DeployedAccount(BytesN<32>, Address, u128, BytesN<32>),
+    /// Mapping from a compact composite hash key -> deployed_address
+    DeployedAccount(BytesN<32>),
     /// Count of deployed accounts per NFT: (token_contract, token_id) -> count
     AccountCount(Address, u128),
 }
@@ -50,10 +49,7 @@ impl TbaRegistry {
             .set(&DataKey::ImplementationWasmHash, &tba_account_wasm_hash);
 
         // Extend instance TTL
-        env.storage().instance().extend_ttl(
-            30 * 24 * 60 * 60 / 5,  // ~30 days
-            100 * 24 * 60 * 60 / 5, // ~100 days
-        );
+        upg::extend_instance_ttl(&env);
     }
 
     /// Calculate the deterministic address for a TBA account
@@ -80,21 +76,15 @@ impl TbaRegistry {
     ) -> Address {
         // First, check if the account has already been deployed
         // If so, return the stored address (most accurate)
-        let account_key = DataKey::DeployedAccount(
-            implementation_hash.clone(),
-            token_contract.clone(),
-            token_id,
-            salt.clone(),
-        );
+        let account_key =
+            account_storage_key(&env, &implementation_hash, &token_contract, token_id, &salt);
 
+        // STORAGE: pure lookup path. TTL is extended in `create_account`
+        // when the entry is written; bumping it on every read turned every
+        // `get_account` query (the most-called RPC against this contract)
+        // into a storage write.
         let deployed_account: Option<Address> = env.storage().persistent().get(&account_key);
         if let Some(deployed_addr) = deployed_account {
-            // Extend persistent TTL on read
-            env.storage().persistent().extend_ttl(
-                &account_key,
-                30 * 24 * 60 * 60 / 5,
-                100 * 24 * 60 * 60 / 5,
-            );
             return deployed_addr;
         }
 
@@ -135,6 +125,7 @@ impl TbaRegistry {
         token_id: u128,
         salt: BytesN<32>,
     ) -> Result<Address, Error> {
+        upg::require_not_paused(&env);
         // Verify that the caller owns the NFT (Issue #26)
         // This is a cross-contract call to the NFT contract
         let owner: Address = env.invoke_contract(
@@ -145,12 +136,8 @@ impl TbaRegistry {
         owner.require_auth();
 
         // Check if account already exists
-        let account_key = DataKey::DeployedAccount(
-            implementation_hash.clone(),
-            token_contract.clone(),
-            token_id,
-            salt.clone(),
-        );
+        let account_key =
+            account_storage_key(&env, &implementation_hash, &token_contract, token_id, &salt);
 
         if env.storage().persistent().has(&account_key) {
             return Err(Error::AccountAlreadyDeployed);
@@ -197,24 +184,16 @@ impl TbaRegistry {
             .set(&account_key, &deployed_address);
 
         // Extend persistent TTL
-        env.storage().persistent().extend_ttl(
-            &account_key,
-            30 * 24 * 60 * 60 / 5,
-            100 * 24 * 60 * 60 / 5,
-        );
+        upg::extend_persistent_ttl(&env, &account_key);
 
         // Increment and store the account count for this NFT
         let count_key = DataKey::AccountCount(token_contract.clone(), token_id);
         let current_count: u32 = env.storage().persistent().get(&count_key).unwrap_or(0);
-        let new_count = current_count + 1;
+        let new_count = current_count.saturating_add(1);
         env.storage().persistent().set(&count_key, &new_count);
 
         // Extend persistent TTL for count
-        env.storage().persistent().extend_ttl(
-            &count_key,
-            30 * 24 * 60 * 60 / 5,
-            100 * 24 * 60 * 60 / 5,
-        );
+        upg::extend_persistent_ttl(&env, &count_key);
 
         Ok(deployed_address)
     }
@@ -252,7 +231,7 @@ impl TbaRegistry {
         salt: BytesN<32>,
     ) -> Option<Address> {
         let account_key =
-            DataKey::DeployedAccount(implementation_hash, token_contract, token_id, salt);
+            account_storage_key(&env, &implementation_hash, &token_contract, token_id, &salt);
         env.storage().persistent().get(&account_key)
     }
 
@@ -268,6 +247,27 @@ impl TbaRegistry {
 
     pub fn commit_upgrade(env: Env) {
         upg::commit_upgrade(&env);
+    }
+
+    /// Immediate (fast-path) upgrade. Admin-only, no timelock — see
+    /// `upgradeable::upgrade` for the full security note. Reserve for
+    /// emergencies; prefer `schedule_upgrade` + `commit_upgrade` for
+    /// routine upgrades.
+    pub fn upgrade(env: Env, new_wasm_hash: BytesN<32>) {
+        upg::upgrade(&env, new_wasm_hash);
+    }
+
+    /// Apply post-upgrade state-shape migrations and bump the version to
+    /// `target_version`. Admin-only; rejects downgrades.
+    pub fn migrate(env: Env, target_version: u32) {
+        upg::require_admin(&env);
+        upg::require_version_increase(&env, target_version);
+
+        match target_version {
+            _ => {}
+        }
+
+        upg::migration_completed(&env, target_version);
     }
 
     pub fn pause(env: Env) {
@@ -323,6 +323,22 @@ fn compute_composite_salt(
     // Hash the combined bytes to create final composite salt
     let hash = env.crypto().sha256(&combined);
     hash.into()
+}
+
+fn account_storage_key(
+    env: &Env,
+    implementation_hash: &BytesN<32>,
+    token_contract: &Address,
+    token_id: u128,
+    salt: &BytesN<32>,
+) -> DataKey {
+    DataKey::DeployedAccount(compute_composite_salt(
+        env,
+        implementation_hash,
+        token_contract,
+        token_id,
+        salt,
+    ))
 }
 
 #[cfg(test)]

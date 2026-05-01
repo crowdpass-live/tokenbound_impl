@@ -6,11 +6,31 @@ pub trait IEventContract<TContractState> {
         ref self: TContractState,
         _theme: felt252,
         _event_type: felt252,
+        _description: felt252,
+        _location: felt252,
+        _image: felt252,
+        _category_tags: Array<felt252>,
+        _external_links: Array<felt252>,
         _start_date: u64,
         _end_date: u64,
         _ticket_price: u256,
         _total_tickets: u256
     ) -> bool;
+    fn update_event(
+        ref self: TContractState,
+        _event_id: u32,
+        _theme: felt252,
+        _event_type: felt252,
+        _description: felt252,
+        _location: felt252,
+        _image: felt252,
+        _category_tags: Array<felt252>,
+        _external_links: Array<felt252>,
+        _start_date: u64,
+        _end_date: u64,
+        _ticket_price: u256,
+        _total_tickets: u256
+    );
     fn reschedule_event(ref self: TContractState, _event_id: u32, _start_date: u64, _end_date: u64);
     fn cancel_event(ref self: TContractState, _event_id: u32);
     fn purchase_ticket(ref self: TContractState, _event_id: u32);
@@ -27,6 +47,11 @@ pub struct Events {
     theme: felt252,
     organizer: ContractAddress,
     event_type: felt252,
+    description: felt252,
+    location: felt252,
+    image: felt252,
+    category_tags: Array<felt252>,
+    external_links: Array<felt252>,
     total_tickets: u256,
     tickets_sold: u256,
     ticket_price: u256,
@@ -126,6 +151,11 @@ use core::{traits::{TryInto, Into}, num::traits::zero::Zero};
             ref self: ContractState,
             _theme: felt252,
             _event_type: felt252,
+            _description: felt252,
+            _location: felt252,
+            _image: felt252,
+            _category_tags: Array<felt252>,
+            _external_links: Array<felt252>,
             _start_date: u64,
             _end_date: u64,
             _ticket_price: u256,
@@ -152,6 +182,11 @@ use core::{traits::{TryInto, Into}, num::traits::zero::Zero};
                 theme: _theme.into(),
                 organizer: caller,
                 event_type: _event_type,
+                description: _description,
+                location: _location,
+                image: _image,
+                category_tags: _category_tags,
+                external_links: _external_links,
                 total_tickets: _total_tickets,
                 tickets_sold: 0,
                 ticket_price: _ticket_price,
@@ -171,6 +206,57 @@ use core::{traits::{TryInto, Into}, num::traits::zero::Zero};
             self.emit(EventCreated { id: _event_count, organizer: caller });
 
             true
+        }
+
+        fn update_event(
+            ref self: ContractState,
+            _event_id: u32,
+            _theme: felt252,
+            _event_type: felt252,
+            _description: felt252,
+            _location: felt252,
+            _image: felt252,
+            _category_tags: Array<felt252>,
+            _external_links: Array<felt252>,
+            _start_date: u64,
+            _end_date: u64,
+            _ticket_price: u256,
+            _total_tickets: u256
+        ) {
+            let caller = get_caller_address();
+            let _event_count = self.event_count.read();
+            let event_instance = self.events.read(_event_id);
+            let _organizer = event_instance.organizer;
+
+            assert(_event_id <= _event_count, token_bound::errors::Errors::NOT_CREATED);
+            assert(caller.is_non_zero(), token_bound::errors::Errors::ZERO_ADDRESS_CALLER);
+            assert(caller == _organizer, token_bound::errors::Errors::NOT_ORGANIZER);
+            assert(
+                event_instance.end_date > get_block_timestamp(),
+                token_bound::errors::Errors::EVENT_ENDED
+            );
+
+            self.events.write(
+                _event_id,
+                Events {
+                    id: event_instance.id,
+                    theme: _theme.into(),
+                    organizer: event_instance.organizer,
+                    event_type: _event_type,
+                    description: _description,
+                    location: _location,
+                    image: _image,
+                    category_tags: _category_tags,
+                    external_links: _external_links,
+                    total_tickets: _total_tickets,
+                    tickets_sold: event_instance.tickets_sold,
+                    ticket_price: _ticket_price,
+                    start_date: _start_date,
+                    end_date: _end_date,
+                    is_canceled: event_instance.is_canceled,
+                    event_ticket_addr: event_instance.event_ticket_addr
+                }
+            );
         }
 
         fn reschedule_event(
@@ -205,6 +291,11 @@ use core::{traits::{TryInto, Into}, num::traits::zero::Zero};
                         theme: event_instance.theme,
                         organizer: event_instance.organizer,
                         event_type: event_instance.event_type,
+                        description: event_instance.description,
+                        location: event_instance.location,
+                        image: event_instance.image,
+                        category_tags: event_instance.category_tags,
+                        external_links: event_instance.external_links,
                         total_tickets: event_instance.total_tickets,
                         tickets_sold: event_instance.tickets_sold,
                         ticket_price: event_instance.ticket_price,
@@ -251,6 +342,11 @@ use core::{traits::{TryInto, Into}, num::traits::zero::Zero};
                         theme: event_instance.theme,
                         organizer: event_instance.organizer,
                         event_type: event_instance.event_type,
+                        description: event_instance.description,
+                        location: event_instance.location,
+                        image: event_instance.image,
+                        category_tags: event_instance.category_tags,
+                        external_links: event_instance.external_links,
                         total_tickets: event_instance.total_tickets,
                         tickets_sold: event_instance.tickets_sold,
                         ticket_price: event_instance.ticket_price,
@@ -261,7 +357,7 @@ use core::{traits::{TryInto, Into}, num::traits::zero::Zero};
                     }
                 );
 
-            self.emit(EventCanceled { id: _event_id, is_canceled: event_instance.is_canceled })
+            self.emit(EventCanceled { id: _event_id, is_canceled: true })
         }
 
         fn purchase_ticket(ref self: ContractState, _event_id: u32) {
@@ -318,6 +414,11 @@ use core::{traits::{TryInto, Into}, num::traits::zero::Zero};
                         theme: event_instance.theme,
                         organizer: event_instance.organizer,
                         event_type: event_instance.event_type,
+                        description: event_instance.description,
+                        location: event_instance.location,
+                        image: event_instance.image,
+                        category_tags: event_instance.category_tags,
+                        external_links: event_instance.external_links,
                         total_tickets: event_instance.total_tickets,
                         tickets_sold: _tickets_sold,
                         ticket_price: event_instance.ticket_price,

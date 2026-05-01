@@ -1,19 +1,37 @@
 [workspace]
 resolver = "2"
 members = [
+  "contracts/nonce_manager",
   "contracts/upgradeable",
+  "contracts/access_control",
+  "contracts/collections",
+  "contracts/upgradeable_reference",
   "contracts/tba_account",
   "contracts/tba_registry",
+  "contracts/deployer_registry",
   "contracts/ticket_nft",
+  "contracts/poap_nft",
   "contracts/ticket_factory",
   "contracts/event_manager",
   "contracts/marketplace",
+  "contracts/vesting",
+  "contracts/fuzz_helpers",
+  "contracts/dao_governance",
+  "contracts/merkle_distributor",
+  "contracts/payment_splitter",
+  "contracts/escrow",
+  "contracts/reentrancy_guard",
+  "contracts/multi_admin",
+  "contracts/permit_wallet",
+  "contracts/erc721_traits",
+  "contracts/feature_flagging",
   "tests/integration",
 ]
 exclude = ["contracts/hello-world"]
 
 [workspace.dependencies]
-soroban-sdk = "22.0.0"
+soroban-sdk = "25.0.0"
+proptest = "1.5.0"
 
 [profile.release]
 opt-level = "z"

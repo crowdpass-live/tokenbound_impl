@@ -87,6 +87,8 @@ CrowdPass addresses these challenges through blockchain-native ticketing:
 
 CrowdPass utilizes Stellar's Soroban smart contracts to implement:
 
+**Event Standardization**: All contracts emit standardized events with PascalCase naming and structured payloads for optimal indexer compatibility. See [Event Schemas](soroban-contract/docs/event-schemas.md) for complete documentation.
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                   CrowdPass Platform                    │

@@ -38,7 +38,7 @@ function toSentenceCase(name: string) {
 
 export function decodeContractError(
   contract: ContractName,
-  input: string
+  input: string,
 ): DecodedContractError | null {
   const match = input.match(/Error\(Contract,\s*#(\d+)\)/);
   if (!match) {
@@ -62,10 +62,14 @@ export function decodeContractError(
 export function mapSdkError(
   contract: ContractName,
   error: unknown,
-  fallbackMessage: string
+  fallbackMessage: string,
 ): Error {
   const message =
-    error instanceof Error ? error.message : typeof error === "string" ? error : fallbackMessage;
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+        ? error
+        : fallbackMessage;
   const decoded = decodeContractError(contract, message);
   if (decoded) {
     return new SorobanContractError(decoded, error);

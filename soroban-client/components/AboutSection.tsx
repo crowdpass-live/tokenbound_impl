@@ -9,16 +9,36 @@ export default function AboutSection() {
       <div className="relative w-full max-w-[1300px] h-[800px] mx-6">
         <div className="absolute inset-0 w-full h-full rounded-[3rem] overflow-hidden grid grid-cols-2 grid-rows-2">
           <div className="relative w-full h-full">
-            <Image src="/about-team.png" alt="Team" fill className="object-cover" />
+            <Image
+              src="/about-team.png"
+              alt="Team"
+              fill
+              className="object-cover"
+            />
           </div>
           <div className="relative w-full h-full">
-            <Image src="/about-speaker.png" alt="Speaker" fill className="object-cover" />
+            <Image
+              src="/about-speaker.png"
+              alt="Speaker"
+              fill
+              className="object-cover"
+            />
           </div>
           <div className="relative w-full h-full">
-            <Image src="/about-concert.png" alt="Concert" fill className="object-cover" />
+            <Image
+              src="/about-concert.png"
+              alt="Concert"
+              fill
+              className="object-cover"
+            />
           </div>
           <div className="relative w-full h-full">
-            <Image src="/about-dinner.png" alt="Dinner" fill className="object-cover" />
+            <Image
+              src="/about-dinner.png"
+              alt="Dinner"
+              fill
+              className="object-cover"
+            />
           </div>
         </div>
 

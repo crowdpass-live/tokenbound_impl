@@ -4,7 +4,13 @@ use soroban_sdk::{
     IntoVal, Symbol, Val, Vec,
 };
 
+use nonce_manager::{get_nonce, increment_nonce};
 use upgradeable as upg;
+
+mod asset_transfer;
+
+#[cfg(test)]
+mod asset_transfer_test;
 
 // Error handling
 #[contracterror]
@@ -17,96 +23,60 @@ pub enum Error {
 #[contract]
 pub struct TbaAccount;
 
+// STORAGE: TBA token binding (token_contract / token_id / implementation_hash
+// / salt) is written exactly once in `initialize` and never mutates after.
+// Pack the four immutable fields into a single `Config` instance entry — this
+// drops `initialize` from 5 instance writes (TokenContract, TokenId,
+// ImplementationHash, Salt, Initialized) to 1, and the entry's existence
+// itself replaces the explicit `Initialized` flag (`is_initialized` becomes
+// `has(&Config)`).
+//
+// Nonce state is owned by the external `nonce_manager` crate and is therefore
+// not represented in this enum.
+#[contracttype]
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct TbaConfig {
+    pub token_contract: Address,
+    pub token_id: u128,
+    pub implementation_hash: BytesN<32>,
+    pub salt: BytesN<32>,
+}
+
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DataKey {
-    TokenContract,      // Address of the NFT contract
-    TokenId,            // Specific NFT token ID (u128)
-    ImplementationHash, // Hash used for deployment (u256)
-    Salt,               // Deployment salt (u256)
-    Initialized,        // Init flag
-    Nonce,              // Transaction nonce counter
+    /// Packed token binding (set once in `initialize`).
+    Config,
 }
 
 // Helper functions for storage
-fn get_token_contract(env: &Env) -> Result<Address, Error> {
+fn get_config(env: &Env) -> Result<TbaConfig, Error> {
     env.storage()
         .instance()
-        .get(&DataKey::TokenContract)
+        .get(&DataKey::Config)
         .ok_or(Error::NotInitialized)
 }
 
-fn set_token_contract(env: &Env, token_contract: &Address) {
-    env.storage()
-        .instance()
-        .set(&DataKey::TokenContract, token_contract);
+fn set_config(env: &Env, config: &TbaConfig) {
+    env.storage().instance().set(&DataKey::Config, config);
+}
+
+fn get_token_contract(env: &Env) -> Result<Address, Error> {
+    Ok(get_config(env)?.token_contract)
 }
 
 fn get_token_id(env: &Env) -> Result<u128, Error> {
-    env.storage()
-        .instance()
-        .get(&DataKey::TokenId)
-        .ok_or(Error::NotInitialized)
-}
-
-fn set_token_id(env: &Env, token_id: &u128) {
-    env.storage().instance().set(&DataKey::TokenId, token_id);
-}
-
-fn get_implementation_hash(env: &Env) -> Result<BytesN<32>, Error> {
-    env.storage()
-        .instance()
-        .get(&DataKey::ImplementationHash)
-        .ok_or(Error::NotInitialized)
-}
-
-fn set_implementation_hash(env: &Env, implementation_hash: &BytesN<32>) {
-    env.storage()
-        .instance()
-        .set(&DataKey::ImplementationHash, implementation_hash);
-}
-
-fn get_salt(env: &Env) -> Result<BytesN<32>, Error> {
-    env.storage()
-        .instance()
-        .get(&DataKey::Salt)
-        .ok_or(Error::NotInitialized)
-}
-
-fn set_salt(env: &Env, salt: &BytesN<32>) {
-    env.storage().instance().set(&DataKey::Salt, salt);
+    Ok(get_config(env)?.token_id)
 }
 
 fn is_initialized(env: &Env) -> bool {
-    env.storage()
-        .instance()
-        .get(&DataKey::Initialized)
-        .unwrap_or(false)
-}
-
-fn set_initialized(env: &Env, initialized: &bool) {
-    env.storage()
-        .instance()
-        .set(&DataKey::Initialized, initialized);
-}
-
-fn get_nonce(env: &Env) -> u64 {
-    env.storage()
-        .instance()
-        .get(&DataKey::Nonce)
-        .unwrap_or(0u64)
-}
-
-fn increment_nonce(env: &Env) -> u64 {
-    let current_nonce = get_nonce(env);
-    let new_nonce = current_nonce + 1;
-    env.storage().instance().set(&DataKey::Nonce, &new_nonce);
-    new_nonce
+    env.storage().instance().has(&DataKey::Config)
 }
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TransactionExecutedEvent {
+    pub contract_address: Address,
     pub to: Address,
     pub func: Symbol,
     pub nonce: u64,
@@ -134,17 +104,22 @@ impl TbaAccount {
         implementation_hash: BytesN<32>,
         salt: BytesN<32>,
     ) -> Result<(), Error> {
+        upg::require_not_paused(&env);
         // Prevent re-initialization
         if is_initialized(&env) {
             return Err(Error::AlreadyInitialized);
         }
 
-        // Store all parameters
-        set_token_contract(&env, &token_contract);
-        set_token_id(&env, &token_id);
-        set_implementation_hash(&env, &implementation_hash);
-        set_salt(&env, &salt);
-        set_initialized(&env, &true);
+        // STORAGE: pack the four immutable fields into a single instance
+        // entry. Replaces 5 separate writes (TokenContract, TokenId,
+        // ImplementationHash, Salt, Initialized) with 1.
+        let config = TbaConfig {
+            token_contract: token_contract.clone(),
+            token_id,
+            implementation_hash,
+            salt,
+        };
+        set_config(&env, &config);
 
         // The NFT owner at initialization time becomes the upgrade admin
         let owner = get_nft_owner(&env, &token_contract, token_id);
@@ -152,9 +127,7 @@ impl TbaAccount {
         upg::init_version(&env);
 
         // Extend instance TTL
-        env.storage()
-            .instance()
-            .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
+        upg::extend_instance_ttl(&env);
 
         Ok(())
     }
@@ -197,43 +170,103 @@ impl TbaAccount {
     /// Only the current NFT owner can execute transactions
     /// This function increments the nonce and emits an event
     pub fn execute(env: Env, to: Address, func: Symbol, args: Vec<Val>) -> Result<Vec<Val>, Error> {
-        // Verify contract is initialized
+        upg::require_not_paused(&env);
         if !is_initialized(&env) {
             return Err(Error::NotInitialized);
         }
 
-        // Get the NFT owner and verify authorization
         let token_contract = get_token_contract(&env)?;
         let token_id = get_token_id(&env)?;
         let owner = get_nft_owner(&env, &token_contract, token_id);
 
-        // Require authorization from the NFT owner
         owner.require_auth();
 
-        // Increment nonce
         let nonce = increment_nonce(&env);
 
-        // Extend instance TTL on activity
-        env.storage()
-            .instance()
-            .extend_ttl(30 * 24 * 60 * 60 / 5, 100 * 24 * 60 * 60 / 5);
+        upg::extend_instance_ttl(&env);
 
-        // Emit transaction executed event
         let event = TransactionExecutedEvent {
+            contract_address: env.current_contract_address(),
             to: to.clone(),
             func: func.clone(),
             nonce,
         };
         env.events().publish(
-            (
-                Symbol::new(&env, "executed"),
-                Symbol::new(&env, "TransactionExecuted"),
-            ),
+            (Symbol::new(&env, "TransactionExecuted"),),
             event,
         );
 
-        // Invoke the target contract
         Ok(env.invoke_contract::<Vec<Val>>(&to, &func, args))
+    }
+
+    pub fn transfer_token(
+        env: Env,
+        token_address: Address,
+        to: Address,
+        amount: i128,
+    ) -> Result<(), Error> {
+        upg::require_not_paused(&env);
+        if !is_initialized(&env) {
+            return Err(Error::NotInitialized);
+        }
+
+        let token_contract = get_token_contract(&env)?;
+        let token_id = get_token_id(&env)?;
+        let owner = get_nft_owner(&env, &token_contract, token_id);
+
+        owner.require_auth();
+
+        let from = env.current_contract_address();
+        asset_transfer::transfer_token(&env, &token_address, &from, &to, amount)
+            .map_err(|_| Error::NotInitialized)
+    }
+
+    pub fn transfer_nft(
+        env: Env,
+        nft_contract: Address,
+        to: Address,
+        nft_token_id: u128,
+    ) -> Result<(), Error> {
+        upg::require_not_paused(&env);
+        if !is_initialized(&env) {
+            return Err(Error::NotInitialized);
+        }
+
+        let token_contract = get_token_contract(&env)?;
+        let token_id = get_token_id(&env)?;
+        let owner = get_nft_owner(&env, &token_contract, token_id);
+
+        owner.require_auth();
+
+        let from = env.current_contract_address();
+        asset_transfer::transfer_nft(&env, &nft_contract, &from, &to, nft_token_id)
+            .map_err(|_| Error::NotInitialized)
+    }
+
+    pub fn batch_transfer(
+        env: Env,
+        token_address: Address,
+        recipients: Vec<(Address, i128)>,
+    ) -> Result<u32, Error> {
+        upg::require_not_paused(&env);
+        if !is_initialized(&env) {
+            return Err(Error::NotInitialized);
+        }
+
+        let token_contract = get_token_contract(&env)?;
+        let token_id = get_token_id(&env)?;
+        let owner = get_nft_owner(&env, &token_contract, token_id);
+
+        owner.require_auth();
+
+        let from = env.current_contract_address();
+        asset_transfer::batch_transfer_tokens(&env, &token_address, &from, recipients)
+            .map_err(|_| Error::NotInitialized)
+    }
+
+    pub fn get_balance(env: Env, token_address: Address) -> i128 {
+        let account = env.current_contract_address();
+        asset_transfer::get_token_balance(&env, &token_address, &account)
     }
 
     // ── Upgrade / admin ──────────────────────────────────────────────────────
@@ -248,6 +281,27 @@ impl TbaAccount {
 
     pub fn commit_upgrade(env: Env) {
         upg::commit_upgrade(&env);
+    }
+
+    /// Immediate (fast-path) upgrade. Admin-only, no timelock — see
+    /// `upgradeable::upgrade` for the full security note. Reserve for
+    /// emergencies; prefer `schedule_upgrade` + `commit_upgrade` for
+    /// routine upgrades.
+    pub fn upgrade(env: Env, new_wasm_hash: BytesN<32>) {
+        upg::upgrade(&env, new_wasm_hash);
+    }
+
+    /// Apply post-upgrade state-shape migrations and bump the version to
+    /// `target_version`. Admin-only; rejects downgrades.
+    pub fn migrate(env: Env, target_version: u32) {
+        upg::require_admin(&env);
+        upg::require_version_increase(&env, target_version);
+
+        match target_version {
+            _ => {}
+        }
+
+        upg::migration_completed(&env, target_version);
     }
 
     pub fn pause(env: Env) {

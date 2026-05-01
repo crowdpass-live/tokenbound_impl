@@ -1,2 +1,11 @@
 #!/usr/bin/env sh
-npm test
+set -e
+
+# Keep the pre-push hook developer-friendly on machines without Rust installed.
+npm run test --prefix soroban-client
+
+if command -v cargo >/dev/null 2>&1; then
+  cargo test --manifest-path soroban-contract/Cargo.toml --all-targets --all-features
+else
+  echo "[pre-push] cargo not found; skipping Rust tests"
+fi

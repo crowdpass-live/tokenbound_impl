@@ -9,6 +9,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 soroban-sdk = { workspace = true }
+nonce_manager = { path = "../nonce_manager" }
 upgradeable = { path = "../upgradeable" }
 
 [dev-dependencies]

@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const seller = searchParams.get("seller");
-    
+
     // TODO: Replace with actual contract calls
     const mockListings = [
       {
@@ -21,16 +21,16 @@ export async function GET(request: NextRequest) {
       },
       // Add more mock listings
     ];
-    
-    const filtered = seller 
-      ? mockListings.filter(l => l.seller === seller)
+
+    const filtered = seller
+      ? mockListings.filter((l) => l.seller === seller)
       : mockListings;
-    
+
     return NextResponse.json(filtered);
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch listings" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

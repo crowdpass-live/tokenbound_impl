@@ -10,6 +10,37 @@ NEXT_PUBLIC_NETWORK_PASSPHRASE="Test SDF Network ; September 2015"
 NEXT_PUBLIC_EVENT_MANAGER_CONTRACT=C...   # address of deployed EventManager contract
 ```
 
+## RPC Failover Configuration
+
+The application supports automatic RPC endpoint failover for high availability. You can configure multiple Horizon and Soroban RPC URLs to ensure the application continues working even if some endpoints become unavailable.
+
+### Environment Variables
+
+```env
+# Multiple Horizon URLs (comma-separated for failover)
+NEXT_PUBLIC_HORIZON_URL=https://horizon-testnet.stellar.org,https://horizon-testnet-2.stellar.org
+
+# Multiple Soroban RPC URLs (comma-separated for failover)
+NEXT_PUBLIC_SOROBAN_RPC_URL=https://soroban-testnet.stellar.org,https://soroban-testnet-2.stellar.org
+```
+
+### How It Works
+
+- The system automatically performs health checks on all configured endpoints
+- Failed endpoints are temporarily marked as unhealthy and avoided
+- Requests are automatically routed to the healthiest available endpoint
+- Endpoints recover automatically when they become healthy again
+- Priority-based selection ensures primary endpoints are preferred when available
+
+### Configuration Options
+
+The RPC failover manager can be customized by modifying the `DEFAULT_RPC_CONFIG` in `lib/rpc-failover.ts`:
+
+- `healthCheckInterval`: How often to check endpoint health (default: 30 seconds)
+- `maxConsecutiveFailures`: Number of failures before marking endpoint unhealthy (default: 3)
+- `healthCheckTimeout`: Timeout for individual health checks (default: 5 seconds)
+- `circuitBreakerThreshold`: Consecutive failures to trigger circuit breaker (default: 3)
+
 Once your env file is populated, start the development server:
 
 ```bash

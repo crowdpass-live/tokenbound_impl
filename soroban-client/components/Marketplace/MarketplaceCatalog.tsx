@@ -26,7 +26,7 @@ export default function MarketplaceCatalog() {
     setLoading(true);
     try {
       let data: Listing[];
-      
+
       switch (filter) {
         case "my-listings":
           if (!address) {
@@ -42,7 +42,7 @@ export default function MarketplaceCatalog() {
         default:
           data = await getActiveListings();
       }
-      
+
       setListings(data);
     } catch (error) {
       console.error("Failed to fetch listings:", error);
@@ -77,16 +77,23 @@ export default function MarketplaceCatalog() {
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
-        trackMarketplacePurchase(listing.ticketContract, listing.tokenId, listing.price);
-        setStatus(`Successfully purchased ticket #${listing.tokenId}! NFT has been transferred.`);
+        trackMarketplacePurchase(
+          listing.ticketContract,
+          listing.tokenId,
+          listing.price,
+        );
+        setStatus(
+          `Successfully purchased ticket #${listing.tokenId}! NFT has been transferred.`,
+        );
         fetchListings(); // Refresh listings
       } else {
         setStatus(result.error || "Purchase failed. Please try again.");
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Ticket purchase failed.";
+      const message =
+        error instanceof Error ? error.message : "Ticket purchase failed.";
       setStatus(message);
     } finally {
       setPendingListingId(null);
@@ -95,7 +102,7 @@ export default function MarketplaceCatalog() {
 
   const handleCancelListing = async (listing: Listing) => {
     if (!isConnected || listing.seller !== address) return;
-    
+
     try {
       const response = await fetch("/api/marketplace/cancel", {
         method: "POST",
@@ -105,7 +112,7 @@ export default function MarketplaceCatalog() {
           sellerAddress: address,
         }),
       });
-      
+
       const result = await response.json();
       if (result.success) {
         setStatus(`Listing #${listing.id} cancelled successfully.`);
@@ -193,8 +200,8 @@ export default function MarketplaceCatalog() {
             {filter === "my-listings"
               ? "You haven't listed any tickets yet."
               : filter === "purchased"
-              ? "You haven't purchased any tickets from the marketplace yet."
-              : "No tickets available for resale at the moment."}
+                ? "You haven't purchased any tickets from the marketplace yet."
+                : "No tickets available for resale at the moment."}
           </p>
           {filter === "all" && isConnected && (
             <button
@@ -231,7 +238,9 @@ export default function MarketplaceCatalog() {
 }
 
 // Helper function to get purchased listings
-async function getPurchasedListings(userAddress: string | null): Promise<Listing[]> {
+async function getPurchasedListings(
+  userAddress: string | null,
+): Promise<Listing[]> {
   if (!userAddress) return [];
   // In production, fetch from your contract
   return [];

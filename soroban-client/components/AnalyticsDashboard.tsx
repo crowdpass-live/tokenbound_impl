@@ -14,7 +14,7 @@ export default function AnalyticsDashboard() {
   const snapshot = getAnalyticsSnapshot();
   const totalPageViews = Object.values(snapshot.pageViews).reduce(
     (sum, views) => sum + views,
-    0
+    0,
   );
 
   const pageViewSeries =
@@ -45,7 +45,7 @@ export default function AnalyticsDashboard() {
   const maxEventSales = Math.max(...eventSeries.map((item) => item.sold), 1);
   const totalPlatformActions = platformBreakdown.reduce(
     (sum, item) => sum + item.value,
-    0
+    0,
   );
 
   return (
@@ -80,7 +80,9 @@ export default function AnalyticsDashboard() {
               <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">
                 Usage Trends
               </p>
-              <h2 className="text-2xl font-semibold text-white">Page traffic</h2>
+              <h2 className="text-2xl font-semibold text-white">
+                Page traffic
+              </h2>
             </div>
             <p className="text-sm text-zinc-400">Local analytics snapshot</p>
           </div>
@@ -111,7 +113,9 @@ export default function AnalyticsDashboard() {
             <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">
               Platform Mix
             </p>
-            <h2 className="text-2xl font-semibold text-white">What users do most</h2>
+            <h2 className="text-2xl font-semibold text-white">
+              What users do most
+            </h2>
           </div>
 
           <div className="space-y-4">
@@ -122,12 +126,18 @@ export default function AnalyticsDashboard() {
                   : (item.value / totalPlatformActions) * 100;
 
               return (
-                <div key={item.name} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                <div
+                  key={item.name}
+                  className="rounded-2xl border border-white/10 bg-black/20 p-4"
+                >
                   <div className="flex items-center justify-between text-sm text-zinc-300">
                     <span className="flex items-center gap-3">
                       <span
                         className="h-3 w-3 rounded-full"
-                        style={{ backgroundColor: BAR_COLORS[index % BAR_COLORS.length] }}
+                        style={{
+                          backgroundColor:
+                            BAR_COLORS[index % BAR_COLORS.length],
+                        }}
                       />
                       {item.name}
                     </span>
@@ -155,7 +165,9 @@ export default function AnalyticsDashboard() {
             <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">
               Organizer Dashboard
             </p>
-            <h2 className="text-2xl font-semibold text-white">Event performance</h2>
+            <h2 className="text-2xl font-semibold text-white">
+              Event performance
+            </h2>
           </div>
 
           <div className="space-y-4">
@@ -165,7 +177,9 @@ export default function AnalyticsDashboard() {
                 className="rounded-2xl border border-white/10 bg-black/20 p-4"
               >
                 <div className="mb-2 flex items-center justify-between">
-                  <h3 className="text-lg font-medium text-white">{event.name}</h3>
+                  <h3 className="text-lg font-medium text-white">
+                    {event.name}
+                  </h3>
                   <span className="rounded-full bg-orange-500/15 px-3 py-1 text-sm text-orange-200">
                     {event.conversion}% conversion
                   </span>
@@ -190,7 +204,9 @@ export default function AnalyticsDashboard() {
             <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">
               Tickets by Event
             </p>
-            <h2 className="text-2xl font-semibold text-white">Sales distribution</h2>
+            <h2 className="text-2xl font-semibold text-white">
+              Sales distribution
+            </h2>
           </div>
 
           <div className="space-y-4">
@@ -229,7 +245,9 @@ function MetricCard({
 }) {
   return (
     <article className="rounded-3xl border border-white/10 bg-white/5 p-5">
-      <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">{label}</p>
+      <p className="text-sm uppercase tracking-[0.3em] text-orange-200/70">
+        {label}
+      </p>
       <p className="mt-3 text-3xl font-semibold text-white">{value}</p>
       <p className="mt-2 text-sm leading-6 text-zinc-400">{detail}</p>
     </article>

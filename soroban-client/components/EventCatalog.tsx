@@ -81,7 +81,9 @@ export default function EventCatalog() {
       setEvents(list);
     } catch (e: unknown) {
       const msg =
-        e instanceof Error ? e.message : "Could not load events from the network.";
+        e instanceof Error
+          ? e.message
+          : "Could not load events from the network.";
       setLoadError(msg);
       setEvents([]);
     } finally {
@@ -146,7 +148,10 @@ export default function EventCatalog() {
 
     const buyer = address || localStorage.getItem("wallet_address");
     if (!buyer) {
-      setFeedback({ type: "error", message: "Connect your wallet to continue." });
+      setFeedback({
+        type: "error",
+        message: "Connect your wallet to continue.",
+      });
       return;
     }
 
@@ -175,7 +180,7 @@ export default function EventCatalog() {
       setPurchasePhase("confirming");
       const result = await purchaseTickets(
         { buyer, eventId: selected.id, quantity: qty },
-        signTransaction
+        signTransaction,
       );
 
       const unit = selected.ticket_price;
@@ -183,7 +188,7 @@ export default function EventCatalog() {
       trackTicketPurchase(
         selected.theme,
         quantity,
-        Number(revenueStroops) / STROOPS_PER_XLM
+        Number(revenueStroops) / STROOPS_PER_XLM,
       );
 
       setFeedback({
@@ -227,7 +232,10 @@ export default function EventCatalog() {
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="w-full max-w-md">
-          <label htmlFor="event-search" className="text-sm font-medium text-zinc-300">
+          <label
+            htmlFor="event-search"
+            className="text-sm font-medium text-zinc-300"
+          >
             Search
           </label>
           <input
@@ -327,7 +335,9 @@ export default function EventCatalog() {
                       <dt>Price</dt>
                       <dd>
                         {formatXlmFromStroops(event.ticket_price)}{" "}
-                        {isLikelyNativeAsset(event.payment_token) ? "XLM" : "units"}
+                        {isLikelyNativeAsset(event.payment_token)
+                          ? "XLM"
+                          : "units"}
                       </dd>
                     </div>
                   </dl>
@@ -418,7 +428,9 @@ export default function EventCatalog() {
                 <dt className="text-zinc-500">Ticket price</dt>
                 <dd>
                   {formatXlmFromStroops(selected.ticket_price)}{" "}
-                  {isLikelyNativeAsset(selected.payment_token) ? "XLM" : "token base units"}
+                  {isLikelyNativeAsset(selected.payment_token)
+                    ? "XLM"
+                    : "token base units"}
                 </dd>
               </div>
               <div className="flex justify-between gap-4">
@@ -471,9 +483,9 @@ export default function EventCatalog() {
                             1,
                             Math.min(
                               Number(remainingTickets(selected)),
-                              Number(ev.target.value) || 1
-                            )
-                          )
+                              Number(ev.target.value) || 1,
+                            ),
+                          ),
                         )
                       }
                       className="h-11 w-24 rounded-2xl border border-white/10 bg-zinc-950 text-center text-white"
@@ -483,10 +495,7 @@ export default function EventCatalog() {
                       className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-white/5 text-xl text-white hover:bg-white/10"
                       onClick={() =>
                         setQuantity((q) =>
-                          Math.min(
-                            Number(remainingTickets(selected)),
-                            q + 1
-                          )
+                          Math.min(Number(remainingTickets(selected)), q + 1),
                         )
                       }
                       aria-label="Increase quantity"

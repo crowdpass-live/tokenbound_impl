@@ -28,46 +28,54 @@ export const trackEvent = (eventName: string, params?: EventParams) => {
   if (typeof window !== "undefined" && (window as any).gtag) {
     (window as any).gtag("event", eventName, params);
   }
-  
+
   // Update local state for dashboard
   if (eventName === "page_view" && params?.page) {
     const page = params.page as string;
-    if (analyticsState.pageViews[page as keyof typeof analyticsState.pageViews] !== undefined) {
+    if (
+      analyticsState.pageViews[
+        page as keyof typeof analyticsState.pageViews
+      ] !== undefined
+    ) {
       analyticsState.pageViews[page as keyof typeof analyticsState.pageViews]++;
     }
-    
+
     // Update page view series
-    const existingPage = analyticsState.pageViewSeries.find(p => p.name === page);
+    const existingPage = analyticsState.pageViewSeries.find(
+      (p) => p.name === page,
+    );
     if (existingPage) {
       existingPage.views++;
     } else {
       analyticsState.pageViewSeries.push({ name: page, views: 1 });
     }
   }
-  
+
   if (eventName === "wallet_connected") {
     analyticsState.walletConnections++;
   }
-  
+
   if (eventName === "ticket_purchase" && params) {
     analyticsState.ticketsPurchased += (params.quantity as number) || 1;
     analyticsState.revenueXlm += (params.total_price as number) || 0;
-    
+
     // Update event series
     const eventTitle = params.event_title as string;
     if (eventTitle) {
-      const existingEvent = analyticsState.eventSeries.find(e => e.name === eventTitle);
+      const existingEvent = analyticsState.eventSeries.find(
+        (e) => e.name === eventTitle,
+      );
       if (existingEvent) {
         existingEvent.sold += (params.quantity as number) || 1;
       } else {
-        analyticsState.eventSeries.push({ 
-          name: eventTitle, 
-          sold: (params.quantity as number) || 1 
+        analyticsState.eventSeries.push({
+          name: eventTitle,
+          sold: (params.quantity as number) || 1,
         });
       }
     }
   }
-  
+
   if (eventName === "marketplace_purchase" && params) {
     analyticsState.ticketsPurchased++;
     analyticsState.revenueXlm += (params.price as number) || 0;
@@ -89,10 +97,11 @@ export const useTrackPageView = (page: string) => {
 // Get analytics snapshot for dashboard
 export const getAnalyticsSnapshot = () => {
   // Calculate organizer conversion rate (mock calculation)
-  const conversionRate = analyticsState.ticketsPurchased > 0 
-    ? (analyticsState.revenueXlm / analyticsState.ticketsPurchased / 10) * 100
-    : 0;
-  
+  const conversionRate =
+    analyticsState.ticketsPurchased > 0
+      ? (analyticsState.revenueXlm / analyticsState.ticketsPurchased / 10) * 100
+      : 0;
+
   return {
     pageViews: analyticsState.pageViews,
     pageViewSeries: analyticsState.pageViewSeries,
@@ -133,7 +142,7 @@ export const trackWalletConnection = () => {
 export const trackTicketPurchase = (
   eventTitle: string,
   quantity: number,
-  totalPrice: number
+  totalPrice: number,
 ) => {
   trackEvent("ticket_purchase", {
     event_title: eventTitle,
@@ -147,7 +156,7 @@ export const trackTicketPurchase = (
 export const trackMarketplacePurchase = (
   ticketContract: string,
   tokenId: number,
-  price: number
+  price: number,
 ) => {
   trackEvent("marketplace_purchase", {
     ticket_contract: ticketContract,
@@ -161,7 +170,7 @@ export const trackMarketplacePurchase = (
 export const trackMarketplaceListing = (
   ticketContract: string,
   tokenId: number,
-  price: number
+  price: number,
 ) => {
   trackEvent("marketplace_listing", {
     ticket_contract: ticketContract,

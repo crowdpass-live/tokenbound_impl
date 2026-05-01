@@ -1,0 +1,15 @@
+[package]
+name = "escrow"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+soroban-sdk = { workspace = true }
+upgradeable = { path = "../upgradeable" }
+
+[dev-dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }

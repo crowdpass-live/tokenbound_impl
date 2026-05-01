@@ -121,6 +121,24 @@ This is a complete, production-ready TBA implementation consisting of:
 - Tracks all deployed accounts
 - **Status**: 🚧 In Development (Issue #3)
 
+**3. Reentrancy Guard Helper** (`contracts/reentrancy_guard/`)
+- Reusable lock pattern for cross-contract flows
+- Blocks recursive execution during sensitive operations
+- Used by `payment_splitter` and available to all new contracts
+- **Status**: ✅ Implemented
+
+**4. Multi-Admin Role Manager** (`contracts/multi_admin/`)
+- Grant and revoke admin privileges
+- Protects least-privilege defaults
+- Prevents removal of the final admin
+- **Status**: ✅ Implemented
+
+**5. Permit Wallet Contract** (`contracts/permit_wallet/`)
+- Off-chain signed permit approvals for token transfers
+- Reduces direct approval transaction overhead
+- Uses stored owner public keys and nonces for replay protection
+- **Status**: ✅ Implemented
+
 ### Reference Application: Event Ticketing
 
 **3. Ticket NFT Contract** (`contracts/ticket_nft/`)

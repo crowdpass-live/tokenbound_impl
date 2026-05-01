@@ -7,7 +7,9 @@ interface CreateListingFormProps {
   onSuccess: () => void;
 }
 
-export default function CreateListingForm({ onSuccess }: CreateListingFormProps) {
+export default function CreateListingForm({
+  onSuccess,
+}: CreateListingFormProps) {
   const { address } = useWallet();
   const [ticketContract, setTicketContract] = useState("");
   const [tokenId, setTokenId] = useState("");
@@ -17,7 +19,7 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!address) {
       setError("Please connect your wallet first");
       return;
@@ -44,7 +46,7 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         onSuccess();
         setTicketContract("");
@@ -63,13 +65,19 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <h3 className="text-xl font-semibold text-white">List a Ticket for Resale</h3>
+      <h3 className="text-xl font-semibold text-white">
+        List a Ticket for Resale
+      </h3>
       <p className="text-sm text-zinc-400">
-        List your ticket on the marketplace. All listings are subject to price caps to prevent scalping.
+        List your ticket on the marketplace. All listings are subject to price
+        caps to prevent scalping.
       </p>
 
       <div>
-        <label htmlFor="ticketContract" className="block text-sm font-medium text-zinc-300 mb-2">
+        <label
+          htmlFor="ticketContract"
+          className="block text-sm font-medium text-zinc-300 mb-2"
+        >
           Ticket Contract Address
         </label>
         <input
@@ -84,7 +92,10 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
       </div>
 
       <div>
-        <label htmlFor="tokenId" className="block text-sm font-medium text-zinc-300 mb-2">
+        <label
+          htmlFor="tokenId"
+          className="block text-sm font-medium text-zinc-300 mb-2"
+        >
           Token ID
         </label>
         <input
@@ -99,7 +110,10 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
       </div>
 
       <div>
-        <label htmlFor="price" className="block text-sm font-medium text-zinc-300 mb-2">
+        <label
+          htmlFor="price"
+          className="block text-sm font-medium text-zinc-300 mb-2"
+        >
           Asking Price (XLM)
         </label>
         <input
@@ -113,7 +127,8 @@ export default function CreateListingForm({ onSuccess }: CreateListingFormProps)
           required
         />
         <p className="mt-2 text-xs text-zinc-500">
-          Price will be validated against market caps to prevent excessive pricing.
+          Price will be validated against market caps to prevent excessive
+          pricing.
         </p>
       </div>
 

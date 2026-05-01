@@ -85,7 +85,9 @@ export default function ListingCard({
       <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
         <div className="flex items-center justify-between text-sm">
           <span className="text-zinc-300">Price</span>
-          <span className="text-xl font-bold text-white">{listing.price} XLM</span>
+          <span className="text-xl font-bold text-white">
+            {listing.price} XLM
+          </span>
         </div>
         {listing.price > 0 && (
           <p className="mt-2 text-xs uppercase tracking-[0.24em] text-orange-200/80">
